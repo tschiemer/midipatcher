@@ -5,6 +5,7 @@
 
 namespace MidiPatcher {
   class AbstractOutputPort : public virtual AbstractPort {
+
     public:
       AbstractOutputPort(){};
       virtual void send(std::vector<unsigned char> *message){};

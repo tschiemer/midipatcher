@@ -74,13 +74,19 @@ namespace MidiPatcher {
     }
 
 
-    void PortRegistry::connectPorts(AbstractPort * input, AbstractPort * output){
+    void PortRegistry::connectPorts(AbstractInputPort * input, AbstractOutputPort * output){
       assert( input != NULL );
-      assert( input->Type == AbstractPort::TypeInput );
       assert( output != NULL );
-      assert( output->Type == AbstractPort::TypeOutput );
 
       input->addConnection(output);
       output->addConnection(input);
+    }
+
+    void PortRegistry::connectPortsById(unsigned int inputId, unsigned int outputId){
+      connectPorts( dynamic_cast<AbstractInputPort*>(getPortById(inputId)), dynamic_cast<AbstractOutputPort*>(getPortById(outputId)) );
+    }
+
+    void PortRegistry::connectPortsByName(std::string inputName, std::string outputName){
+      connectPorts( dynamic_cast<AbstractInputPort*>(findPortByName(inputName, AbstractPort::TypeInput)), dynamic_cast<AbstractOutputPort*>(findPortByName(outputName, AbstractPort::TypeOutput)) );
     }
 }

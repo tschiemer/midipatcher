@@ -50,22 +50,18 @@ namespace MidiPatcher {
       // std::vector<AbstractPort*> * findPortsByKey( std::string key );
 
       void registerPort(AbstractPort * port){
-        // std::cout << "register " << port << std::endl;
+        // std::cout << "register " << portf << std::endl;
         port->Id = ++EntryIncrement;
         Ports.push_back(port);
       }
 
       void rescan();
 
-      void connectPorts(AbstractPort * input, AbstractPort * output);
+      void connectPorts(AbstractInputPort * input, AbstractOutputPort * output);
 
-      inline void connectPortsById(unsigned int inputId, unsigned int outputId){
-        connectPorts( getPortById(inputId), getPortById(outputId) );
-      }
+      void connectPortsById(unsigned int inputId, unsigned int outputId);
 
-      inline void connectPortsByName(std::string inputName, std::string outputName){
-        connectPorts( findPortByName(inputName, AbstractPort::TypeInput), findPortByName(outputName, AbstractPort::TypeOutput) );
-      }
+      void connectPortsByName(std::string inputName, std::string outputName);
   };
 
 }

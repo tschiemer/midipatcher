@@ -12,42 +12,32 @@ namespace MidiPatcher {
 
   // Forward declarations
   class AbstractPort;
+  class AbstractInputPort;
+  class AbstractOutputPort;
   class PortRegistry;
 
   typedef std::vector<AbstractPort*>  * (*PortScanner)(PortRegistry * portRegistry);
 
   class AbstractPort {
 
+    friend class PortRegistry;
+
     public:
 
       typedef enum {
         TypeInput        = 1,
         TypeOutput       = 2,
-        // TypePassthrough  = 3,
       } Type_t;
-
-      // typedef enum {
-      //   ClassMidi        = 0x10,
-      //   ClassVirtualMidi = 0x30,
-      //   ClassStream      = 0x40,
-      // } Family_t;
 
       unsigned int Id;
 
       Type_t Type;
-      // Class_t Class;
 
       std::string Name;
 
     protected:
 
       std::vector<AbstractPort *> Connections;
-
-    // Port(PortType_t portType, unsigned int rtMidiId, std::string name ){
-    //   PortType = portType;
-    //   RtMidiId = rtMidiId;
-    //   Name = name;
-    // }
 
       AbstractPort(){}
 
@@ -69,7 +59,7 @@ namespace MidiPatcher {
         return &Connections;
       }
 
-      virtual void foo(AbstractPort*p){};
+    protected:
 
       void addConnection(AbstractPort * port){
         addConnectionImpl(port);

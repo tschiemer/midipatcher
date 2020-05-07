@@ -1,6 +1,7 @@
 #include <Port/MidiIn.hpp>
 
 #include <PortRegistry.hpp>
+#include <AbstractOutputPort.hpp>
 
 #include <iostream>
 
@@ -48,9 +49,9 @@ namespace MidiPatcher {
 
       MidiIn * midiIn = (MidiIn*)midiInRef;
 
-      // std::for_each(midiIn->Connections.begin(), midiIn->Connections.end(), [](AbstractPort* port){
-      //   // port->send(message);
-      // });
+      std::for_each(midiIn->Connections.begin(), midiIn->Connections.end(), [message](AbstractPort* port){
+        dynamic_cast<AbstractOutputPort*>(port)->send(message);
+      });
     }
   }
 
