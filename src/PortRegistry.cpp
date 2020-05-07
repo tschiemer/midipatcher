@@ -5,14 +5,26 @@
 #include <Port/MidiOut.hpp>
 
 #include <cassert>
+#include <utility>
 
 
 namespace MidiPatcher {
 
+  std::map<std::string, PortScanner> * PortRegistry::PortScanners = NULL;
+
+  void PortRegistry::init(){
+    PortScanners = new std::map<std::string, PortScanner>();
+
+    PortScanners->at(Port::MidiIn::Key) = Port::MidiIn::scan;
+    PortScanners->at(Port::MidiOut::Key) = Port::MidiOut::scan;
+  }
+
+  void PortRegistry::deinit(){
+    delete PortScanners;
+  }
+
   PortRegistry::PortRegistry(){
-    Port::MidiIn::Scanner(this);
-    // PortScanners[Port::MidiIn::Key] = Port::MidiIn::Scanner;
-    // PortScanners[Port::MidiOut::Key] = Port::MidiOut::Scanner;
+    // do nothing
   }
 
   PortRegistry::~PortRegistry(){
@@ -43,51 +55,12 @@ namespace MidiPatcher {
     return result;
   }
 
-    void PortRegistry::refresh(){
-      //
-      // std::vector<std::pair<unsigned int, std::string>> * ports;
-      //
-      // ports = scanPorts(TypeInput);
-      //
-      // for(int i = 0; i < ports->size(); i++){
-      //   std::pair<unsigned int, std::string> p = ports->at(i);
-      //
-      //   Entry * entry = findEntryByName(p.second, TypeInput);
-      //
-      //   // if found, update RtMidi port number
-      //   if (entry != NULL){
-      //     entry->RtMidiId = p.first;
-      //     //TODO add last seen timestamp
-      //   }
-      //   // if not found/registered, just register it
-      //   else {
-      //     registerEntry(new Entry(TypeInput, p.first, p.second));
-      //   }
-      // }
-      //
-      // delete ports;
-      //
-      //
-      // ports = scanPorts(TypeOutput);
-      //
-      // for(int i = 0; i < ports->size(); i++){
-      //   std::pair<unsigned int, std::string> p = ports->at(i);
-      //
-      //   Entry * entry = findEntryByName(p.second, TypeOutput);
-      //
-      //   // if found, update RtMidi port number
-      //   if (entry != NULL){
-      //     entry->RtMidiId = p.first;
-      //     //TODO add last seen timestamp
-      //   }
-      //   // if not found/registered, just register it
-      //   else {
-      //     registerEntry(new Entry(TypeOutput, p.first, p.second));
-      //
-      //   }
-      // }
-      //
-      // delete ports;
+    void PortRegistry::rescan(){
+
+      for (std::map<std::string, PortScanner>::iterator it = PortScanners->begin(); it != PortScanners->end(); ++it)
+      {
+        it->second(this);
+      }
 
     }
 

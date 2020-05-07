@@ -34,7 +34,7 @@ namespace MidiPatcher {
 
         static const constexpr char * Key = "MidiOut";
 
-        static std::vector<AbstractPort*>  * Scanner(PortRegistry * portRegistry);
+        static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
 
         std::string getKey(){
           return Key;

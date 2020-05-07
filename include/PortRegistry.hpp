@@ -19,7 +19,7 @@ namespace MidiPatcher {
 
     protected:
 
-      std::map<std::string, PortScanner> PortScanners;
+      static std::map<std::string, PortScanner> * PortScanners;
 
       std::vector<AbstractPort*> Ports;
 
@@ -27,14 +27,13 @@ namespace MidiPatcher {
 
     public:
 
+      static void init();
+
+      static void deinit();
+
       PortRegistry();
 
       ~PortRegistry();
-
-      void registerPort(AbstractPort * port){
-        port->Id = ++EntryIncrement;
-        Ports.push_back(port);
-      }
 
       std::vector<AbstractPort*> * getAllPorts(){
         return &Ports;
@@ -44,7 +43,12 @@ namespace MidiPatcher {
 
       AbstractPort * findPortByName( std::string needle, AbstractPort::Type_t portType );
 
-      void refresh();
+      void registerPort(AbstractPort * port){
+        port->Id = ++EntryIncrement;
+        Ports.push_back(port);
+      }
+
+      void rescan();
 
       void connectPorts(AbstractPort * input, AbstractPort * output);
 

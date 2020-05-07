@@ -6,7 +6,7 @@ namespace MidiPatcher {
 
     std::map<std::string, MidiOut*> * MidiOut::KnownPorts = new std::map<std::string, MidiOut*>();
 
-    std::vector<AbstractPort*>  * MidiOut::Scanner(PortRegistry * portRegistry){
+    std::vector<AbstractPort*>  * MidiOut::scan(PortRegistry * portRegistry){
       RtMidiOut *midiout = 0;
 
       std::vector< AbstractPort * > * result = new std::vector< AbstractPort* >();
