@@ -7,6 +7,8 @@
 #include <cassert>
 #include <utility>
 
+#include <iostream>
+
 
 namespace MidiPatcher {
 
@@ -15,11 +17,17 @@ namespace MidiPatcher {
   void PortRegistry::init(){
     PortScanners = new std::map<std::string, PortScanner>();
 
-    PortScanners->at(Port::MidiIn::Key) = Port::MidiIn::scan;
-    PortScanners->at(Port::MidiOut::Key) = Port::MidiOut::scan;
+    (*PortScanners)[Port::MidiIn::Key] = Port::MidiIn::scan;
+    (*PortScanners)[Port::MidiOut::Key] = Port::MidiOut::scan;
+
+    Port::MidiIn::init();
+    Port::MidiOut::init();
   }
 
   void PortRegistry::deinit(){
+    Port::MidiIn::deinit();
+    Port::MidiOut::deinit();
+
     delete PortScanners;
   }
 
@@ -59,6 +67,7 @@ namespace MidiPatcher {
 
       for (std::map<std::string, PortScanner>::iterator it = PortScanners->begin(); it != PortScanners->end(); ++it)
       {
+        // std::cout << "Scanning " << it->first << std::endl;
         it->second(this);
       }
 

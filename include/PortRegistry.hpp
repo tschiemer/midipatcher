@@ -43,6 +43,10 @@ namespace MidiPatcher {
 
       AbstractPort * findPortByName( std::string needle, AbstractPort::Type_t portType );
 
+      // std::vector<AbstractPort*> * findPortsByType( AbstractPort::Type_t portType );
+      //
+      // std::vector<AbstractPort*> * findPortsByKey( std::string key );
+
       void registerPort(AbstractPort * port){
         port->Id = ++EntryIncrement;
         Ports.push_back(port);

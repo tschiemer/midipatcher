@@ -51,7 +51,7 @@ namespace MidiPatcher {
           PortNumber = portNumber;
           Name = portName;
 
-          KnownPorts->at(portName) = this;
+          (*KnownPorts)[portName] = this;
         }
 
       protected:

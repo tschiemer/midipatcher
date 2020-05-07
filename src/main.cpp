@@ -2,10 +2,15 @@
 #include <iostream>
 #include <getopt.h>
 #include <csignal>
+#include <cstdlib>
 
 #include <map>
 
 #include <RtMidi.h>
+
+#include <PortRegistry.hpp>
+
+MidiPatcher::PortRegistry * portRegistry = NULL;
 
 int sigintTicks = 0;
 volatile bool Running = false;
@@ -43,98 +48,41 @@ void setupSignalHandler(){
   std::signal(SIGINT, SignalHandler);
 }
 
-std::vector< std::string * > * getInputPorts(){
 
-    std::vector< std::string *> * result = new std::vector< std::string* >();
+void listInterfaces(){
 
-    RtMidiIn *midiin = 0;
+  portRegistry->rescan();
 
-    try {
+  std::vector<MidiPatcher::AbstractPort*> * ports = portRegistry->getAllPorts();
 
-      midiin = new RtMidiIn();
+  std::for_each(ports->begin(), ports->end(), [](MidiPatcher::AbstractPort* port){
+    std::cout << "(" << port->getKey() << ") " << port->Name << std::endl;
+  });
 
-      // Check inputs.
-      unsigned int nPorts = midiin->getPortCount();
-
-      for ( unsigned i=0; i<nPorts; i++ ) {
-        result->push_back( new std::string(midiin->getPortName(i)) ) ;
-      }
-
-    } catch ( RtMidiError &error ) {
-      error.printMessage();
-    }
-
-    delete midiin;
-
-    return result;
 }
 
+void deinit();
 
-std::vector< std::string * > * getOutputPorts(){
+void init(){
 
-    std::vector< std::string *> * result = new std::vector< std::string* >();
+    MidiPatcher::PortRegistry::init();
 
-    RtMidiOut *midiout = 0;
+    portRegistry = new MidiPatcher::PortRegistry();
 
-    try {
-
-      midiout = new RtMidiOut();
-
-      // Check inputs.
-      unsigned int nPorts = midiout->getPortCount();
-
-      for ( unsigned i=0; i<nPorts; i++ ) {
-        result->push_back( new std::string(midiout->getPortName(i)) ) ;
-      }
-
-    } catch ( RtMidiError &error ) {
-      error.printMessage();
-    }
-
-    delete midiout;
-
-    return result;
+    std::atexit(deinit);
 }
 
-void listInterfaces(bool listInputPorts = true, bool listOutputPorts = true){
+void deinit(){
 
-  RtMidiIn  *midiin = 0;
-  RtMidiOut *midiout = 0;
+  delete portRegistry;
 
-  try {
+  MidiPatcher::PortRegistry::deinit();
 
-    if (listInputPorts){
-
-      std::vector< std::string * > *list = getInputPorts();
-
-      std::cout << list->size() << std::endl;
-
-      for(int i = 0; i < list->size(); i++){
-        std::cout << i << " " << *list->at(i) << std::endl;
-      }
-
-      delete list;
-    }
-
-    if (listOutputPorts){
-        std::vector< std::string * > *list = getOutputPorts();
-
-        std::cout << list->size() << std::endl;
-
-        for(int i = 0; i < list->size(); i++){
-          std::cout << i << " " << *list->at(i) << std::endl;
-        }
-
-        delete list;
-    }
-
-  } catch ( RtMidiError &error ) {
-    error.printMessage();
-  }
 }
 
 int main(int argc, char * argv[], char * env[]){
 
+  init();
 
   int c;
   int digit_optind = 0;
@@ -151,7 +99,7 @@ int main(int argc, char * argv[], char * env[]){
         static struct option long_options[] = {
           // {"control-surface", required_argument, 0, 'c'},
           // {"session-name", optional_argument, 0, 's'},
-          {"list-interfaces", optional_argument, 0, 'l'},
+          {"list-interfaces", no_argument, 0, 'l'},
                 // {"parse",    no_argument,    0,  'p' },
                 // {"generate",   no_argument,    0,  'g' },
                 // {"timed", optional_argument,  0, 't'},
@@ -181,17 +129,17 @@ int main(int argc, char * argv[], char * env[]){
                 return EXIT_SUCCESS;
 
             case 'l':
-              if (optarg != NULL && strlen(optarg) > 0){
-                if (strlen(optarg) == 1 && optarg[0] == 'i'){
-                  listInterfaces(true,false);
-                } else if (strlen(optarg) == 1 && optarg[0] == 'o'){
-                  listInterfaces(false,true);
-                } else {
-                  std::cerr << "ERROR invalid option for --list-interfaces" << std::endl;
-                }
-              } else {
-                listInterfaces(true, true);
-              }
+              // if (optarg != NULL && strlen(optarg) > 0){
+              //   if (strlen(optarg) == 1 && optarg[0] == 'i'){
+              //     listInterfaces(true,false);
+              //   } else if (strlen(optarg) == 1 && optarg[0] == 'o'){
+              //     listInterfaces(false,true);
+              //   } else {
+              //     std::cerr << "ERROR invalid option for --list-interfaces" << std::endl;
+              //   }
+              // } else {
+                listInterfaces();
+              // }
               return EXIT_SUCCESS;
 
             case 'i':

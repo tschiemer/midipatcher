@@ -1,12 +1,16 @@
 #include <Port/MidiIn.hpp>
 
+#include <PortRegistry.hpp>
+
+#include <iostream>
+
 namespace MidiPatcher {
 
   namespace Port {
 
     std::map<std::string, MidiIn*> * MidiIn::KnownPorts = NULL;
 
-    std::vector<AbstractPort*>  * MidiIn::scan(PortRegistry * portRegistry){
+    std::vector<AbstractPort*> * MidiIn::scan(PortRegistry * portRegistry){
       RtMidiIn *midiin = 0;
 
       std::vector< AbstractPort * > * result = new std::vector< AbstractPort* >();
