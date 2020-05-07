@@ -177,25 +177,5 @@ int main(int argc, char * argv[], char * env[]){
     }
 
 
-            RtMidiOut * midiout;
-
-            try {
-              midiout = new RtMidiOut;
-
-              midiout->openPort(0, "To Max 2");
-
-              // if (midiout->isPortOpen()){
-                std::cout << "is open? " << (midiout->isPortOpen() ? "yes" : "no") << std::endl;
-                std::cout << midiout->getPortName() << std::endl;
-              // }
-
-              midiout->closePort();
-            } catch(RtMidiError &error ) {
-              error.printMessage();
-            }
-
-            delete midiout;
-
-
     return EXIT_SUCCESS;
 }

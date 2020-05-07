@@ -1,7 +1,7 @@
 #ifndef PORT_MIDI_IN_H
 #define PORT_MIDI_IN_H
 
-#include <AbstractPort.hpp>
+#include <AbstractInputPort.hpp>
 
 #include <RtMidi.h>
 
@@ -10,7 +10,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-    class MidiIn : AbstractPort {
+    class MidiIn : AbstractInputPort {
 
       protected:
 
@@ -40,8 +40,10 @@ namespace MidiPatcher {
 
       protected:
 
-        unsigned int PortNumber;
-        RtMidiIn * MidiPort;
+        unsigned int PortNumber = 0;
+        RtMidiIn * MidiPort = NULL;
+
+
 
       public:
 
@@ -52,18 +54,20 @@ namespace MidiPatcher {
           (*KnownPorts)[portName] = this;
         }
 
-      protected:
-
-        void destructorImpl() {
+        ~MidiIn(){
           if (MidiPort != NULL){
             MidiPort->closePort();
             delete MidiPort;
           }
         }
 
+      protected:
+
         // ~MidiIn(){
         //   destructorImpl();
         // }
+
+        static void rtMidiCallback( double timeStamp, std::vector<unsigned char> *message, void *midiInRef );
     };
 
   }

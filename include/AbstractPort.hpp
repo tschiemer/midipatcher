@@ -6,6 +6,8 @@
 #include <vector>
 #include <cassert>
 
+#include <iostream>
+
 namespace MidiPatcher {
 
   // Forward declarations
@@ -47,19 +49,17 @@ namespace MidiPatcher {
     //   Name = name;
     // }
 
+      AbstractPort(){}
+
     public:
 
       AbstractPort(PortRegistry * portRegistry);
 
-      ~AbstractPort();
-
-    protected:
-
-      virtual void destructorImpl(){};
+      virtual ~AbstractPort();
 
     public:
 
-      virtual std::string getKey(){ return "AbstractPort"; };
+      virtual std::string getKey() = 0;
 
       virtual bool operator==(const AbstractPort& rhs){
         return Id == rhs.Id;
@@ -68,6 +68,8 @@ namespace MidiPatcher {
       std::vector<AbstractPort *> * getConnections(){
         return &Connections;
       }
+
+      virtual void foo(AbstractPort*p){};
 
       void addConnection(AbstractPort * port){
         addConnectionImpl(port);

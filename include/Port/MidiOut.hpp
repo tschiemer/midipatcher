@@ -1,7 +1,7 @@
 #ifndef PORT_MIDI_OUT_H
 #define PORT_MIDI_OUT_H
 
-#include <AbstractPort.hpp>
+#include <AbstractOutputPort.hpp>
 
 #include <RtMidi.h>
 
@@ -11,7 +11,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-    class MidiOut : AbstractPort {
+    class MidiOut : AbstractOutputPort {
 
       protected:
 
@@ -42,26 +42,24 @@ namespace MidiPatcher {
 
       protected:
 
-        unsigned int PortNumber;
-        RtMidiOut * MidiPort;
+        unsigned int PortNumber = 0;
+        RtMidiOut * MidiPort = NULL;
 
       public:
 
-        MidiOut(PortRegistry * portRegistry, unsigned int portNumber, std::string portName) : AbstractPort(portRegistry) {
+        MidiOut(PortRegistry * portRegistry, unsigned int portNumber, std::string portName) : AbstractPort(portRegistry), AbstractOutputPort() {
           PortNumber = portNumber;
           Name = portName;
 
           (*KnownPorts)[portName] = this;
         }
 
-      protected:
-
-        void destructorImpl() {
+        ~MidiOut() {
           if (MidiPort != NULL){
             MidiPort->closePort();
             delete MidiPort;
           }
-        }
+      }
     };
 
   }

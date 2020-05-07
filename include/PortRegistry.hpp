@@ -6,6 +6,8 @@
 #include <map>
 #include <utility>
 
+#include <iostream>
+
 #include <RtMidi.h>
 
 #include "AbstractPort.hpp"
@@ -48,6 +50,7 @@ namespace MidiPatcher {
       // std::vector<AbstractPort*> * findPortsByKey( std::string key );
 
       void registerPort(AbstractPort * port){
+        // std::cout << "register " << port << std::endl;
         port->Id = ++EntryIncrement;
         Ports.push_back(port);
       }

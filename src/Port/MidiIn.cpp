@@ -43,6 +43,15 @@ namespace MidiPatcher {
       return result;
     }
 
+    void MidiIn::rtMidiCallback( double timeStamp, std::vector<unsigned char> *message, void * midiInRef ){
+      assert(midiInRef != NULL);
+
+      MidiIn * midiIn = (MidiIn*)midiInRef;
+
+      // std::for_each(midiIn->Connections.begin(), midiIn->Connections.end(), [](AbstractPort* port){
+      //   // port->send(message);
+      // });
+    }
   }
 
 }

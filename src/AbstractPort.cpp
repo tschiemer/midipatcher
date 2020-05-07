@@ -14,8 +14,6 @@ namespace MidiPatcher {
     // but this assertion will fail either way if destruction was handled wrong (assuming
     // no other error related to this occurring first....)
     assert( Connections.size() == 0);
-
-    destructorImpl();
   };
 
 }
