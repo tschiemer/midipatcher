@@ -43,6 +43,8 @@ namespace MidiPatcher {
   }
 
   PortRegistry::~PortRegistry(){
+    // disableAutoscan();
+
     // properly delete all ports
     for_each(Ports.begin(), Ports.end(), [](AbstractPort * port){
       //
@@ -55,6 +57,7 @@ namespace MidiPatcher {
 
       delete port;
     });
+
   }
 
   AbstractPort * PortRegistry::getPortById( unsigned int id ){
@@ -77,6 +80,32 @@ namespace MidiPatcher {
     }
 
     return result;
+  }
+
+
+  void PortRegistry::enableAutoscan(){
+    if (AutoscanEnabled == true){
+      return;
+    }
+
+    AutoscanEnabled = true;
+
+    static const constexpr unsigned int interval = 1000;
+
+    AutoscanThread = std::thread([this]() {
+      while (AutoscanEnabled)
+      {
+        // std::cout << "rescan" << std::endl;
+        this->rescan();
+        std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+      }
+    });
+    AutoscanThread.detach();
+  }
+
+  void PortRegistry::disableAutoscan(){
+    AutoscanEnabled = false;
+    AutoscanThread.join();
   }
 
     void PortRegistry::rescan(){

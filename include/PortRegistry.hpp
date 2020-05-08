@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <thread>
 
 #include <iostream>
 
@@ -55,9 +56,18 @@ namespace MidiPatcher {
         Ports.push_back(port);
       }
 
+    protected:
+
+      volatile bool AutoscanEnabled = false;
+      std::thread AutoscanThread;
+
+    public:
+
+      void enableAutoscan();
+      void disableAutoscan();
+
       void rescan();
 
-    // protected:
 
       void connectPorts(AbstractPort *input, AbstractPort *output);
 
