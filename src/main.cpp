@@ -180,25 +180,61 @@ int main(int argc, char * argv[], char * env[]){
 
     }
 
-    setupSignalHandler();
+    int arg = argc - optind;
 
+    if (arg <= 0){
+      std::cerr << "ERROR Missing ports to connect!" << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (arg % 2 == 1){
+      std::cerr << "ERROR port list must always be duplets of input-port and output-port" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    char ** args = &argv[optind];
+
+
+    std::vector<MidiPatcher::AbstractPort*> * inports = new std::vector<MidiPatcher::AbstractPort*>();
+    std::vector<MidiPatcher::AbstractPort*> * outports = new std::vector<MidiPatcher::AbstractPort*>();
+
+    // important..
     portRegistry->rescan();
 
-    MidiPatcher::AbstractPort * inPort = portRegistry->findPortByName("from Max 1", MidiPatcher::AbstractPort::TypeInput);
-    MidiPatcher::AbstractPort * inPort2 = portRegistry->findPortByName("from Max 2", MidiPatcher::AbstractPort::TypeInput);
-    MidiPatcher::AbstractPort * outPort = portRegistry->findPortByName("to Max 1", MidiPatcher::AbstractPort::TypeOutput);
-    MidiPatcher::AbstractPort * outPort2 = portRegistry->findPortByName("to Max 2", MidiPatcher::AbstractPort::TypeOutput);
+    for (int i = 0, j = 1; i < arg; i += 2, j += 2){
+      MidiPatcher::AbstractPort * port;
 
-    portRegistry->connectPorts(inPort, outPort);
-    portRegistry->connectPorts(inPort2, outPort2);
-    portRegistry->connectPorts(inPort, outPort2);
+      port = portRegistry->findPortByName(args[i], MidiPatcher::AbstractPort::TypeInput);
+      if (port == NULL){
+        std::cerr << "ERROR input port '" << args[i] << "' not found." << std::endl;
+        return EXIT_FAILURE;
+      }
+      inports->push_back(port);
 
+      port = portRegistry->findPortByName(args[j], MidiPatcher::AbstractPort::TypeOutput);
+      if (port == NULL){
+        std::cerr << "ERROR output port '" << args[j] << "' not found." << std::endl;
+        return EXIT_FAILURE;
+      }
+      outports->push_back(port);
+
+    }
+
+    assert( inports->size() == outports->size() );
+
+    setupSignalHandler();
+
+    for( int i = 0; i < inports->size(); i++){
+      portRegistry->connectPorts( inports->at(i), outports->at(i) );
+    }
+
+    delete inports;
+    delete outports;
+
+    std::cout << "Processing... quit by pressing CTRL-C twice." << std::endl;
     Running = true;
     while(Running){
       // wait...
     }
-
-    // portRegistry->disconnectPorts(inPort, outPort);
 
     return EXIT_SUCCESS;
 }
