@@ -11,6 +11,10 @@ namespace MidiPatcher {
 
     std::map<std::string, MidiIn*> * MidiIn::KnownPorts = NULL;
 
+    AbstractPort* MidiIn::factory(PortRegistry * portRegistry, int argc, char * argv[]){
+      return NULL;
+    }
+
     std::vector<AbstractPort*> * MidiIn::scan(PortRegistry * portRegistry){
       RtMidiIn *midiin = 0;
 
@@ -43,6 +47,7 @@ namespace MidiPatcher {
 
       return result;
     }
+
 
     void MidiIn::rtMidiCallback( double timeStamp, std::vector<unsigned char> *message, void * midiInRef ){
       assert(midiInRef != NULL);

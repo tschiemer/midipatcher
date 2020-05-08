@@ -12,10 +12,10 @@
 
 namespace MidiPatcher {
 
-  std::map<std::string, PortScanner> * PortRegistry::PortScanners = NULL;
+  std::map<std::string, AbstractPort::PortScanner> * PortRegistry::PortScanners = NULL;
 
   void PortRegistry::init(){
-    PortScanners = new std::map<std::string, PortScanner>();
+    PortScanners = new std::map<std::string, AbstractPort::PortScanner>();
 
     (*PortScanners)[Port::MidiIn::Key] = Port::MidiIn::scan;
     (*PortScanners)[Port::MidiOut::Key] = Port::MidiOut::scan;
@@ -65,7 +65,7 @@ namespace MidiPatcher {
 
     void PortRegistry::rescan(){
 
-      for (std::map<std::string, PortScanner>::iterator it = PortScanners->begin(); it != PortScanners->end(); ++it)
+      for (std::map<std::string, AbstractPort::PortScanner>::iterator it = PortScanners->begin(); it != PortScanners->end(); ++it)
       {
         // std::cout << "Scanning " << it->first << std::endl;
         it->second(this);

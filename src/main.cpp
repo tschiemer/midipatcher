@@ -56,7 +56,7 @@ void listInterfaces(){
   std::vector<MidiPatcher::AbstractPort*> * ports = portRegistry->getAllPorts();
 
   std::for_each(ports->begin(), ports->end(), [](MidiPatcher::AbstractPort* port){
-    std::cout << "(" << port->getKey() << ") " << port->Name << std::endl;
+    std::cout << "[" << port->getKey() << "] " << port->Name << std::endl;
   });
 
 }
@@ -143,11 +143,15 @@ int main(int argc, char * argv[], char * env[]){
               return EXIT_SUCCESS;
 
             case 'i':
-              std::cout << "opt-i" <<std::endl;
+              assert( optarg != NULL && strlen(optarg) > 0 );
+
+              std::cout << "opt-i " << optarg << std::endl;
               break;
 
             case 'o':
-              std::cout << "opt-o" << std::endl;
+              assert( optarg != NULL && strlen(optarg) > 0 );
+
+              std::cout << "opt-o " << optarg << std::endl;
               break;
 
             // case 'c':

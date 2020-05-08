@@ -32,10 +32,15 @@ namespace MidiPatcher {
 
         static const constexpr char * Key = "MidiIn";
 
-        static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
-
         std::string getKey(){
           return Key;
+        }
+
+        static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
+        static AbstractPort* factory(PortRegistry * portRegistry, int argc, char * argv[]);
+
+        PortDeclaration * getDeclaration(){
+          return new PortDeclaration(Key, scan, factory);
         }
 
       protected:

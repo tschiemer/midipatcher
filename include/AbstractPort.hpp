@@ -16,13 +16,32 @@ namespace MidiPatcher {
   class AbstractOutputPort;
   class PortRegistry;
 
-  typedef std::vector<AbstractPort*>  * (*PortScanner)(PortRegistry * portRegistry);
 
   class AbstractPort {
 
     friend class PortRegistry;
 
     public:
+
+      typedef std::vector<AbstractPort*>  * (*PortScanner)(PortRegistry * portRegistry);
+      typedef AbstractPort * (*PortFactory)(PortRegistry * portRegistry, int argc, char * argv[]);
+
+      struct PortDeclaration {
+        std::string Key;
+        PortScanner Scanner;
+        PortFactory Factory;
+        PortDeclaration(std::string key, PortScanner scanner, PortFactory factory){
+          assert( key.size() > 0 );
+          assert( factory != NULL );
+
+          Key = key;
+          Scanner = scanner;
+          Factory = factory;
+        }
+        bool operator==(const PortDeclaration& rhs){
+          return Key == rhs.Key;
+        }
+      } ;
 
       typedef enum {
         TypeInput        = 1,
@@ -50,6 +69,8 @@ namespace MidiPatcher {
     public:
 
       virtual std::string getKey() = 0;
+
+      virtual PortDeclaration * getDeclaration() = 0;
 
       virtual bool operator==(const AbstractPort& rhs){
         return Id == rhs.Id;
