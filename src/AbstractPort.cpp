@@ -4,8 +4,14 @@
 
 namespace MidiPatcher {
 
-  AbstractPort::AbstractPort(PortRegistry * portRegistry){
+  AbstractPort::AbstractPort(PortRegistry * portRegistry, Type_t type, std::string name){
+    // Connections = new std::vector<AbstractPort *>();
+// std::cout << "mingle" << std::endl;
+    Type = type;
+    Name = name;
+
     portRegistry->registerPort( this );
+
   };
 
   AbstractPort::~AbstractPort(){

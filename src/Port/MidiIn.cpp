@@ -54,9 +54,46 @@ namespace MidiPatcher {
 
       MidiIn * midiIn = (MidiIn*)midiInRef;
 
+      std::cout << "received (" << midiIn->Name << ") ";
+      std::for_each(message->begin(), message->end(), [](unsigned char c){
+        std::cout << std::hex << (int)c << " ";
+      });
+      std::cout << std::endl;
+
       std::for_each(midiIn->Connections.begin(), midiIn->Connections.end(), [message](AbstractPort* port){
         dynamic_cast<AbstractOutputPort*>(port)->send(message);
       });
+    }
+
+    void MidiIn::addConnectionImpl(AbstractPort * port){
+      
+      if (MidiPort != NULL){
+        return;
+      }
+
+      MidiPort = new RtMidiIn();
+
+      MidiPort->setCallback( rtMidiCallback, this );
+      // Don't ignore sysex, timing, or active sensing messages.
+      MidiPort->ignoreTypes( false, false, false );
+
+      MidiPort->openPort(PortNumber);
+    }
+
+    void MidiIn::removeConnectionImpl(AbstractPort * port){
+
+      if (MidiPort == NULL){
+        return;
+      }
+
+      // if there will not be any connections after this, just close and deallocate the port
+      if (Connections.size() <= 1){
+        MidiPort->closePort();
+
+        delete MidiPort;
+
+        MidiPort = NULL;
+      }
     }
   }
 

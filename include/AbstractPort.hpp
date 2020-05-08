@@ -64,11 +64,13 @@ namespace MidiPatcher {
 
       std::vector<AbstractPort *> Connections;
 
-      AbstractPort(){}
+      // AbstractPort(){
+      //   std::cout << "abstract!" << std::endl;
+      // }
+
+      AbstractPort(PortRegistry * portRegistry, Type_t type, std::string name);
 
     public:
-
-      AbstractPort(PortRegistry * portRegistry);
 
       virtual ~AbstractPort();
 
@@ -79,6 +81,7 @@ namespace MidiPatcher {
       // virtual PortDeclaration * getDeclaration() = 0;
 
       virtual bool operator==(const AbstractPort& rhs){
+        std::cout << "cmp " << Id << " ?== " << rhs.Id << std::endl;
         return Id == rhs.Id;
       }
 
@@ -95,14 +98,14 @@ namespace MidiPatcher {
 
       void removeConnection(AbstractPort * port){
         removeConnectionImpl(port);
-        std::remove(Connections.begin(), Connections.end(), port);
+        Connections.erase(std::remove(Connections.begin(), Connections.end(), port));
       }
 
     protected:
 
-      virtual void addConnectionImpl(AbstractPort * port){};
+      virtual void addConnectionImpl(AbstractPort * port) {};
 
-      virtual void removeConnectionImpl(AbstractPort * port){};
+      virtual void removeConnectionImpl(AbstractPort * port) {};
   };
 
 }

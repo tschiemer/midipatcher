@@ -180,6 +180,25 @@ int main(int argc, char * argv[], char * env[]){
 
     }
 
+    setupSignalHandler();
+
+    portRegistry->rescan();
+
+    MidiPatcher::AbstractPort * inPort = portRegistry->findPortByName("from Max 1", MidiPatcher::AbstractPort::TypeInput);
+    MidiPatcher::AbstractPort * inPort2 = portRegistry->findPortByName("from Max 2", MidiPatcher::AbstractPort::TypeInput);
+    MidiPatcher::AbstractPort * outPort = portRegistry->findPortByName("to Max 1", MidiPatcher::AbstractPort::TypeOutput);
+    MidiPatcher::AbstractPort * outPort2 = portRegistry->findPortByName("to Max 2", MidiPatcher::AbstractPort::TypeOutput);
+
+    portRegistry->connectPorts(inPort, outPort);
+    portRegistry->connectPorts(inPort2, outPort2);
+    portRegistry->connectPorts(inPort, outPort2);
+
+    Running = true;
+    while(Running){
+      // wait...
+    }
+
+    // portRegistry->disconnectPorts(inPort, outPort);
 
     return EXIT_SUCCESS;
 }

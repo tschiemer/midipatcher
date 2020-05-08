@@ -9,11 +9,15 @@ namespace MidiPatcher {
    class AbstractInputPort : public virtual AbstractPort {
 
     public:
-      AbstractInputPort(){}
-      // AbstractInputPort(PortRegistry * portRegistry) : AbstractPort(portRegistry){};
+      AbstractInputPort(){
+        // Type = TypeInput;
+      }
+      // AbstractInputPort(PortRegistry * portRegistry, std::string name) : AbstractPort(portRegistry, TypeInput, name) {
+      //   std::cout << "muuu" << std::endl;
+      // };
 
 
-            virtual void foo(AbstractInputPort*p){};
+      // virtual void foo(AbstractInputPort*p){};
   };
 }
 

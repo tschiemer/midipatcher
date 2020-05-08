@@ -43,8 +43,17 @@ namespace MidiPatcher {
   }
 
   PortRegistry::~PortRegistry(){
-    for_each(Ports.begin(), Ports.end(), [](AbstractPort * e){
-      delete e;
+    // properly delete all ports
+    for_each(Ports.begin(), Ports.end(), [](AbstractPort * port){
+      //
+      std::vector<AbstractPort *> * connections = port->getConnections();
+
+      std::for_each(connections->begin(), connections->end(), [port](AbstractPort*other){
+        port->removeConnection(other);
+        other->removeConnection(port);
+      });
+
+      delete port;
     });
   }
 
@@ -82,20 +91,38 @@ namespace MidiPatcher {
 
     }
 
-
-    void PortRegistry::connectPorts(AbstractInputPort * input, AbstractOutputPort * output){
-      assert( input != NULL );
-      assert( output != NULL );
+    void PortRegistry::connectPorts(AbstractPort *input, AbstractPort *output){
+      assert(input != NULL);
+      assert(output != NULL);
 
       input->addConnection(output);
       output->addConnection(input);
     }
 
-    void PortRegistry::connectPortsById(unsigned int inputId, unsigned int outputId){
-      connectPorts( dynamic_cast<AbstractInputPort*>(getPortById(inputId)), dynamic_cast<AbstractOutputPort*>(getPortById(outputId)) );
+
+    void PortRegistry::disconnectPorts(AbstractPort *input, AbstractPort *output){
+      assert(input != NULL);
+      assert(output != NULL);
+
+
+      input->removeConnection(output);
+      output->removeConnection(input);
     }
 
-    void PortRegistry::connectPortsByName(std::string inputName, std::string outputName){
-      connectPorts( dynamic_cast<AbstractInputPort*>(findPortByName(inputName, AbstractPort::TypeInput)), dynamic_cast<AbstractOutputPort*>(findPortByName(outputName, AbstractPort::TypeOutput)) );
-    }
+
+    // void PortRegistry::connectPorts(AbstractInputPort * input, AbstractOutputPort * output){
+    //   assert( input != NULL );
+    //   assert( output != NULL );
+    //
+    //   input->addConnection(output);
+    //   output->addConnection(input);
+    // }
+
+    // void PortRegistry::connectPortsById(unsigned int inputId, unsigned int outputId){
+    //   connectPorts( dynamic_cast<AbstractInputPort*>(getPortById(inputId)), dynamic_cast<AbstractOutputPort*>(getPortById(outputId)) );
+    // }
+    //
+    // void PortRegistry::connectPortsByName(std::string inputName, std::string outputName){
+    //   connectPorts( dynamic_cast<AbstractInputPort*>(findPortByName(inputName, AbstractPort::TypeInput)), dynamic_cast<AbstractOutputPort*>(findPortByName(outputName, AbstractPort::TypeOutput)) );
+    // }
 }

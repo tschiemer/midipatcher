@@ -44,6 +44,50 @@ namespace MidiPatcher {
 
     }
 
+
+    void MidiOut::addConnectionImpl(AbstractPort * port){
+      //
+      if (MidiPort != NULL){
+        return;
+      }
+
+      MidiPort = new RtMidiOut();
+
+      MidiPort->openPort(PortNumber);
+    }
+
+    void MidiOut::removeConnectionImpl(AbstractPort * port){
+
+      if (MidiPort == NULL){
+        return;
+      }
+
+      // if there will not be any connections after this, just close and deallocate the port
+      if (Connections.size() <= 1){
+        MidiPort->closePort();
+
+        delete MidiPort;
+
+        MidiPort = NULL;
+      }
+    }
+
+    void MidiOut::send(unsigned char *message, size_t len){
+      if (MidiPort == NULL){
+        return;
+      }
+      if (MidiPort->isPortOpen() == false){
+        return;
+      }
+
+      std::cout << "sending (" << Name << ") ";
+      for(int i = 0; i < len; i++){
+        std::cout << std::hex << (int)message[i] << " ";
+      };
+      std::cout << std::endl;
+
+      MidiPort->sendMessage(message, len);
+    }
   }
 
 }

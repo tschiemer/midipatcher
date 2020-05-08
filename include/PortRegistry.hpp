@@ -57,11 +57,19 @@ namespace MidiPatcher {
 
       void rescan();
 
-      void connectPorts(AbstractInputPort * input, AbstractOutputPort * output);
+    // protected:
 
-      void connectPortsById(unsigned int inputId, unsigned int outputId);
+      void connectPorts(AbstractPort *input, AbstractPort *output);
 
-      void connectPortsByName(std::string inputName, std::string outputName);
+      void disconnectPorts(AbstractPort *input, AbstractPort *output);
+
+    // public:
+    //
+    //   void connectPorts(AbstractInputPort * input, AbstractOutputPort * output);
+
+      // void connectPortsById(unsigned int inputId, unsigned int outputId);
+      //
+      // void connectPortsByName(std::string inputName, std::string outputName);
   };
 
 }

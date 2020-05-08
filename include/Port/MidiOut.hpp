@@ -53,9 +53,8 @@ namespace MidiPatcher {
 
       public:
 
-        MidiOut(PortRegistry * portRegistry, unsigned int portNumber, std::string portName) : AbstractPort(portRegistry), AbstractOutputPort() {
+        MidiOut(PortRegistry * portRegistry, unsigned int portNumber, std::string portName) : AbstractPort(portRegistry, TypeOutput, portName) {
           PortNumber = portNumber;
-          Name = portName;
 
           (*KnownPorts)[portName] = this;
         }
@@ -65,7 +64,15 @@ namespace MidiPatcher {
             MidiPort->closePort();
             delete MidiPort;
           }
-      }
+        }
+
+      protected:
+        void addConnectionImpl(AbstractPort * port);
+        void removeConnectionImpl(AbstractPort * port);
+
+      public:
+        void send(unsigned char *message, size_t len);
+
     };
 
   }

@@ -52,9 +52,8 @@ namespace MidiPatcher {
 
       public:
 
-        MidiIn(PortRegistry * portRegistry, unsigned int portNumber, std::string portName) : AbstractPort(portRegistry) {
+        MidiIn(PortRegistry * portRegistry, unsigned int portNumber, std::string portName) : AbstractPort(portRegistry, TypeInput, portName) {
           PortNumber = portNumber;
-          Name = portName;
 
           (*KnownPorts)[portName] = this;
         }
@@ -73,6 +72,10 @@ namespace MidiPatcher {
         // }
 
         static void rtMidiCallback( double timeStamp, std::vector<unsigned char> *message, void *midiInRef );
+
+      // protected:
+        void addConnectionImpl(AbstractPort * port);
+        void removeConnectionImpl(AbstractPort * port);
     };
 
   }
