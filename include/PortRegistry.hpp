@@ -34,6 +34,10 @@ namespace MidiPatcher {
 
       static void deinit();
 
+      static std::map<std::string, AbstractPort::PortDeclaration*> * getPortDeclarations(){
+        return PortDeclarations;
+      }
+
       PortRegistry();
 
       ~PortRegistry();
@@ -55,6 +59,8 @@ namespace MidiPatcher {
         port->Id = ++EntryIncrement;
         Ports.push_back(port);
       }
+
+      AbstractPort * registerPortFromDescriptor(PortDescriptor * portDescriptor);
 
     protected:
 

@@ -4,9 +4,13 @@
 // #include <utility>
 #include <string>
 #include <vector>
+#include <map>
 #include <cassert>
 
 #include <iostream>
+
+#include <PortDescriptor.hpp>
+// #include <PortDeclaration.hpp>
 
 namespace MidiPatcher {
 
@@ -24,7 +28,7 @@ namespace MidiPatcher {
     public:
 
       typedef std::vector<AbstractPort*>  * (*PortScanner)(PortRegistry * portRegistry);
-      typedef AbstractPort * (*PortFactory)(PortRegistry * portRegistry, int argc, char * argv[]);
+      typedef AbstractPort * (*PortFactory)(PortRegistry * portRegistry, PortDescriptor * portDescriptor);
 
       struct PortDeclaration {
         std::string Key;
@@ -32,10 +36,8 @@ namespace MidiPatcher {
         void (*Deinit)(void);
         PortScanner Scanner;
         PortFactory Factory;
-        PortDeclaration(std::string key, void (*init)(void), void (*deinit)(void), PortScanner scanner, PortFactory factory){
+        PortDeclaration(std::string key, PortFactory factory, void (*init)(void) = NULL, void (*deinit)(void) = NULL, PortScanner scanner = NULL){
           assert( key.size() > 0 );
-          assert( init != NULL );
-          assert( deinit != NULL );
           assert( factory != NULL );
 
           Key = key;
@@ -49,18 +51,30 @@ namespace MidiPatcher {
         }
       } ;
 
+
       typedef enum {
         TypeInput        = 1,
         TypeOutput       = 2,
       } Type_t;
 
+
+      typedef enum {
+        DeviceStateNotConnected = 0,
+        DeviceStateConnected    = 1
+      } DeviceState_t;
+
+
       unsigned int Id;
 
       Type_t Type;
 
+      DeviceState_t DeviceState = DeviceStateNotConnected;
+
       std::string Name;
 
     protected:
+
+      PortRegistry * PortRegistryRef;
 
       std::vector<AbstractPort *> Connections;
 
@@ -74,9 +88,19 @@ namespace MidiPatcher {
 
       virtual ~AbstractPort();
 
+
+
+      PortRegistry * getPortRegistry(){
+        return PortRegistryRef;
+      }
+
     public:
 
       virtual std::string getKey() = 0;
+
+      virtual PortDescriptor * getPortDescriptor() {
+          return new PortDescriptor(getKey(), Name);
+      };
 
       // virtual PortDeclaration * getDeclaration() = 0;
 

@@ -24,7 +24,9 @@ namespace MidiPatcher {
 
     for (std::map<std::string, AbstractPort::PortDeclaration*>::iterator it = PortDeclarations->begin(); it != PortDeclarations->end(); ++it)
     {
-      it->second->Init();
+      if (it->second->Init != NULL){
+        it->second->Init();
+      }
     }
   }
 
@@ -32,7 +34,9 @@ namespace MidiPatcher {
 
     for (std::map<std::string, AbstractPort::PortDeclaration*>::iterator it = PortDeclarations->begin(); it != PortDeclarations->end(); ++it)
     {
-      it->second->Deinit();
+      if (it->second->Deinit != NULL){
+        it->second->Deinit();
+      }
     }
 
     delete PortDeclarations;
@@ -82,6 +86,12 @@ namespace MidiPatcher {
     return result;
   }
 
+  AbstractPort* PortRegistry::registerPortFromDescriptor(PortDescriptor * portDescriptor){
+    assert( portDescriptor != NULL );
+    assert( PortDeclarations->count(portDescriptor->Key) > 0 );
+
+    return (*PortDeclarations)[portDescriptor->Key]->Factory(this, portDescriptor);
+  }
 
   void PortRegistry::enableAutoscan(){
     if (AutoscanEnabled == true){

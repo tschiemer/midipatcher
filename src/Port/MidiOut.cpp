@@ -6,10 +6,6 @@ namespace MidiPatcher {
 
     std::map<std::string, MidiOut*> * MidiOut::KnownPorts = new std::map<std::string, MidiOut*>();
 
-        AbstractPort* MidiOut::factory(PortRegistry * portRegistry, int argc, char * argv[]){
-          return NULL;
-        }
-
     std::vector<AbstractPort*>  * MidiOut::scan(PortRegistry * portRegistry){
       RtMidiOut *midiout = 0;
 
@@ -28,7 +24,7 @@ namespace MidiPatcher {
           if (KnownPorts->count(name)){
             KnownPorts->at(name)->PortNumber = i;
           } else {
-            new MidiOut(portRegistry, i, name);
+            new MidiOut(portRegistry, name, i);
           }
           result->push_back(KnownPorts->at(name));
 

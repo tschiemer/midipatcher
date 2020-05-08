@@ -198,26 +198,43 @@ int main(int argc, char * argv[], char * env[]){
     std::vector<MidiPatcher::AbstractPort*> * outports = new std::vector<MidiPatcher::AbstractPort*>();
 
     // important..
-    portRegistry->rescan();
+    //
+    // portRegistry->rescan();
+    //
+    // for (int i = 0, j = 1; i < arg; i += 2, j += 2){
+    //   MidiPatcher::AbstractPort * port;
+    //
+    //   port = portRegistry->findPortByName(args[i], MidiPatcher::AbstractPort::TypeInput);
+    //   if (port == NULL){
+    //     std::cerr << "ERROR input port '" << args[i] << "' not found." << std::endl;
+    //     return EXIT_FAILURE;
+    //   }
+    //   inports->push_back(port);
+    //
+    //   port = portRegistry->findPortByName(args[j], MidiPatcher::AbstractPort::TypeOutput);
+    //   if (port == NULL){
+    //     std::cerr << "ERROR output port '" << args[j] << "' not found." << std::endl;
+    //     return EXIT_FAILURE;
+    //   }
+    //   outports->push_back(port);
+    //
+    // }
 
     for (int i = 0, j = 1; i < arg; i += 2, j += 2){
+
+      MidiPatcher::PortDescriptor * desc;
       MidiPatcher::AbstractPort * port;
 
-      port = portRegistry->findPortByName(args[i], MidiPatcher::AbstractPort::TypeInput);
-      if (port == NULL){
-        std::cerr << "ERROR input port '" << args[i] << "' not found." << std::endl;
-        return EXIT_FAILURE;
-      }
+      desc = MidiPatcher::PortDescriptor::fromString(args[i]);
+      port = portRegistry->registerPortFromDescriptor(desc);
       inports->push_back(port);
 
-      port = portRegistry->findPortByName(args[j], MidiPatcher::AbstractPort::TypeOutput);
-      if (port == NULL){
-        std::cerr << "ERROR output port '" << args[j] << "' not found." << std::endl;
-        return EXIT_FAILURE;
-      }
+      desc = MidiPatcher::PortDescriptor::fromString(args[j]);
+      port = portRegistry->registerPortFromDescriptor(desc);
       outports->push_back(port);
-
     }
+
+    portRegistry->rescan();
 
     assert( inports->size() == outports->size() );
 
@@ -229,6 +246,8 @@ int main(int argc, char * argv[], char * env[]){
 
     delete inports;
     delete outports;
+
+// portRegistry->enableAutoscan();
 
     std::cout << "Processing... quit by pressing CTRL-C twice." << std::endl;
     Running = true;
