@@ -39,8 +39,8 @@ namespace MidiPatcher {
         static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
         static AbstractPort* factory(PortRegistry * portRegistry, int argc, char * argv[]);
 
-        PortDeclaration * getDeclaration(){
-          return new PortDeclaration(Key, scan, factory);
+        static PortDeclaration * getDeclaration(){
+          return new PortDeclaration(Key, init, deinit, scan, factory);
         }
 
       protected:

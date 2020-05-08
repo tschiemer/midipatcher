@@ -12,23 +12,30 @@
 
 namespace MidiPatcher {
 
-  std::map<std::string, AbstractPort::PortScanner> * PortRegistry::PortScanners = NULL;
+  std::map<std::string, AbstractPort::PortDeclaration*> * PortRegistry::PortDeclarations = NULL;
 
   void PortRegistry::init(){
-    PortScanners = new std::map<std::string, AbstractPort::PortScanner>();
+    PortDeclarations = new std::map<std::string, AbstractPort::PortDeclaration*>();
 
-    (*PortScanners)[Port::MidiIn::Key] = Port::MidiIn::scan;
-    (*PortScanners)[Port::MidiOut::Key] = Port::MidiOut::scan;
+    /** ADD NEW PORT DECLARATIONS HERE **/
+    (*PortDeclarations)[Port::MidiIn::Key] = Port::MidiIn::getDeclaration();
+    (*PortDeclarations)[Port::MidiOut::Key] = Port::MidiOut::getDeclaration();
+    /** ADD NEW PORT DECLARATIONS HERE **/
 
-    Port::MidiIn::init();
-    Port::MidiOut::init();
+    for (std::map<std::string, AbstractPort::PortDeclaration*>::iterator it = PortDeclarations->begin(); it != PortDeclarations->end(); ++it)
+    {
+      it->second->Init();
+    }
   }
 
   void PortRegistry::deinit(){
-    Port::MidiIn::deinit();
-    Port::MidiOut::deinit();
 
-    delete PortScanners;
+    for (std::map<std::string, AbstractPort::PortDeclaration*>::iterator it = PortDeclarations->begin(); it != PortDeclarations->end(); ++it)
+    {
+      it->second->Deinit();
+    }
+
+    delete PortDeclarations;
   }
 
   PortRegistry::PortRegistry(){
@@ -65,10 +72,12 @@ namespace MidiPatcher {
 
     void PortRegistry::rescan(){
 
-      for (std::map<std::string, AbstractPort::PortScanner>::iterator it = PortScanners->begin(); it != PortScanners->end(); ++it)
+      for (std::map<std::string, AbstractPort::PortDeclaration*>::iterator it = PortDeclarations->begin(); it != PortDeclarations->end(); ++it)
       {
         // std::cout << "Scanning " << it->first << std::endl;
-        it->second(this);
+        if (it->second->Scanner != NULL){
+          it->second->Scanner(this);
+        }
       }
 
     }

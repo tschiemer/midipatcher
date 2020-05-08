@@ -28,13 +28,19 @@ namespace MidiPatcher {
 
       struct PortDeclaration {
         std::string Key;
+        void (*Init)(void);
+        void (*Deinit)(void);
         PortScanner Scanner;
         PortFactory Factory;
-        PortDeclaration(std::string key, PortScanner scanner, PortFactory factory){
+        PortDeclaration(std::string key, void (*init)(void), void (*deinit)(void), PortScanner scanner, PortFactory factory){
           assert( key.size() > 0 );
+          assert( init != NULL );
+          assert( deinit != NULL );
           assert( factory != NULL );
 
           Key = key;
+          Init = init;
+          Deinit = deinit;
           Scanner = scanner;
           Factory = factory;
         }
@@ -70,7 +76,7 @@ namespace MidiPatcher {
 
       virtual std::string getKey() = 0;
 
-      virtual PortDeclaration * getDeclaration() = 0;
+      // virtual PortDeclaration * getDeclaration() = 0;
 
       virtual bool operator==(const AbstractPort& rhs){
         return Id == rhs.Id;

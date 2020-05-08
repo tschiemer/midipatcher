@@ -21,7 +21,7 @@ namespace MidiPatcher {
 
     protected:
 
-      static std::map<std::string, AbstractPort::PortScanner> * PortScanners;
+      static std::map<std::string, AbstractPort::PortDeclaration*> * PortDeclarations;
 
       std::vector<AbstractPort*> Ports;
 
