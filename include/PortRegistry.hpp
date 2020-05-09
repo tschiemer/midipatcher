@@ -22,25 +22,29 @@ namespace MidiPatcher {
 
     protected:
 
-      static std::map<std::string, AbstractPort::PortDeclaration*> * PortDeclarations;
+      std::map<std::string, AbstractPort::PortClassRegistryInfo*> PortClassRegistryInfoMap;
+
+
+    public:
+
+      PortRegistry(std::vector<AbstractPort::PortClassRegistryInfo *> &pcriList);
+
+      ~PortRegistry();
+
+      void init();
+      void deinit();
+
+      std::map<std::string, AbstractPort::PortClassRegistryInfo*> * getPortClassRegistryInfoMap(){
+        return &PortClassRegistryInfoMap;
+      }
+
+    protected:
 
       std::vector<AbstractPort*> Ports;
 
       unsigned int EntryIncrement = 0;
 
     public:
-
-      static void init();
-
-      static void deinit();
-
-      static std::map<std::string, AbstractPort::PortDeclaration*> * getPortDeclarations(){
-        return PortDeclarations;
-      }
-
-      PortRegistry();
-
-      ~PortRegistry();
 
       std::vector<AbstractPort*> * getAllPorts(){
         return &Ports;
@@ -62,6 +66,12 @@ namespace MidiPatcher {
 
       AbstractPort * registerPortFromDescriptor(PortDescriptor * portDescriptor);
 
+
+      void connectPorts(AbstractPort *input, AbstractPort *output);
+      // void connectPortsByDescriptor(PortDescriptor * indesc, PortDescriptor * outdesc);
+
+      void disconnectPorts(AbstractPort *input, AbstractPort *output);
+
     protected:
 
       volatile bool AutoscanEnabled = false;
@@ -74,18 +84,6 @@ namespace MidiPatcher {
 
       void rescan();
 
-
-      void connectPorts(AbstractPort *input, AbstractPort *output);
-
-      void disconnectPorts(AbstractPort *input, AbstractPort *output);
-
-    // public:
-    //
-    //   void connectPorts(AbstractInputPort * input, AbstractOutputPort * output);
-
-      // void connectPortsById(unsigned int inputId, unsigned int outputId);
-      //
-      // void connectPortsByName(std::string inputName, std::string outputName);
   };
 
 }

@@ -1,3 +1,4 @@
+#include <main.hpp>
 
 #include <iostream>
 #include <getopt.h>
@@ -8,7 +9,9 @@
 
 #include <RtMidi.h>
 
+
 #include <PortRegistry.hpp>
+
 
 MidiPatcher::PortRegistry * portRegistry = NULL;
 
@@ -65,19 +68,26 @@ void deinit();
 
 void init(){
 
-    MidiPatcher::PortRegistry::init();
+  std::vector<MidiPatcher::AbstractPort::PortClassRegistryInfo*> pcriList;
 
-    portRegistry = new MidiPatcher::PortRegistry();
+  assert( sizeof(PortClassRegistryInfoConfig) > 0 );
 
-    std::atexit(deinit);
+  for(int i = 0; i < sizeof(PortClassRegistryInfoConfig) / sizeof(MidiPatcher::AbstractPort::PortClassRegistryInfo*) ; i++){
+      pcriList.push_back( PortClassRegistryInfoConfig[i] );
+  }
+
+  portRegistry = new MidiPatcher::PortRegistry(pcriList);
+
+  portRegistry->init();
+
+  std::atexit(deinit);
 }
 
 void deinit(){
 
+  portRegistry->deinit();
+
   delete portRegistry;
-
-  MidiPatcher::PortRegistry::deinit();
-
 }
 
 int main(int argc, char * argv[], char * env[]){

@@ -12,11 +12,13 @@ namespace MidiPatcher {
 
     class MidiIn : AbstractInputPort {
 
-      protected:
-
-        static std::map<std::string, MidiIn*> * KnownPorts;
-
       public:
+
+        static const constexpr char * Key = "MidiIn";
+
+        static AbstractPort* factory(PortRegistry * portRegistry, PortDescriptor * portDescriptor){
+           return new MidiIn(portRegistry, portDescriptor->Name);
+        }
 
         static void init(){
           if (KnownPorts == NULL){
@@ -30,23 +32,20 @@ namespace MidiPatcher {
           }
         }
 
-        static const constexpr char * Key = "MidiIn";
-
         std::string getKey(){
           return Key;
         }
 
         static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
 
-        static AbstractPort* factory(PortRegistry * portRegistry, PortDescriptor * portDescriptor){
-           return new MidiIn(portRegistry, portDescriptor->Name);
-        }
 
-        static PortDeclaration * getDeclaration(){
-          return new PortDeclaration(Key, factory, init, deinit, scan);
+        static PortClassRegistryInfo * getPortClassRegistryInfo(){
+          return new PortClassRegistryInfo(Key, factory, init, deinit, scan);
         }
 
       protected:
+
+        static std::map<std::string, MidiIn*> * KnownPorts;
 
         unsigned int PortNumber = 0;
         RtMidiIn * MidiPort = NULL;
@@ -68,13 +67,8 @@ namespace MidiPatcher {
 
       protected:
 
-        // ~MidiIn(){
-        //   destructorImpl();
-        // }
-
         static void rtMidiCallback( double timeStamp, std::vector<unsigned char> *message, void *midiInRef );
 
-      // protected:
         void addConnectionImpl(AbstractPort * port);
         void removeConnectionImpl(AbstractPort * port);
     };

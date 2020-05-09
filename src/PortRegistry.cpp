@@ -12,45 +12,18 @@
 
 namespace MidiPatcher {
 
-  std::map<std::string, AbstractPort::PortDeclaration*> * PortRegistry::PortDeclarations = NULL;
+  PortRegistry::PortRegistry(std::vector<AbstractPort::PortClassRegistryInfo *> &pcriList){
 
-  void PortRegistry::init(){
-    PortDeclarations = new std::map<std::string, AbstractPort::PortDeclaration*>();
-
-    /** ADD NEW PORT DECLARATIONS HERE **/
-    (*PortDeclarations)[Port::MidiIn::Key] = Port::MidiIn::getDeclaration();
-    (*PortDeclarations)[Port::MidiOut::Key] = Port::MidiOut::getDeclaration();
-    /** ADD NEW PORT DECLARATIONS HERE **/
-
-    for (std::map<std::string, AbstractPort::PortDeclaration*>::iterator it = PortDeclarations->begin(); it != PortDeclarations->end(); ++it)
-    {
-      if (it->second->Init != NULL){
-        it->second->Init();
+      for (int i = 0; i < pcriList.size(); i++){
+         PortClassRegistryInfoMap[pcriList[i]->Key] = pcriList[i];
       }
-    }
-  }
-
-  void PortRegistry::deinit(){
-
-    for (std::map<std::string, AbstractPort::PortDeclaration*>::iterator it = PortDeclarations->begin(); it != PortDeclarations->end(); ++it)
-    {
-      if (it->second->Deinit != NULL){
-        it->second->Deinit();
-      }
-    }
-
-    delete PortDeclarations;
-  }
-
-  PortRegistry::PortRegistry(){
-    // do nothing
   }
 
   PortRegistry::~PortRegistry(){
     // disableAutoscan();
 
     // properly delete all ports
-    for_each(Ports.begin(), Ports.end(), [](AbstractPort * port){
+    std::for_each(Ports.begin(), Ports.end(), [](AbstractPort * port){
       //
       std::vector<AbstractPort *> * connections = port->getConnections();
 
@@ -62,7 +35,33 @@ namespace MidiPatcher {
       delete port;
     });
 
+    std::for_each(PortClassRegistryInfoMap.begin(),PortClassRegistryInfoMap.end(), [](std::pair<std::string,AbstractPort::PortClassRegistryInfo *> pair){
+      delete pair.second;
+    });
   }
+
+
+  void PortRegistry::init(){
+
+    for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); ++it)
+    {
+      if (it->second->Init != NULL){
+        it->second->Init();
+      }
+    }
+  }
+
+  void PortRegistry::deinit(){
+
+    for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); ++it)
+    {
+      if (it->second->Deinit != NULL){
+        it->second->Deinit();
+      }
+    }
+
+  }
+
 
   AbstractPort * PortRegistry::getPortById( unsigned int id ){
     AbstractPort * result = NULL;
@@ -88,9 +87,9 @@ namespace MidiPatcher {
 
   AbstractPort* PortRegistry::registerPortFromDescriptor(PortDescriptor * portDescriptor){
     assert( portDescriptor != NULL );
-    assert( PortDeclarations->count(portDescriptor->Key) > 0 );
+    assert( PortClassRegistryInfoMap.count(portDescriptor->Key) > 0 );
 
-    return (*PortDeclarations)[portDescriptor->Key]->Factory(this, portDescriptor);
+    return PortClassRegistryInfoMap[portDescriptor->Key]->Factory(this, portDescriptor);
   }
 
   void PortRegistry::enableAutoscan(){
@@ -120,7 +119,7 @@ namespace MidiPatcher {
 
     void PortRegistry::rescan(){
 
-      for (std::map<std::string, AbstractPort::PortDeclaration*>::iterator it = PortDeclarations->begin(); it != PortDeclarations->end(); ++it)
+      for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); ++it)
       {
         // std::cout << "Scanning " << it->first << std::endl;
         if (it->second->Scanner != NULL){
@@ -138,6 +137,9 @@ namespace MidiPatcher {
       output->addConnection(input);
     }
 
+    // void connectPortsByDescriptor(PortDescriptor * indesc, PortDescriptor * outdesc){
+    //
+    // }
 
     void PortRegistry::disconnectPorts(AbstractPort *input, AbstractPort *output){
       assert(input != NULL);
@@ -148,20 +150,4 @@ namespace MidiPatcher {
       output->removeConnection(input);
     }
 
-
-    // void PortRegistry::connectPorts(AbstractInputPort * input, AbstractOutputPort * output){
-    //   assert( input != NULL );
-    //   assert( output != NULL );
-    //
-    //   input->addConnection(output);
-    //   output->addConnection(input);
-    // }
-
-    // void PortRegistry::connectPortsById(unsigned int inputId, unsigned int outputId){
-    //   connectPorts( dynamic_cast<AbstractInputPort*>(getPortById(inputId)), dynamic_cast<AbstractOutputPort*>(getPortById(outputId)) );
-    // }
-    //
-    // void PortRegistry::connectPortsByName(std::string inputName, std::string outputName){
-    //   connectPorts( dynamic_cast<AbstractInputPort*>(findPortByName(inputName, AbstractPort::TypeInput)), dynamic_cast<AbstractOutputPort*>(findPortByName(outputName, AbstractPort::TypeOutput)) );
-    // }
 }

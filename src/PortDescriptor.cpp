@@ -9,7 +9,7 @@ namespace MidiPatcher {
 
       Key = str.substr(0, pos);
 
-      // assert( PortRegistry::getPortDeclarations()->count(Key) > 0 );
+      // assert( PortRegistry::getPortFamilyDeclarations()->count(Key) > 0 );
 
       str.erase(0,pos + 1);
 

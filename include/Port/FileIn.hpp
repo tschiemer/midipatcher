@@ -29,8 +29,8 @@ namespace MidiPatcher {
     //
     //     static AbstractPort* factory(PortRegistry * portRegistry, PortDescriptor * portDescriptor);
     //
-    //     static PortDeclaration * getDeclaration(){
-    //       return new PortDeclaration(Key, init, deinit, NULL, factory);
+    //     static PortFamilyDeclaration * getDeclaration(){
+    //       return new PortFamilyDeclaration(Key, init, deinit, NULL, factory);
     //     }
     //
     //

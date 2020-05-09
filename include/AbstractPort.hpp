@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include <PortDescriptor.hpp>
-// #include <PortDeclaration.hpp>
+// #include <PortClassRegistryInfo.hpp>
 
 namespace MidiPatcher {
 
@@ -30,13 +30,13 @@ namespace MidiPatcher {
       typedef std::vector<AbstractPort*>  * (*PortScanner)(PortRegistry * portRegistry);
       typedef AbstractPort * (*PortFactory)(PortRegistry * portRegistry, PortDescriptor * portDescriptor);
 
-      struct PortDeclaration {
+      struct PortClassRegistryInfo {
         std::string Key;
         void (*Init)(void);
         void (*Deinit)(void);
         PortScanner Scanner;
         PortFactory Factory;
-        PortDeclaration(std::string key, PortFactory factory, void (*init)(void) = NULL, void (*deinit)(void) = NULL, PortScanner scanner = NULL){
+        PortClassRegistryInfo(std::string key, PortFactory factory, void (*init)(void) = NULL, void (*deinit)(void) = NULL, PortScanner scanner = NULL){
           assert( key.size() > 0 );
           assert( factory != NULL );
 
@@ -46,7 +46,7 @@ namespace MidiPatcher {
           Scanner = scanner;
           Factory = factory;
         }
-        bool operator==(const PortDeclaration& rhs){
+        bool operator==(const PortClassRegistryInfo& rhs){
           return Key == rhs.Key;
         }
       } ;
@@ -102,7 +102,7 @@ namespace MidiPatcher {
           return new PortDescriptor(getKey(), Name);
       };
 
-      // virtual PortDeclaration * getDeclaration() = 0;
+      // virtual PortClassRegistryInfo * getDeclaration() = 0;
 
       virtual bool operator==(const AbstractPort& rhs){
         std::cout << "cmp " << Id << " ?== " << rhs.Id << std::endl;

@@ -13,10 +13,6 @@ namespace MidiPatcher {
 
     class MidiOut : AbstractOutputPort {
 
-      protected:
-
-        static std::map<std::string, MidiOut*> * KnownPorts;
-
       public:
 
         static void init(){
@@ -31,9 +27,7 @@ namespace MidiPatcher {
           }
         }
 
-
         static const constexpr char * Key = "MidiOut";
-
 
         std::string getKey(){
           return Key;
@@ -45,11 +39,13 @@ namespace MidiPatcher {
            return new MidiOut(portRegistry, portDescriptor->Name);
         }
 
-        static PortDeclaration * getDeclaration() {
-          return new PortDeclaration(Key, factory, init, deinit, scan);
+        static PortClassRegistryInfo * getPortClassRegistryInfo() {
+          return new PortClassRegistryInfo(Key, factory, init, deinit, scan);
         }
 
       protected:
+
+        static std::map<std::string, MidiOut*> * KnownPorts;
 
         unsigned int PortNumber = 0;
         RtMidiOut * MidiPort = NULL;
@@ -70,10 +66,12 @@ namespace MidiPatcher {
         }
 
       protected:
+        
         void addConnectionImpl(AbstractPort * port);
         void removeConnectionImpl(AbstractPort * port);
 
       public:
+
         void send(unsigned char *message, size_t len);
 
     };
