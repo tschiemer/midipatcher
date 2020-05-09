@@ -191,73 +191,73 @@ int main(int argc, char * argv[], char * env[]){
     }
 
     int arg = argc - optind;
-
-    if (arg <= 0){
-      std::cerr << "ERROR Missing ports to connect!" << std::endl;
-      return EXIT_FAILURE;
-    }
-    if (arg % 2 == 1){
-      std::cerr << "ERROR port list must always be duplets of input-port and output-port" << std::endl;
-      return EXIT_FAILURE;
-    }
-
-    char ** args = &argv[optind];
-
-
-    std::vector<MidiPatcher::AbstractPort*> * inports = new std::vector<MidiPatcher::AbstractPort*>();
-    std::vector<MidiPatcher::AbstractPort*> * outports = new std::vector<MidiPatcher::AbstractPort*>();
-
-    // important..
+    //
+    // if (arg <= 0){
+    //   std::cerr << "ERROR Missing ports to connect!" << std::endl;
+    //   return EXIT_FAILURE;
+    // }
+    // if (arg % 2 == 1){
+    //   std::cerr << "ERROR port list must always be duplets of input-port and output-port" << std::endl;
+    //   return EXIT_FAILURE;
+    // }
+    //
+    // char ** args = &argv[optind];
+    //
+    //
+    // std::vector<MidiPatcher::AbstractPort*> * inports = new std::vector<MidiPatcher::AbstractPort*>();
+    // std::vector<MidiPatcher::AbstractPort*> * outports = new std::vector<MidiPatcher::AbstractPort*>();
+    //
+    // // important..
+    // //
+    // // portRegistry->rescan();
+    // //
+    // // for (int i = 0, j = 1; i < arg; i += 2, j += 2){
+    // //   MidiPatcher::AbstractPort * port;
+    // //
+    // //   port = portRegistry->findPortByName(args[i], MidiPatcher::AbstractPort::TypeInput);
+    // //   if (port == NULL){
+    // //     std::cerr << "ERROR input port '" << args[i] << "' not found." << std::endl;
+    // //     return EXIT_FAILURE;
+    // //   }
+    // //   inports->push_back(port);
+    // //
+    // //   port = portRegistry->findPortByName(args[j], MidiPatcher::AbstractPort::TypeOutput);
+    // //   if (port == NULL){
+    // //     std::cerr << "ERROR output port '" << args[j] << "' not found." << std::endl;
+    // //     return EXIT_FAILURE;
+    // //   }
+    // //   outports->push_back(port);
+    // //
+    // // }
+    //
+    // for (int i = 0, j = 1; i < arg; i += 2, j += 2){
+    //
+    //   MidiPatcher::PortDescriptor * desc;
+    //   MidiPatcher::AbstractPort * port;
+    //
+    //   desc = MidiPatcher::PortDescriptor::fromString(args[i]);
+    //   port = portRegistry->registerPortFromDescriptor(desc);
+    //   inports->push_back(port);
+    //
+    //   desc = MidiPatcher::PortDescriptor::fromString(args[j]);
+    //   port = portRegistry->registerPortFromDescriptor(desc);
+    //   outports->push_back(port);
+    // }
     //
     // portRegistry->rescan();
     //
-    // for (int i = 0, j = 1; i < arg; i += 2, j += 2){
-    //   MidiPatcher::AbstractPort * port;
-    //
-    //   port = portRegistry->findPortByName(args[i], MidiPatcher::AbstractPort::TypeInput);
-    //   if (port == NULL){
-    //     std::cerr << "ERROR input port '" << args[i] << "' not found." << std::endl;
-    //     return EXIT_FAILURE;
-    //   }
-    //   inports->push_back(port);
-    //
-    //   port = portRegistry->findPortByName(args[j], MidiPatcher::AbstractPort::TypeOutput);
-    //   if (port == NULL){
-    //     std::cerr << "ERROR output port '" << args[j] << "' not found." << std::endl;
-    //     return EXIT_FAILURE;
-    //   }
-    //   outports->push_back(port);
-    //
-    // }
-
-    for (int i = 0, j = 1; i < arg; i += 2, j += 2){
-
-      MidiPatcher::PortDescriptor * desc;
-      MidiPatcher::AbstractPort * port;
-
-      desc = MidiPatcher::PortDescriptor::fromString(args[i]);
-      port = portRegistry->registerPortFromDescriptor(desc);
-      inports->push_back(port);
-
-      desc = MidiPatcher::PortDescriptor::fromString(args[j]);
-      port = portRegistry->registerPortFromDescriptor(desc);
-      outports->push_back(port);
-    }
-
-    portRegistry->rescan();
-
-    assert( inports->size() == outports->size() );
+    // assert( inports->size() == outports->size() );
 
     setupSignalHandler();
 
-    for( int i = 0; i < inports->size(); i++){
-      portRegistry->connectPorts( inports->at(i), outports->at(i) );
-    }
+    // for( int i = 0; i < inports->size(); i++){
+    //   portRegistry->connectPorts( inports->at(i), outports->at(i) );
+    // }
+    //
+    // delete inports;
+    // delete outports;
 
-    delete inports;
-    delete outports;
-
-// portRegistry->enableAutoscan();
+    portRegistry->enableAutoscan(1000);
 
     std::cout << "Processing... quit by pressing CTRL-C twice." << std::endl;
     Running = true;

@@ -89,9 +89,27 @@ namespace MidiPatcher {
 
       virtual ~AbstractPort();
 
+    private:
+
+      volatile DeviceState_t DeviceState = DeviceStateNotConnected;
+
     protected:
 
-      DeviceState_t DeviceState = DeviceStateNotConnected;
+      void setDeviceState(DeviceState_t newState){
+        if (DeviceState == newState){
+          return;
+        }
+
+        DeviceState = newState;
+
+        if (DeviceState == DeviceStateConnected){
+          onDeviceConnected();
+        } else {
+          onDeviceDisconnected();
+        }
+
+        publishDeviceStateChanged();
+      }
 
     public:
 
@@ -111,15 +129,11 @@ namespace MidiPatcher {
 
     protected:
 
-      void addConnection(AbstractPort * port){
-        addConnectionImpl(port);
-        Connections.push_back(port);
-      }
+      virtual void onDeviceConnected();
+      virtual void onDeviceDisconnected();
 
-      void removeConnection(AbstractPort * port){
-        removeConnectionImpl(port);
-        Connections.erase(std::remove(Connections.begin(), Connections.end(), port));
-      }
+      void addConnection(AbstractPort * port);
+      void removeConnection(AbstractPort * port);
 
     protected:
 
@@ -127,16 +141,40 @@ namespace MidiPatcher {
 
       virtual void removeConnectionImpl(AbstractPort * port) {};
 
+      virtual void start(){};
+      virtual void stop(){};
+
     public:
 
       class PortUpdateReceiver {
         public:
+          virtual void deviceDiscovered(AbstractPort * port) = 0;
           virtual void deviceStateChanged(AbstractPort * port, DeviceState_t newState) = 0;
       };
 
     protected:
 
       std::vector<PortUpdateReceiver *> PortUpdateReceiverList;
+
+      void publishDeviceDiscovered(){
+        // std::thread([this]() {
+        //   while (AutoscanEnabled)
+        //   {
+        //     this->rescan();
+        //     std::this_thread::sleep_for(std::chrono::milliseconds(AutoscanIntervalMsec));
+        //   }
+        // });
+        // AutoscanThread.detach()
+        std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [this](PortUpdateReceiver* receiver){
+          receiver->deviceDiscovered( this );
+        });
+      }
+
+      void publishDeviceStateChanged(){
+        std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [this](PortUpdateReceiver* receiver){
+          receiver->deviceStateChanged( this, this->getDeviceState() );
+        });
+      }
 
     public:
 

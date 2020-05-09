@@ -66,9 +66,9 @@ namespace MidiPatcher {
         }
 
       protected:
-        
-        void addConnectionImpl(AbstractPort * port);
-        void removeConnectionImpl(AbstractPort * port);
+
+        void start();
+        void stop();
 
       public:
 

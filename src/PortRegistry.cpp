@@ -96,6 +96,14 @@ namespace MidiPatcher {
     return result;
   }
 
+  void PortRegistry::registerPort(AbstractPort * port){
+    // std::cout << "register " << portf << std::endl;
+    port->Id = ++EntryIncrement;
+    Ports.push_back(port);
+
+    port->subscribePortUpdateReveicer( this );
+  }
+
   AbstractPort* PortRegistry::registerPortFromDescriptor(PortDescriptor * portDescriptor){
     assert( portDescriptor != NULL );
     assert( PortClassRegistryInfoMap.count(portDescriptor->Key) > 0 );
@@ -148,6 +156,10 @@ namespace MidiPatcher {
   void PortRegistry::disableAutoscan(){
     AutoscanEnabled = false;
     AutoscanThread.join();
+  }
+
+  void PortRegistry::deviceDiscovered(AbstractPort * port){
+      std::cout << "deviceDiscovered " << port->Name << std::endl;
   }
 
   void PortRegistry::deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){

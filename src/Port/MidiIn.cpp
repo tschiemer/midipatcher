@@ -9,10 +9,22 @@ namespace MidiPatcher {
 
   namespace Port {
 
+    // RtMidiIn * MidiIn::RtMidiInRef = NULL;
+
     std::map<std::string, MidiIn*> * MidiIn::KnownPorts = NULL;
 
     std::vector<AbstractPort*> * MidiIn::scan(PortRegistry * portRegistry){
-      RtMidiIn *midiin = 0;
+
+      // set dirty (seen)
+      std::map<std::string,bool> seen;
+      std::map<std::string,DeviceState_t> previousState;
+
+      std::for_each(KnownPorts->begin(), KnownPorts->end(), [&seen, &previousState](std::pair<std::string,MidiIn*> pair){
+        seen[pair.first] = false;
+        previousState[pair.first] = pair.second->getDeviceState();
+      });
+
+      RtMidiIn *midiin = NULL;//= RtMidiInRef;
 
       std::vector< AbstractPort * > * result = new std::vector< AbstractPort* >();
 
@@ -25,21 +37,43 @@ namespace MidiPatcher {
 
         for ( unsigned i=0; i<nPorts; i++ ) {
 
+          MidiIn * mi;
           std::string name = midiin->getPortName(i);
-          if (KnownPorts->count(name)){
-            KnownPorts->at(name)->PortNumber = i;
-          } else {
-            new MidiIn(portRegistry, name, i);
-          }
-          result->push_back(KnownPorts->at(name));
 
+          if (name == ""){
+            continue;
+          }
+
+          if (KnownPorts->count(name)){
+            mi = KnownPorts->at(name);
+            mi->PortNumber = i;
+
+            seen[name] = true;
+          } else {
+            mi = new MidiIn(portRegistry, name, i);
+
+            mi->publishDeviceDiscovered();
+          }
+
+          // this may trigger device connected notifications
+          mi->setDeviceState(DeviceStateConnected);
+
+          result->push_back(mi);
         }
 
       } catch ( RtMidiError &error ) {
+        std::cerr << "ERROR foooo" << std::endl;
         error.printMessage();
       }
 
       delete midiin;
+
+      //detect devices gone offline
+      std::for_each(seen.begin(), seen.end(), [](std::pair<std::string,bool> pair){
+        if (pair.second == false){
+          KnownPorts->at(pair.first)->setDeviceState(DeviceStateNotConnected);
+        }
+      });
 
       return result;
     }
@@ -61,7 +95,7 @@ namespace MidiPatcher {
       });
     }
 
-    void MidiIn::addConnectionImpl(AbstractPort * port){
+    void MidiIn::start(){
 
       if (MidiPort != NULL){
         return;
@@ -76,21 +110,19 @@ namespace MidiPatcher {
       MidiPort->openPort(PortNumber);
     }
 
-    void MidiIn::removeConnectionImpl(AbstractPort * port){
+    void MidiIn::stop(){
 
       if (MidiPort == NULL){
         return;
       }
 
-      // if there will not be any connections after this, just close and deallocate the port
-      if (Connections.size() <= 1){
-        MidiPort->closePort();
+      MidiPort->closePort();
 
-        delete MidiPort;
+      delete MidiPort;
 
-        MidiPort = NULL;
-      }
+      MidiPort = NULL;
     }
+
   }
 
 }

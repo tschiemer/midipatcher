@@ -22,4 +22,33 @@ namespace MidiPatcher {
     assert( Connections.size() == 0);
   };
 
+
+  void AbstractPort::addConnection(AbstractPort * port){
+    addConnectionImpl(port);
+    Connections.push_back(port);
+
+    start();
+  }
+
+  void AbstractPort::removeConnection(AbstractPort * port){
+    removeConnectionImpl(port);
+    Connections.erase(std::remove(Connections.begin(), Connections.end(), port));
+
+    if (Connections.size() == 0){
+      stop();
+    }
+  }
+
+  void AbstractPort::onDeviceConnected(){
+    if (Connections.size() > 0){
+      start();
+    }
+  }
+
+  void AbstractPort::onDeviceDisconnected(){
+    if (Connections.size() == 0){
+      stop();
+    }
+  }
+
 }

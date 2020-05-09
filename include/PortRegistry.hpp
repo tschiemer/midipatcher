@@ -60,11 +60,7 @@ namespace MidiPatcher {
       //
       // std::vector<AbstractPort*> * findPortsByKey( std::string key );
 
-      void registerPort(AbstractPort * port){
-        // std::cout << "register " << portf << std::endl;
-        port->Id = ++EntryIncrement;
-        Ports.push_back(port);
-      }
+      void registerPort(AbstractPort * port);
 
       AbstractPort * registerPortFromDescriptor(PortDescriptor * portDescriptor);
 
@@ -90,7 +86,7 @@ namespace MidiPatcher {
       void enableAutoscan(unsigned int intervalMsec = 1000);
       void disableAutoscan();
 
-
+      void deviceDiscovered(AbstractPort * port);
       void deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState);
   };
 

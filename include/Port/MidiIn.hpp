@@ -21,6 +21,9 @@ namespace MidiPatcher {
         }
 
         static void init(){
+          // if (RtMidiInRef == NULL){
+          //   RtMidiInRef = new RtMidiIn;
+          // }
           if (KnownPorts == NULL){
             KnownPorts =  new std::map<std::string,MidiIn*>();
           }
@@ -29,7 +32,12 @@ namespace MidiPatcher {
         static void deinit(){
           if (KnownPorts != NULL){
             delete KnownPorts;
+            KnownPorts = NULL;
           }
+          // if (RtMidiInRef != NULL){
+          //   delete RtMidiInRef;
+          //   RtMidiInRef = NULL;
+          // }
         }
 
         std::string getKey(){
@@ -45,10 +53,14 @@ namespace MidiPatcher {
 
       protected:
 
+        // static RtMidiIn * RtMidiInRef;
+
         static std::map<std::string, MidiIn*> * KnownPorts;
 
         unsigned int PortNumber = 0;
         RtMidiIn * MidiPort = NULL;
+
+        DeviceState_t DeviceState = DeviceStateNotConnected;
 
       public:
 
@@ -65,12 +77,16 @@ namespace MidiPatcher {
           }
         }
 
+        DeviceState_t getDeviceState(){
+          return DeviceState;
+        }
+
       protected:
 
         static void rtMidiCallback( double timeStamp, std::vector<unsigned char> *message, void *midiInRef );
 
-        void addConnectionImpl(AbstractPort * port);
-        void removeConnectionImpl(AbstractPort * port);
+        void start();
+        void stop();
     };
 
   }
