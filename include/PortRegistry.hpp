@@ -18,7 +18,7 @@ namespace MidiPatcher {
   // Forward declarations
   // class AbstractPort;
 
-  class PortRegistry {
+  class PortRegistry : AbstractPort::PortUpdateReceiver {
 
     protected:
 
@@ -91,6 +91,7 @@ namespace MidiPatcher {
       void disableAutoscan();
 
 
+      void deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState);
   };
 
 }

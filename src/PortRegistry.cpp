@@ -150,5 +150,8 @@ namespace MidiPatcher {
     AutoscanThread.join();
   }
 
+  void PortRegistry::deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
+    std::cout << "deviceStateChanged for " << port->Name << " to " << (newState == AbstractPort::DeviceStateConnected ? "CONNECTED" : "NOT CONNECTED") << std::endl;
+  }
 
 }

@@ -49,7 +49,7 @@ namespace MidiPatcher {
         bool operator==(const PortClassRegistryInfo& rhs){
           return Key == rhs.Key;
         }
-      } ;
+      };
 
 
       typedef enum {
@@ -68,33 +68,7 @@ namespace MidiPatcher {
 
       Type_t Type;
 
-      DeviceState_t DeviceState = DeviceStateNotConnected;
-
       std::string Name;
-
-    protected:
-
-      PortRegistry * PortRegistryRef;
-
-      std::vector<AbstractPort *> Connections;
-
-      // AbstractPort(){
-      //   std::cout << "abstract!" << std::endl;
-      // }
-
-      AbstractPort(PortRegistry * portRegistry, Type_t type, std::string name);
-
-    public:
-
-      virtual ~AbstractPort();
-
-
-
-      PortRegistry * getPortRegistry(){
-        return PortRegistryRef;
-      }
-
-    public:
 
       virtual std::string getKey() = 0;
 
@@ -102,12 +76,34 @@ namespace MidiPatcher {
           return new PortDescriptor(getKey(), Name);
       };
 
-      // virtual PortClassRegistryInfo * getDeclaration() = 0;
-
       virtual bool operator==(const AbstractPort& rhs){
         std::cout << "cmp " << Id << " ?== " << rhs.Id << std::endl;
         return Id == rhs.Id;
       }
+
+    protected:
+
+      AbstractPort(PortRegistry * portRegistry, Type_t type, std::string name);
+
+    public:
+
+      virtual ~AbstractPort();
+
+    protected:
+
+      DeviceState_t DeviceState = DeviceStateNotConnected;
+
+    public:
+
+      DeviceState_t getDeviceState(){
+        return DeviceState;
+      }
+
+    protected:
+
+      std::vector<AbstractPort *> Connections;
+
+    public:
 
       std::vector<AbstractPort *> * getConnections(){
         return &Connections;
@@ -130,6 +126,28 @@ namespace MidiPatcher {
       virtual void addConnectionImpl(AbstractPort * port) {};
 
       virtual void removeConnectionImpl(AbstractPort * port) {};
+
+    public:
+
+      class PortUpdateReceiver {
+        public:
+          virtual void deviceStateChanged(AbstractPort * port, DeviceState_t newState) = 0;
+      };
+
+    protected:
+
+      std::vector<PortUpdateReceiver *> PortUpdateReceiverList;
+
+    public:
+
+      void subscribePortUpdateReveicer(PortUpdateReceiver *receiver){
+        PortUpdateReceiverList.push_back(receiver);
+      }
+
+      void unsubscribePortUpdateReveicer(PortUpdateReceiver *receiver){
+        PortUpdateReceiverList.erase(std::remove(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), receiver));
+      }
+
   };
 
 }

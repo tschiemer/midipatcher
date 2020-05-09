@@ -6,7 +6,6 @@ namespace MidiPatcher {
 
 
   AbstractPort::AbstractPort(PortRegistry * portRegistry, Type_t type, std::string name){
-    PortRegistryRef = portRegistry;
 
     Type = type;
     Name = name;
