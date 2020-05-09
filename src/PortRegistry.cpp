@@ -92,42 +92,6 @@ namespace MidiPatcher {
     return PortClassRegistryInfoMap[portDescriptor->Key]->Factory(this, portDescriptor);
   }
 
-  void PortRegistry::enableAutoscan(){
-    if (AutoscanEnabled == true){
-      return;
-    }
-
-    AutoscanEnabled = true;
-
-    static const constexpr unsigned int interval = 1000;
-
-    AutoscanThread = std::thread([this]() {
-      while (AutoscanEnabled)
-      {
-        // std::cout << "rescan" << std::endl;
-        this->rescan();
-        std::this_thread::sleep_for(std::chrono::milliseconds(interval));
-      }
-    });
-    AutoscanThread.detach();
-  }
-
-  void PortRegistry::disableAutoscan(){
-    AutoscanEnabled = false;
-    AutoscanThread.join();
-  }
-
-    void PortRegistry::rescan(){
-
-      for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); ++it)
-      {
-        // std::cout << "Scanning " << it->first << std::endl;
-        if (it->second->Scanner != NULL){
-          it->second->Scanner(this);
-        }
-      }
-
-    }
 
     void PortRegistry::connectPorts(AbstractPort *input, AbstractPort *output){
       assert(input != NULL);
@@ -149,5 +113,42 @@ namespace MidiPatcher {
       input->removeConnection(output);
       output->removeConnection(input);
     }
+
+
+    void PortRegistry::enableAutoscan(unsigned int intervalMsec){
+      if (AutoscanEnabled == true){
+        return;
+      }
+
+      setAutoscanInterval(intervalMsec);
+
+      AutoscanEnabled = true;
+
+      AutoscanThread = std::thread([this]() {
+        while (AutoscanEnabled)
+        {
+          this->rescan();
+          std::this_thread::sleep_for(std::chrono::milliseconds(AutoscanIntervalMsec));
+        }
+      });
+      AutoscanThread.detach();
+    }
+
+  void PortRegistry::disableAutoscan(){
+    AutoscanEnabled = false;
+    AutoscanThread.join();
+  }
+
+  void PortRegistry::rescan(){
+
+    for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); ++it)
+    {
+      // std::cout << "Scanning " << it->first << std::endl;
+      if (it->second->Scanner != NULL){
+        it->second->Scanner(this);
+      }
+    }
+
+  }
 
 }
