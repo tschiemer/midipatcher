@@ -62,6 +62,17 @@ namespace MidiPatcher {
 
   }
 
+  void PortRegistry::rescan(){
+
+    for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); ++it)
+    {
+      // std::cout << "Scanning " << it->first << std::endl;
+      if (it->second->Scanner != NULL){
+        it->second->Scanner(this);
+      }
+    }
+
+  }
 
   AbstractPort * PortRegistry::getPortById( unsigned int id ){
     AbstractPort * result = NULL;
@@ -93,62 +104,51 @@ namespace MidiPatcher {
   }
 
 
-    void PortRegistry::connectPorts(AbstractPort *input, AbstractPort *output){
-      assert(input != NULL);
-      assert(output != NULL);
+  void PortRegistry::connectPorts(AbstractPort *input, AbstractPort *output){
+    assert(input != NULL);
+    assert(output != NULL);
 
-      input->addConnection(output);
-      output->addConnection(input);
+    input->addConnection(output);
+    output->addConnection(input);
+  }
+
+  // void connectPortsByDescriptor(PortDescriptor * indesc, PortDescriptor * outdesc){
+  //
+  // }
+
+  void PortRegistry::disconnectPorts(AbstractPort *input, AbstractPort *output){
+    assert(input != NULL);
+    assert(output != NULL);
+
+
+    input->removeConnection(output);
+    output->removeConnection(input);
+  }
+
+
+  void PortRegistry::enableAutoscan(unsigned int intervalMsec){
+    if (AutoscanEnabled == true){
+      return;
     }
 
-    // void connectPortsByDescriptor(PortDescriptor * indesc, PortDescriptor * outdesc){
-    //
-    // }
+    setAutoscanInterval(intervalMsec);
 
-    void PortRegistry::disconnectPorts(AbstractPort *input, AbstractPort *output){
-      assert(input != NULL);
-      assert(output != NULL);
+    AutoscanEnabled = true;
 
-
-      input->removeConnection(output);
-      output->removeConnection(input);
-    }
-
-
-    void PortRegistry::enableAutoscan(unsigned int intervalMsec){
-      if (AutoscanEnabled == true){
-        return;
+    AutoscanThread = std::thread([this]() {
+      while (AutoscanEnabled)
+      {
+        this->rescan();
+        std::this_thread::sleep_for(std::chrono::milliseconds(AutoscanIntervalMsec));
       }
-
-      setAutoscanInterval(intervalMsec);
-
-      AutoscanEnabled = true;
-
-      AutoscanThread = std::thread([this]() {
-        while (AutoscanEnabled)
-        {
-          this->rescan();
-          std::this_thread::sleep_for(std::chrono::milliseconds(AutoscanIntervalMsec));
-        }
-      });
-      AutoscanThread.detach();
-    }
+    });
+    AutoscanThread.detach();
+  }
 
   void PortRegistry::disableAutoscan(){
     AutoscanEnabled = false;
     AutoscanThread.join();
   }
 
-  void PortRegistry::rescan(){
-
-    for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); ++it)
-    {
-      // std::cout << "Scanning " << it->first << std::endl;
-      if (it->second->Scanner != NULL){
-        it->second->Scanner(this);
-      }
-    }
-
-  }
 
 }

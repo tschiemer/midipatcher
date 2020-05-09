@@ -46,6 +46,8 @@ namespace MidiPatcher {
 
     public:
 
+      void rescan();
+
       std::vector<AbstractPort*> * getAllPorts(){
         return &Ports;
       }
@@ -84,11 +86,10 @@ namespace MidiPatcher {
         assert( intervalMsec >= 1000 );
         AutoscanIntervalMsec = intervalMsec;
       }
-      
+
       void enableAutoscan(unsigned int intervalMsec = 1000);
       void disableAutoscan();
 
-      void rescan();
 
   };
 
