@@ -277,6 +277,8 @@ int main(int argc, char * argv[], char * env[]){
 
     portRegistry->enableAutoscan(1000);
 
+    // listInterfaces();
+
     std::cout << "Processing... quit by pressing CTRL-C twice." << std::endl;
     Running = true;
     while(Running){

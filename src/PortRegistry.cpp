@@ -139,6 +139,10 @@ namespace MidiPatcher {
     assert( portDescriptor != NULL );
     assert( PortClassRegistryInfoMap.count(portDescriptor->Key) > 0 );
 
+    if (Ports.count(portDescriptor->toString()) > 0){
+      return Ports[portDescriptor->toString()];
+    }
+
     return PortClassRegistryInfoMap[portDescriptor->Key]->Factory(this, portDescriptor);
   }
 
@@ -146,6 +150,8 @@ namespace MidiPatcher {
   void PortRegistry::connectPorts(AbstractPort *input, AbstractPort *output){
     assert(input != NULL);
     assert(output != NULL);
+
+    std::cout << "Connecting [" << input->Name << "] -> [" << output->Name << "]" << std::endl;
 
     input->addConnection(output);
     output->addConnection(input);
@@ -158,7 +164,6 @@ namespace MidiPatcher {
   void PortRegistry::disconnectPorts(AbstractPort *input, AbstractPort *output){
     assert(input != NULL);
     assert(output != NULL);
-
 
     input->removeConnection(output);
     output->removeConnection(input);

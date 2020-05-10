@@ -100,11 +100,13 @@ namespace MidiPatcher {
       if (MidiPort != NULL){
         return;
       }
-      // std::cout << "MidiOut:" << Name << " start" << std::endl;
+      // std::cout << "MidiOut:" << Name << " START (PortNumber = " << PortNumber << ")" << std::endl;
 
       MidiPort = new RtMidiOut();
 
       MidiPort->openPort(PortNumber);
+
+      assert(MidiPort->isPortOpen());
     }
 
     void MidiOut::stop(){
@@ -112,6 +114,7 @@ namespace MidiPatcher {
       if (MidiPort == NULL){
         return;
       }
+      // std::cout << "MidiOut:" << Name << " STOP (PortNumber = " << PortNumber << ")" << std::endl;
 
       MidiPort->closePort();
 
@@ -122,18 +125,24 @@ namespace MidiPatcher {
 
     void MidiOut::send(unsigned char *message, size_t len){
       // std::cout << "send.." << std::endl;
+
+
       if (MidiPort == NULL){
+        // std::cout << "port is NULL?!?! " << Name << " # " << PortNumber << std::endl;
         return;
       }
       if (MidiPort->isPortOpen() == false){
+        // std::cout << "port not open! " << Name << " # " << PortNumber << std::endl;
         return;
       }
 
-      // std::cout << "sending (" << Name << ") ";
-      // for(int i = 0; i < len; i++){
-      //   std::cout << std::hex << (int)message[i] << " ";
-      // };
-      // std::cout << std::endl;
+                  // if (len == 3){
+                  //   std::cout << "tx [" << Name << "](" << len << ") ";
+                  //   for(int i = 0; i < len; i++){
+                  //     std::cout << std::hex << (int)message[i] << " ";
+                  //   };
+                  //   std::cout << std::endl;
+                  // }
 
       MidiPort->sendMessage(message, len);
     }
