@@ -23,8 +23,10 @@ namespace MidiPatcher {
     // disableAutoscan();
 
     // properly delete all ports
-    std::for_each(Ports.begin(), Ports.end(), [](AbstractPort * port){
-      //
+    std::for_each(Ports.begin(), Ports.end(), [](std::pair<std::string,AbstractPort *> p){
+
+      AbstractPort * port = p.second;
+
       std::vector<AbstractPort *> * connections = port->getConnections();
 
       std::for_each(connections->begin(), connections->end(), [port](AbstractPort*other){
@@ -74,32 +76,61 @@ namespace MidiPatcher {
 
   }
 
-  AbstractPort * PortRegistry::getPortById( unsigned int id ){
-    AbstractPort * result = NULL;
+  std::vector<AbstractPort*> * PortRegistry::getAllPorts(){
+    std::vector<AbstractPort*> * ports = new std::vector<AbstractPort*>();
 
-    // assuming we never delete Ports this works...
-    result = Ports.at(id - 1);
+    std::for_each(Ports.begin(), Ports.end(), [&ports](std::pair<std::string,AbstractPort*> p){
+      ports->push_back(p.second);
+    });
 
-    return result;
+    return ports;
   }
 
-  AbstractPort * PortRegistry::findPortByName( std::string needle, AbstractPort::Type_t portType){
-    AbstractPort * result = NULL;
+  // AbstractPort * PortRegistry::getPortById( unsigned int id ){
+  //   AbstractPort * result = NULL;
+  //
+  //   // assuming we never delete Ports this works...
+  //   // result = Ports.at(id - 1);
+  //
+  //   for(std::map<std::string,AbstractPort*>::iterator it = Ports.begin(); result == NULL && it != Ports.end(); i++){
+  //     if (it.second->Id == id){
+  //       result = it.second;
+  //     }
+  //   }
+  //
+  //   return result;
+  // }
 
-    for(int i = 0; result == NULL && i < Ports.size(); i++){
-      AbstractPort * port = Ports.at(i);
-      if (port->Type == portType && port->Name == needle){
-        result = port;
-      }
-    }
-
-    return result;
-  }
+  // AbstractPort * PortRegistry::findPortByName( std::string needle, AbstractPort::Type_t portType){
+  //   AbstractPort * result = NULL;
+  //
+  //   for(int i = 0; result == NULL && i < Ports.size(); i++){
+  //     AbstractPort * port = Ports.at(i);
+  //     if (port->Type == portType && port->Name == needle){
+  //       result = port;
+  //     }
+  //   }
+  //
+  //   return result;
+  // }
 
   void PortRegistry::registerPort(AbstractPort * port){
-    // std::cout << "register " << portf << std::endl;
+
+    PortDescriptor * desc = port->getPortDescriptor();
+    std::string key = desc->toString();
+    delete desc;
+
+    // std::cout << "registerPort? [" << key << "]" << std::endl;
+
+    // do not re-register port with identical descriptor
+    if (Ports.count(key) > 0){
+      return;
+    }
+
+    // std::cout << "YES" << std::endl;
+
     port->Id = ++EntryIncrement;
-    Ports.push_back(port);
+    Ports[key] = port;
 
     port->subscribePortUpdateReveicer( this );
   }
@@ -159,11 +190,19 @@ namespace MidiPatcher {
   }
 
   void PortRegistry::deviceDiscovered(AbstractPort * port){
-      std::cout << "deviceDiscovered " << port->Name << std::endl;
+    PortDescriptor * desc = port->getPortDescriptor();
+
+    // std::cout << "deviceDiscovered [" << desc->toString() << "](" << port->Name.size() << ")" << std::endl;
+
+    delete desc;
   }
 
   void PortRegistry::deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
-    std::cout << "deviceStateChanged for " << port->Name << " to " << (newState == AbstractPort::DeviceStateConnected ? "CONNECTED" : "NOT CONNECTED") << std::endl;
+    PortDescriptor * desc = port->getPortDescriptor();
+
+    // std::cout << "deviceStateChanged for [" << desc->toString() << "] to " << (newState == AbstractPort::DeviceStateConnected ? "CONNECTED" : "NOT CONNECTED") << std::endl;
+
+    delete desc;
   }
 
 }

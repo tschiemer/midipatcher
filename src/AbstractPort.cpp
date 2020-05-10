@@ -10,7 +10,7 @@ namespace MidiPatcher {
     Type = type;
     Name = name;
 
-    portRegistry->registerPort( this );
+    // portRegistry->registerPort( this );
 
   };
 
@@ -24,15 +24,25 @@ namespace MidiPatcher {
 
 
   void AbstractPort::addConnection(AbstractPort * port){
+    // std::cout << Name << ".addConnection " << port->Name << std::endl;
+
     addConnectionImpl(port);
     Connections.push_back(port);
 
-    start();
+    // std::cout << "#con = " << Connections.size() << std::endl;
+
+    if (getDeviceState() == DeviceStateConnected){
+      start();
+    }
   }
 
   void AbstractPort::removeConnection(AbstractPort * port){
+    // std::cout << Name << ".removeConnection " << port->Name << std::endl;
+
     removeConnectionImpl(port);
     Connections.erase(std::remove(Connections.begin(), Connections.end(), port));
+
+    // std::cout << "#con = " << Connections.size() << std::endl;
 
     if (Connections.size() == 0){
       stop();
@@ -40,15 +50,16 @@ namespace MidiPatcher {
   }
 
   void AbstractPort::onDeviceConnected(){
+    // std::cout << "onDeviceConnected " << Connections.size() << std::endl;
     if (Connections.size() > 0){
       start();
     }
   }
 
   void AbstractPort::onDeviceDisconnected(){
-    if (Connections.size() == 0){
+    // if (Connections.size() == 0){
       stop();
-    }
+    // }
   }
 
 }

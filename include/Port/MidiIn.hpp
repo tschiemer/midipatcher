@@ -44,6 +44,10 @@ namespace MidiPatcher {
           return Key;
         }
 
+        PortDescriptor * getPortDescriptor() {
+            return new PortDescriptor(Key, Name);
+        };
+
         static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
 
 
@@ -64,18 +68,9 @@ namespace MidiPatcher {
 
       public:
 
-        MidiIn(PortRegistry * portRegistry, std::string portName, unsigned int portNumber = 0) : AbstractPort(portRegistry, TypeInput, portName) {
-          PortNumber = portNumber;
+        MidiIn(PortRegistry * portRegistry, std::string portName, unsigned int portNumber = 0);
 
-          (*KnownPorts)[portName] = this;
-        }
-
-        ~MidiIn(){
-          if (MidiPort != NULL){
-            MidiPort->closePort();
-            delete MidiPort;
-          }
-        }
+        ~MidiIn();
 
         DeviceState_t getDeviceState(){
           return DeviceState;

@@ -1,5 +1,10 @@
 #include <Port/MidiOut.hpp>
 
+#include <PortRegistry.hpp>
+
+#include <cstdlib>
+#include <ctime>
+
 namespace MidiPatcher {
 
   namespace Port {
@@ -17,7 +22,7 @@ namespace MidiPatcher {
         previousState[pair.first] = pair.second->getDeviceState();
       });
 
-      RtMidiOut *midiout = 0;
+      static RtMidiOut *midiout = NULL;
 
       std::vector< AbstractPort * > * result = new std::vector< AbstractPort* >();
 
@@ -32,6 +37,11 @@ namespace MidiPatcher {
 
           MidiOut * mi;
           std::string name = midiout->getPortName(i);
+
+          // catch RtMidi Error case :/
+          if (name == ""){
+            continue;
+          }
 
           if (KnownPorts->count(name)){
             mi = KnownPorts->at(name);
@@ -66,11 +76,31 @@ namespace MidiPatcher {
       return result;
     }
 
+    MidiOut::MidiOut(PortRegistry * portRegistry, std::string portName, unsigned int portNumber) : AbstractPort(portRegistry, TypeOutput, portName) {
+      PortNumber = portNumber;
+
+      (*KnownPorts)[portName] = this;
+
+      portRegistry->registerPort( this );
+    }
+
+    MidiOut::~MidiOut() {
+      if (MidiPort != NULL){
+        MidiPort->closePort();
+        delete MidiPort;
+      }
+    }
+
     void MidiOut::start(){
+
+      // if (getDeviceState() == DeviceStateNotConnected){
+      //   return;
+      // }
 
       if (MidiPort != NULL){
         return;
       }
+      // std::cout << "MidiOut:" << Name << " start" << std::endl;
 
       MidiPort = new RtMidiOut();
 
@@ -91,6 +121,7 @@ namespace MidiPatcher {
     }
 
     void MidiOut::send(unsigned char *message, size_t len){
+      // std::cout << "send.." << std::endl;
       if (MidiPort == NULL){
         return;
       }
@@ -98,11 +129,11 @@ namespace MidiPatcher {
         return;
       }
 
-      std::cout << "sending (" << Name << ") ";
-      for(int i = 0; i < len; i++){
-        std::cout << std::hex << (int)message[i] << " ";
-      };
-      std::cout << std::endl;
+      // std::cout << "sending (" << Name << ") ";
+      // for(int i = 0; i < len; i++){
+      //   std::cout << std::hex << (int)message[i] << " ";
+      // };
+      // std::cout << std::endl;
 
       MidiPort->sendMessage(message, len);
     }

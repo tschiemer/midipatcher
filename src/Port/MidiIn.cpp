@@ -5,6 +5,9 @@
 
 #include <iostream>
 
+#include <cstdlib>
+#include <ctime>
+
 namespace MidiPatcher {
 
   namespace Port {
@@ -24,12 +27,18 @@ namespace MidiPatcher {
         previousState[pair.first] = pair.second->getDeviceState();
       });
 
-      RtMidiIn *midiin = NULL;//= RtMidiInRef;
+      static RtMidiIn *midiin = NULL;//new RtMidiIn;//= RtMidiInRef;
 
       std::vector< AbstractPort * > * result = new std::vector< AbstractPort* >();
 
       try {
 
+        // std::srand(std::time(nullptr));
+        // std::string n = "random-in-" + std::to_string(std::rand());
+        //
+        // std::cout << n << std::endl;
+        // //
+        // midiin = new RtMidiIn(RtMidi::UNSPECIFIED, n);
         midiin = new RtMidiIn();
 
         // Check inputs.
@@ -40,6 +49,7 @@ namespace MidiPatcher {
           MidiIn * mi;
           std::string name = midiin->getPortName(i);
 
+          // catch RtMidi Error case :/
           if (name == ""){
             continue;
           }
@@ -79,16 +89,31 @@ namespace MidiPatcher {
     }
 
 
+    MidiIn::MidiIn(PortRegistry * portRegistry, std::string portName, unsigned int portNumber) : AbstractPort(portRegistry, TypeInput, portName) {
+      PortNumber = portNumber;
+
+      (*KnownPorts)[portName] = this;
+
+      portRegistry->registerPort( this );
+    }
+
+    MidiIn::~MidiIn(){
+      if (MidiPort != NULL){
+        MidiPort->closePort();
+        delete MidiPort;
+      }
+    }
+
     void MidiIn::rtMidiCallback( double timeStamp, std::vector<unsigned char> *message, void * midiInRef ){
       assert(midiInRef != NULL);
 
       MidiIn * midiIn = (MidiIn*)midiInRef;
 
-      std::cout << "received (" << midiIn->Name << ") ";
-      std::for_each(message->begin(), message->end(), [](unsigned char c){
-        std::cout << std::hex << (int)c << " ";
-      });
-      std::cout << std::endl;
+      // std::cout << "received (" << midiIn->Name << ") ";
+      // std::for_each(message->begin(), message->end(), [](unsigned char c){
+      //   std::cout << std::hex << (int)c << " ";
+      // });
+      // std::cout << std::endl;
 
       std::for_each(midiIn->Connections.begin(), midiIn->Connections.end(), [message](AbstractPort* port){
         dynamic_cast<AbstractOutputPort*>(port)->send(message);
@@ -96,10 +121,16 @@ namespace MidiPatcher {
     }
 
     void MidiIn::start(){
+      //
+      // if (getDeviceState() == DeviceStateNotConnected){
+      //   return;
+      // }
 
       if (MidiPort != NULL){
         return;
       }
+
+      // std::cout << "MidiIn:" << Name << " start" << std::endl;
 
       MidiPort = new RtMidiIn();
 

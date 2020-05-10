@@ -33,6 +33,10 @@ namespace MidiPatcher {
           return Key;
         }
 
+        PortDescriptor * getPortDescriptor() {
+            return new PortDescriptor(Key, Name);
+        };
+
         static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
 
         static AbstractPort* factory(PortRegistry * portRegistry, PortDescriptor * portDescriptor){
@@ -52,18 +56,9 @@ namespace MidiPatcher {
 
       public:
 
-        MidiOut(PortRegistry * portRegistry, std::string portName, unsigned int portNumber = 0) : AbstractPort(portRegistry, TypeOutput, portName) {
-          PortNumber = portNumber;
+        MidiOut(PortRegistry * portRegistry, std::string portName, unsigned int portNumber = 0);
 
-          (*KnownPorts)[portName] = this;
-        }
-
-        ~MidiOut() {
-          if (MidiPort != NULL){
-            MidiPort->closePort();
-            delete MidiPort;
-          }
-        }
+        ~MidiOut();
 
       protected:
 

@@ -73,7 +73,7 @@ namespace MidiPatcher {
       virtual std::string getKey() = 0;
 
       virtual PortDescriptor * getPortDescriptor() {
-          return new PortDescriptor(getKey(), Name);
+        return new PortDescriptor("AbstractPort","Corona Milkbar");
       };
 
       virtual bool operator==(const AbstractPort& rhs){
