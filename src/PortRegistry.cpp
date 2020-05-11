@@ -116,9 +116,7 @@ namespace MidiPatcher {
 
   void PortRegistry::registerPort(AbstractPort * port){
 
-    PortDescriptor * desc = port->getPortDescriptor();
-    std::string key = desc->getKey();
-    delete desc;
+    std::string key = port->getKey();
 
     // std::cout << "registerPort? [" << key << "]" << std::endl;
 

@@ -63,6 +63,7 @@ namespace MidiPatcher {
         DeviceStateConnected    = 1
       } DeviceState_t;
 
+    protected:
 
       unsigned int Id;
 
@@ -70,8 +71,22 @@ namespace MidiPatcher {
 
       std::string Name;
 
+    public:
+
+      unsigned int getId(){
+        return Id;
+      }
+
+      Type_t getType(){
+        return Type;
+      }
+
       virtual std::string getPortClass() = 0;
-      // virtual std::string getKey() = 0;
+
+      virtual std::string getKey() {
+        return getPortClass() + ":" + Name;
+      };
+
 
       virtual PortDescriptor * getPortDescriptor() {
         return new PortDescriptor("AbstractPort","Corona Milkbar");

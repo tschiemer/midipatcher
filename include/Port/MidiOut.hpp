@@ -40,7 +40,8 @@ namespace MidiPatcher {
         static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
 
         static AbstractPort* factory(PortRegistry * portRegistry, PortDescriptor * portDescriptor){
-           return new MidiOut(portRegistry, portDescriptor->Name);
+          assert( portDescriptor->PortClass == PortClass );
+          return new MidiOut(portRegistry, portDescriptor->Name);
         }
 
         static PortClassRegistryInfo * getPortClassRegistryInfo() {

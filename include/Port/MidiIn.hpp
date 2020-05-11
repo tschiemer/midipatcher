@@ -17,7 +17,8 @@ namespace MidiPatcher {
         static const constexpr char * PortClass = "MidiIn";
 
         static AbstractPort* factory(PortRegistry * portRegistry, PortDescriptor * portDescriptor){
-           return new MidiIn(portRegistry, portDescriptor->Name);
+          assert( portDescriptor->PortClass == PortClass );
+          return new MidiIn(portRegistry, portDescriptor->Name);
         }
 
         static void init(){
@@ -55,7 +56,7 @@ namespace MidiPatcher {
         unsigned int PortNumber = 0;
         RtMidiIn * MidiPort = NULL;
 
-        DeviceState_t DeviceState = DeviceStateNotConnected;
+        // DeviceState_t DeviceState = DeviceStateNotConnected;
 
       public:
 
@@ -63,9 +64,9 @@ namespace MidiPatcher {
 
         ~MidiIn();
 
-        DeviceState_t getDeviceState(){
-          return DeviceState;
-        }
+        // DeviceState_t getDeviceState(){
+        //   return DeviceState;
+        // }
 
       protected:
 

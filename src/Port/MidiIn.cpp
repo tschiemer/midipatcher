@@ -66,7 +66,7 @@ namespace MidiPatcher {
         }
 
       } catch ( RtMidiError &error ) {
-        std::cerr << "ERROR foooo" << std::endl;
+        // std::cerr << "ERROR foooo" << std::endl;
         error.printMessage();
       }
 
@@ -103,14 +103,18 @@ namespace MidiPatcher {
 
       MidiIn * midiIn = (MidiIn*)midiInRef;
 
-      if (message->size() != 7){
-
-        std::cout << "rx [" << midiIn->Name << "](" << message->size() << ") to (" << midiIn->Connections.size() << ") ";
-        std::for_each(message->begin(), message->end(), [](unsigned char c){
-          std::cout << std::hex << (int)c << " ";
-        });
-        std::cout << std::endl;
+      if (midiIn->getDeviceState() == DeviceStateNotConnected){
+        return;
       }
+
+      // if (message->size() != 7){
+      //
+      //   std::cout << "rx [" << midiIn->Name << "](" << message->size() << ") to (" << midiIn->Connections.size() << ") ";
+      //   std::for_each(message->begin(), message->end(), [](unsigned char c){
+      //     std::cout << std::hex << (int)c << " ";
+      //   });
+      //   std::cout << std::endl;
+      // }
 
       std::for_each(midiIn->Connections.begin(), midiIn->Connections.end(), [message](AbstractPort* port){
         dynamic_cast<AbstractOutputPort*>(port)->send(message);
