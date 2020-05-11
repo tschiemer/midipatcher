@@ -135,12 +135,12 @@ namespace MidiPatcher {
 
     protected:
 
-      std::vector<AbstractPort *> Connections;
+      std::map<std::string,AbstractPort *> Connections;
 
     public:
 
       std::vector<AbstractPort *> * getConnections(){
-        return &Connections;
+        return NULL;
       }
 
     protected:

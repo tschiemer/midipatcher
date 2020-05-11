@@ -125,10 +125,10 @@ namespace MidiPatcher {
       return;
     }
 
-    // std::cout << "YES" << std::endl;
-
     port->Id = ++EntryIncrement;
     Ports[key] = port;
+
+    // std::cout << "YES " << Ports.size() <<  std::endl;
 
     port->subscribePortUpdateReveicer( this );
   }
@@ -137,9 +137,11 @@ namespace MidiPatcher {
     assert( portDescriptor != NULL );
     assert( PortClassRegistryInfoMap.count(portDescriptor->PortClass) > 0 );
 
-    if (Ports.count(portDescriptor->toString()) > 0){
-      return Ports[portDescriptor->toString()];
+    if (Ports.count(portDescriptor->getKey()) > 0){
+      // std::cout << "exists! " << portDescriptor->getKey() << std::endl;
+      return Ports[portDescriptor->getKey()];
     }
+    // std::cout << "doesn't exist! " << portDescriptor->getKey() << std::endl;
 
     return PortClassRegistryInfoMap[portDescriptor->PortClass]->Factory(this, portDescriptor);
   }
@@ -149,10 +151,10 @@ namespace MidiPatcher {
     assert(input != NULL);
     assert(output != NULL);
 
-    std::cout << "Connecting [" << input->Name << "] -> [" << output->Name << "]" << std::endl;
+    // std::cout << "Connecting [" << input->Name << "] -> [" << output->Name << "]" << std::endl;
 
-    input->addConnection(output);
     output->addConnection(input);
+    input->addConnection(output);
   }
 
   // void connectPortsByDescriptor(PortDescriptor * indesc, PortDescriptor * outdesc){
@@ -163,8 +165,8 @@ namespace MidiPatcher {
     assert(input != NULL);
     assert(output != NULL);
 
-    input->removeConnection(output);
     output->removeConnection(input);
+    input->removeConnection(output);
   }
 
 
@@ -184,7 +186,7 @@ namespace MidiPatcher {
         std::this_thread::sleep_for(std::chrono::milliseconds(AutoscanIntervalMsec));
       }
     });
-    AutoscanThread.detach();
+    // AutoscanThread.detach();
   }
 
   void PortRegistry::disableAutoscan(){

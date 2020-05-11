@@ -4,45 +4,59 @@
 
 #include <AbstractInputPort.hpp>
 
+#include <thread>
+
+#include <stdio.h>
+
 
 namespace MidiPatcher {
   namespace Port {
 
-    // class PipeIn : AbstractInputPort {
-    //
-    //   public:
-    //
-    //     static void init(){
-    //       // do nothing
-    //     }
-    //
-    //     static void deinit(){
-    //       // do nothing
-    //     }
-    //
-    //     static const constexpr char * Key = "PipeIn";
-    //
-    //     std::string getKey(){
-    //       return Key;
-    //     }
-    //
-    //
-    //     static AbstractPort* factory(PortRegistry * portRegistry, PortDescriptor * portDescriptor);
-    //
-    //     static PortFamilyDeclaration * getDeclaration(){
-    //       return new PortFamilyDeclaration(Key, init, deinit, NULL, factory);
-    //     }
-    //
-    //
-    //   protected:
-    //
-    //     void reader();
-    //
-    //     void addConnectionImpl(AbstractPort * port);
-    //
-    //     void removeConnectionImpl(AbstractPort * port);
-    //
-    // }
+    class FileIn : AbstractInputPort {
+
+      public:
+
+        static const constexpr char * PortClass = "FileIn";
+
+        std::string getPortClass(){
+          return PortClass;
+        }
+
+        static AbstractPort* factory(PortRegistry * portRegistry, PortDescriptor * portDescriptor){
+          assert( portDescriptor->PortClass == PortClass );
+          return new FileIn(portRegistry, portDescriptor->Name);
+        }
+
+        static PortClassRegistryInfo * getPortClassRegistryInfo() {
+          return new PortClassRegistryInfo(PortClass, factory, nullptr, nullptr, nullptr);
+        }
+
+        FileIn(PortRegistry * portRegistry, std::string portName);
+        ~FileIn();
+
+
+      protected:
+
+        std::thread OpenThread;
+
+        int FD = -1;
+
+        void setNonBlocking();
+
+        volatile bool Running = false;
+        std::thread ReaderThread;
+
+        void start();
+        void stop();
+
+      public:
+
+          static const constexpr char * FILE_STDIN = "STDIN";
+
+
+
+
+    };
 
   }
 }

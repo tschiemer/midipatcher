@@ -96,6 +96,7 @@ namespace MidiPatcher {
       // if (getDeviceState() == DeviceStateNotConnected){
       //   return;
       // }
+      // std::cout << "MidiOut:" << Name << " START request" << std::endl;
 
       if (MidiPort != NULL){
         return;
@@ -124,20 +125,22 @@ namespace MidiPatcher {
     }
 
     void MidiOut::send(unsigned char *message, size_t len){
-      // std::cout << "send.." << std::endl;
+      std::cout << "send 1" << std::endl;
 
       if (getDeviceState() == DeviceStateNotConnected){
         return;
       }
 
+      std::cout << "send 2" << std::endl;
+
       if (MidiPort == NULL){
-        // std::cout << "port is NULL?!?! " << Name << " # " << PortNumber << std::endl;
         return;
       }
+      std::cout << "send 3" << std::endl;
       if (MidiPort->isPortOpen() == false){
-        // std::cout << "port not open! " << Name << " # " << PortNumber << std::endl;
         return;
       }
+      std::cout << "send 4" << std::endl;
 
                   // if (len == 3){
                   //   std::cout << "tx [" << Name << "](" << len << ") ";

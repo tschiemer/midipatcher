@@ -9,8 +9,6 @@ namespace MidiPatcher {
 
     VirtMidiIn::VirtMidiIn(PortRegistry * portRegistry, std::string portName) : AbstractPort(portRegistry, TypeInput, portName){
 
-      std::cout << "Opening " << portName << std::endl;
-
       try {
 
         MidiPort = new RtMidiIn();
@@ -21,21 +19,18 @@ namespace MidiPatcher {
 
         MidiPort->openVirtualPort( Name );
 
-        // assert(MidiPort->isPortOpen());
-
       } catch ( RtMidiError &error ) {
-        // std::cerr << "ERROR foooo" << std::endl;
         error.printMessage();
       }
 
-      publishDeviceDiscovered();
+      // publishDeviceDiscovered();
 
       setDeviceState(DeviceStateConnected);
     }
 
     VirtMidiIn::~VirtMidiIn(){
       setDeviceState(DeviceStateNotConnected);
-      
+
       delete MidiPort;
     }
 
@@ -49,9 +44,10 @@ namespace MidiPatcher {
         return;
       }
 
-      std::for_each(midiIn->Connections.begin(), midiIn->Connections.end(), [message](AbstractPort* port){
-        dynamic_cast<AbstractOutputPort*>(port)->send(message);
-      });
+      midiIn->send(message);
+      // std::for_each(midiIn->Connections.begin(), midiIn->Connections.end(), [message](AbstractPort* port){
+      //   dynamic_cast<AbstractOutputPort*>(port)->send(message);
+      // });
     }
 
   }

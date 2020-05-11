@@ -5,7 +5,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-    VirtMidiOut::VirtMidiOut(PortRegistry * portRegistry, std::string portName) : AbstractPort(portRegistry, TypeInput, portName){
+    VirtMidiOut::VirtMidiOut(PortRegistry * portRegistry, std::string portName) : AbstractPort(portRegistry, TypeOutput, portName){
 
       try {
 
@@ -18,7 +18,7 @@ namespace MidiPatcher {
         error.printMessage();
       }
 
-      publishDeviceDiscovered();
+      // publishDeviceDiscovered();
 
       setDeviceState(DeviceStateConnected);
     }

@@ -27,7 +27,10 @@ namespace MidiPatcher {
     // std::cout << Name << ".addConnection " << port->Name << std::endl;
 
     addConnectionImpl(port);
-    Connections.push_back(port);
+
+    // using a map to make sure that connection is set only once.
+    Connections[port->getKey()] = port;
+    // Connections.push_back(port);
 
     // std::cout << "#con = " << Connections.size() << std::endl;
 
@@ -40,7 +43,8 @@ namespace MidiPatcher {
     // std::cout << Name << ".removeConnection " << port->Name << std::endl;
 
     removeConnectionImpl(port);
-    Connections.erase(std::remove(Connections.begin(), Connections.end(), port));
+    // Connections.erase(std::remove(Connections.begin(), Connections.end(), port));
+    Connections.erase(port->getKey());
 
     // std::cout << "#con = " << Connections.size() << std::endl;
 

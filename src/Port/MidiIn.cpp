@@ -116,9 +116,7 @@ namespace MidiPatcher {
       //   std::cout << std::endl;
       // }
 
-      std::for_each(midiIn->Connections.begin(), midiIn->Connections.end(), [message](AbstractPort* port){
-        dynamic_cast<AbstractOutputPort*>(port)->send(message);
-      });
+      midiIn->send(message);
     }
 
     void MidiIn::start(){
