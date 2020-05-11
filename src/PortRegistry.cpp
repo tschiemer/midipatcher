@@ -34,8 +34,10 @@ namespace MidiPatcher {
         other->removeConnection(port);
       });
 
+      delete connections;
       delete port;
     });
+
 
     std::for_each(PortClassRegistryInfoMap.begin(),PortClassRegistryInfoMap.end(), [](std::pair<std::string,AbstractPort::PortClassRegistryInfo *> pair){
       delete pair.second;

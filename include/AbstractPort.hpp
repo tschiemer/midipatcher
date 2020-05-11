@@ -140,7 +140,13 @@ namespace MidiPatcher {
     public:
 
       std::vector<AbstractPort *> * getConnections(){
-        return NULL;
+        std::vector<AbstractPort *> * connections = new std::vector<AbstractPort*>();
+
+        for(std::map<std::string,AbstractPort*>::iterator it = Connections.begin(); it != Connections.end(); it++){
+          connections->push_back( it->second );
+        }
+
+        return connections;
       }
 
     protected:

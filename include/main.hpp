@@ -12,7 +12,7 @@ MidiPatcher::AbstractPort::PortClassRegistryInfo* PortClassRegistryInfoConfig[] 
   MidiPatcher::Port::MidiOut::getPortClassRegistryInfo(),
   MidiPatcher::Port::VirtMidiIn::getPortClassRegistryInfo(),
   MidiPatcher::Port::VirtMidiOut::getPortClassRegistryInfo(),
-  // MidiPatcher::Port::FileIn::getPortClassRegistryInfo()
+  MidiPatcher::Port::FileIn::getPortClassRegistryInfo()
 };
 
 #endif /* MAIN_H */
