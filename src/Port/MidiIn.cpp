@@ -103,14 +103,14 @@ namespace MidiPatcher {
 
       MidiIn * midiIn = (MidiIn*)midiInRef;
 
-      // if (message->size() == 3){
-      //
-      //   std::cout << "rx [" << midiIn->Name << "](" << message->size() << ") to (" << midiIn->Connections.size() << ") ";
-      //   std::for_each(message->begin(), message->end(), [](unsigned char c){
-      //     std::cout << std::hex << (int)c << " ";
-      //   });
-      //   std::cout << std::endl;
-      // }
+      if (message->size() != 7){
+
+        std::cout << "rx [" << midiIn->Name << "](" << message->size() << ") to (" << midiIn->Connections.size() << ") ";
+        std::for_each(message->begin(), message->end(), [](unsigned char c){
+          std::cout << std::hex << (int)c << " ";
+        });
+        std::cout << std::endl;
+      }
 
       std::for_each(midiIn->Connections.begin(), midiIn->Connections.end(), [message](AbstractPort* port){
         dynamic_cast<AbstractOutputPort*>(port)->send(message);

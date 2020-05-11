@@ -8,12 +8,12 @@ namespace MidiPatcher {
 
   struct PortDescriptor {
 
-    std::string Key;
+    std::string PortClass;
     std::string Name;
     std::map<std::string,std::string> Options;
 
-    PortDescriptor(std::string key, std::string name, std::map<std::string,std::string> options = std::map<std::string, std::string>() ){
-      Key = key;
+    PortDescriptor(std::string portClass, std::string name, std::map<std::string,std::string> options = std::map<std::string, std::string>() ){
+      PortClass = portClass;
       Name = name;
       Options = options;
     }
@@ -25,6 +25,10 @@ namespace MidiPatcher {
     }
 
     std::string toString();
+
+    std::string getKey(){
+      return PortClass + ":" + Name;
+    }
   };
 
 }

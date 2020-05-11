@@ -7,7 +7,7 @@ namespace MidiPatcher {
 
       assert( pos != std::string::npos );
 
-      Key = str.substr(0, pos);
+      PortClass = str.substr(0, pos);
 
       // assert( PortRegistry::getPortFamilyDeclarations()->count(Key) > 0 );
 
@@ -57,7 +57,7 @@ namespace MidiPatcher {
     }
 
     std::string PortDescriptor::toString(){
-      std::string str = Key + ":" + Name;
+      std::string str = PortClass + ":" + Name;
       if (Options.size() > 0){
         std::for_each(Options.begin(), Options.end(), [&str](std::pair<std::string,std::string> opt){
           str += "," + opt.first;

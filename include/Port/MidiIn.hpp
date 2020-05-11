@@ -14,16 +14,13 @@ namespace MidiPatcher {
 
       public:
 
-        static const constexpr char * Key = "MidiIn";
+        static const constexpr char * PortClass = "MidiIn";
 
         static AbstractPort* factory(PortRegistry * portRegistry, PortDescriptor * portDescriptor){
            return new MidiIn(portRegistry, portDescriptor->Name);
         }
 
         static void init(){
-          // if (RtMidiInRef == NULL){
-          //   RtMidiInRef = new RtMidiIn;
-          // }
           if (KnownPorts == NULL){
             KnownPorts =  new std::map<std::string,MidiIn*>();
           }
@@ -34,30 +31,24 @@ namespace MidiPatcher {
             delete KnownPorts;
             KnownPorts = NULL;
           }
-          // if (RtMidiInRef != NULL){
-          //   delete RtMidiInRef;
-          //   RtMidiInRef = NULL;
-          // }
         }
 
-        std::string getKey(){
-          return Key;
+        std::string getPortClass(){
+          return PortClass;
         }
 
         PortDescriptor * getPortDescriptor() {
-            return new PortDescriptor(Key, Name);
+            return new PortDescriptor(PortClass, Name);
         };
 
         static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
 
 
         static PortClassRegistryInfo * getPortClassRegistryInfo(){
-          return new PortClassRegistryInfo(Key, factory, init, deinit, scan);
+          return new PortClassRegistryInfo(PortClass, factory, init, deinit, scan);
         }
 
       protected:
-
-        // static RtMidiIn * RtMidiInRef;
 
         static std::map<std::string, MidiIn*> * KnownPorts;
 

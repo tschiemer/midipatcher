@@ -70,7 +70,8 @@ namespace MidiPatcher {
 
       std::string Name;
 
-      virtual std::string getKey() = 0;
+      virtual std::string getPortClass() = 0;
+      // virtual std::string getKey() = 0;
 
       virtual PortDescriptor * getPortDescriptor() {
         return new PortDescriptor("AbstractPort","Corona Milkbar");

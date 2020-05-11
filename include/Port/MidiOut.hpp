@@ -27,14 +27,14 @@ namespace MidiPatcher {
           }
         }
 
-        static const constexpr char * Key = "MidiOut";
+        static const constexpr char * PortClass = "MidiOut";
 
-        std::string getKey(){
-          return Key;
+        std::string getPortClass(){
+          return PortClass;
         }
 
         PortDescriptor * getPortDescriptor() {
-            return new PortDescriptor(Key, Name);
+            return new PortDescriptor(PortClass, Name);
         };
 
         static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
@@ -44,7 +44,7 @@ namespace MidiPatcher {
         }
 
         static PortClassRegistryInfo * getPortClassRegistryInfo() {
-          return new PortClassRegistryInfo(Key, factory, init, deinit, scan);
+          return new PortClassRegistryInfo(PortClass, factory, init, deinit, scan);
         }
 
       protected:
