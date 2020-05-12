@@ -4,3 +4,6 @@
 [submodule "deps/midimessage"]
 	path = deps/midimessage
 	url = https://github.com/tschiemer/midimessage
+[submodule "deps/asio"]
+	path = deps/asio
+	url = https://github.com/chriskohlhoff/asio
