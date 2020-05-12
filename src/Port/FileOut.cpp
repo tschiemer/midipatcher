@@ -1,4 +1,5 @@
 #include <Port/FileOut.hpp>
+#include <PortRegistry.hpp>
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -37,6 +38,9 @@ namespace MidiPatcher {
           // OpenThread.detach();
 
         }
+
+
+      portRegistry->registerPort( this );
     }
 
     FileOut::~FileOut(){

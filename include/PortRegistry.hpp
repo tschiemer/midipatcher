@@ -36,6 +36,10 @@ namespace MidiPatcher {
 
       std::vector<AbstractPort::PortClassRegistryInfo*> * getPortClassRegistryInfoList();
 
+      bool portClassExists( std::string portClass ){
+        return PortClassRegistryInfoMap.count(portClass) > 0;
+      }
+
     protected:
 
       std::map<std::string, AbstractPort*> Ports;

@@ -131,7 +131,7 @@ namespace MidiPatcher {
 
     std::string key = port->getKey();
 
-    // std::cout << "registerPort? [" << key << "]" << std::endl;
+    std::cout << "registerPort? [" << key << "]" << std::endl;
 
     // do not re-register port with identical descriptor
     if (Ports.count(key) > 0){
@@ -148,7 +148,7 @@ namespace MidiPatcher {
 
   AbstractPort* PortRegistry::registerPortFromDescriptor(PortDescriptor * portDescriptor){
     assert( portDescriptor != NULL );
-    assert( PortClassRegistryInfoMap.count(portDescriptor->PortClass) > 0 );
+    assert( portClassExists(portDescriptor->PortClass) );
 
     if (Ports.count(portDescriptor->getKey()) > 0){
       // std::cout << "exists! " << portDescriptor->getKey() << std::endl;

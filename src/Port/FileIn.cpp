@@ -1,6 +1,7 @@
 #include <Port/FileIn.hpp>
 
 #include <AbstractOutputPort.hpp>
+#include <PortRegistry.hpp>
 
 #include <midimessage.h>
 
@@ -19,6 +20,8 @@ namespace MidiPatcher {
 
 
         parser_init(&Parser, RunningStatusEnabled, ParserBuffer, sizeof(ParserBuffer), &MidiMessageMem, midiMessageHandler, midiMessageDiscardHandler, this);
+
+        portRegistry->registerPort( this );
 
         if (portName == FILE_STDIN){
           // std::cout << "opening stdin" << std::endl;
