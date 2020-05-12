@@ -125,22 +125,22 @@ namespace MidiPatcher {
     }
 
     void MidiOut::send(unsigned char *message, size_t len){
-      std::cout << "send 1" << std::endl;
+      // std::cout << "send 1" << std::endl;
 
       if (getDeviceState() == DeviceStateNotConnected){
         return;
       }
 
-      std::cout << "send 2" << std::endl;
+      // std::cout << "send 2" << std::endl;
 
       if (MidiPort == NULL){
         return;
       }
-      std::cout << "send 3" << std::endl;
+      // std::cout << "send 3" << std::endl;
       if (MidiPort->isPortOpen() == false){
         return;
       }
-      std::cout << "send 4" << std::endl;
+      // std::cout << "send 4" << std::endl;
 
                   // if (len == 3){
                   //   std::cout << "tx [" << Name << "](" << len << ") ";

@@ -2,6 +2,8 @@
 
 #include <AbstractOutputPort.hpp>
 
+#include <midimessage.h>
+
 #include <cassert>
 #include <cstdio>
 
@@ -15,8 +17,11 @@ namespace MidiPatcher {
 
       FileIn::FileIn(PortRegistry * portRegistry, std::string portName) : AbstractPort(portRegistry, TypeOutput, portName){
 
+
+        parser_init(&Parser, RunningStatusEnabled, ParserBuffer, sizeof(ParserBuffer), &MidiMessageMem, midiMessageHandler, midiMessageDiscardHandler, this);
+
         if (portName == FILE_STDIN){
-          std::cout << "opening stdin" << std::endl;
+          // std::cout << "opening stdin" << std::endl;
           // FD = stdin;
           FD = 0;
 
@@ -31,7 +36,7 @@ namespace MidiPatcher {
 
           OpenThread = std::thread([this,portName](){
             this->FD = open(portName.c_str(), O_RDONLY);
-            std::cout << "FD = " << this->FD << std::endl;
+            // std::cout << "FD = " << this->FD << std::endl;
 
             this->setDeviceState(DeviceStateConnected);
           });
@@ -98,7 +103,8 @@ namespace MidiPatcher {
               // std::cout << std::endl;
 
 
-              this->send(buffer,count);
+              // this->send(buffer,count);
+              parser_receivedData(&Parser, buffer, count);
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -118,6 +124,25 @@ namespace MidiPatcher {
         }
         // Running = false;
         // ReaderThread.join();
+      }
+
+      void FileIn::midiMessageHandler(MidiMessage::Message_t * message, void * context){
+        assert(context != NULL);
+
+        FileIn * self = (FileIn*)context;
+
+        unsigned char bytes[128];
+        size_t len = pack( (uint8_t*)bytes, message );
+
+        self->send(bytes, len);
+      }
+
+      void FileIn::midiMessageDiscardHandler(uint8_t *bytes, uint8_t length, void *context){
+        // std::cout << "Discarding ";
+        // for(int i = 0; i < length; i++){
+        //   std::cout << std::hex << (int)bytes[i] << " ";
+        // }
+        // std::cout << std::endl;
       }
 
   }

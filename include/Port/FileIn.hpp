@@ -4,6 +4,8 @@
 
 #include <AbstractInputPort.hpp>
 
+#include <midimessage/parser.h>
+
 #include <thread>
 
 #include <stdio.h>
@@ -48,6 +50,21 @@ namespace MidiPatcher {
 
         void start();
         void stop();
+
+        uint8_t ParserBuffer[128];
+        uint8_t MsgBuffer[128];
+        MidiMessage::Parser_t Parser;
+        bool RunningStatusEnabled = false;
+        MidiMessage::Message_t MidiMessageMem = {
+          .Data = {
+            .SysEx = {
+              .ByteData = MsgBuffer
+            }
+          }
+        };
+
+        static void midiMessageHandler(MidiMessage::Message_t * message, void * context);
+        static void midiMessageDiscardHandler(uint8_t *bytes, uint8_t length, void *context);
 
       public:
 
