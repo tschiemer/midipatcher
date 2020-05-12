@@ -34,9 +34,7 @@ namespace MidiPatcher {
       void init();
       void deinit();
 
-      std::map<std::string, AbstractPort::PortClassRegistryInfo*> * getPortClassRegistryInfoMap(){
-        return &PortClassRegistryInfoMap;
-      }
+      std::vector<AbstractPort::PortClassRegistryInfo*> * getPortClassRegistryInfoList();
 
     protected:
 

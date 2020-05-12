@@ -47,7 +47,7 @@ namespace MidiPatcher {
 
   void PortRegistry::init(){
 
-    for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); ++it)
+    for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); it++)
     {
       if (it->second->Init != NULL){
         it->second->Init();
@@ -57,13 +57,24 @@ namespace MidiPatcher {
 
   void PortRegistry::deinit(){
 
-    for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); ++it)
+    for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); it++)
     {
       if (it->second->Deinit != NULL){
         it->second->Deinit();
       }
     }
 
+  }
+
+  std::vector<AbstractPort::PortClassRegistryInfo*> * PortRegistry::getPortClassRegistryInfoList(){
+
+    std::vector<AbstractPort::PortClassRegistryInfo*> * list = new std::vector<AbstractPort::PortClassRegistryInfo*>();
+
+    for( std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); it++){
+      list->push_back( it->second );
+    }
+
+    return list;
   }
 
   void PortRegistry::rescan(){

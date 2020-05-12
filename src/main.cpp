@@ -18,14 +18,21 @@ MidiPatcher::PortRegistry * portRegistry = NULL;
 int sigintTicks = 0;
 volatile bool Running = false;
 
+void printVersion( void ){
+    std::cout << "midipatcher " << VERSION << std::endl;
+}
+
 void printHelp( void ) {
     printf("Usage:\n");
-    printf("\t midipatcher [-h?]\n");
-    printf("\t midipatcher -l\n");
-    printf("\t midipatcher ([<in-descriptor1> <out-descriptor1>] .. )+\n");
+    printf("\t midipatcher [-vh?]\n");
+    printf("\t midipatcher (-l|--list-ports)\n");
+    printf("\t midipatcher (-p|--list-port-classes)\n");
+    printf("\t midipatcher <in-descriptor1> <out-descriptor1> ... \n");
     printf("\nOptions:\n");
-    printf("\t -h|-? \t\t\t\t show this help\n");
-    printf("\t -l|--list-descriptors \t list input/output ports (descriptors)\n");
+    printf("\t -v \t\t\t\t Show version.\n");
+    printf("\t -h|-? \t\t\t\t Show this help.\n");
+    printf("\t -l|--list-ports \t\t List known/detected ports (descriptors).\n");
+    printf("\t -p|--list-port-classes \t List registered port classes.\n");
     printf("\n");
 }
 
@@ -75,6 +82,18 @@ void listInterfaces(bool printCount = true, bool printList = true){
   delete ports;
 }
 
+void listPortClasses(){
+  std::vector<MidiPatcher::AbstractPort::PortClassRegistryInfo*> * list = portRegistry->getPortClassRegistryInfoList();
+
+  std::cout << list->size() << std::endl;
+
+  for(int i = 0; i < list->size(); i++){
+    std::cout << list->at(i)->Key << std::endl;
+  }
+
+  delete list;
+}
+
 void deinit();
 
 void init(){
@@ -118,9 +137,9 @@ int main(int argc, char * argv[], char * env[]){
         int option_index = 0;
 
         static struct option long_options[] = {
-          // {"control-surface", required_argument, 0, 'c'},
-          // {"session-name", optional_argument, 0, 's'},
-          {"list-descriptors", optional_argument, 0, 'l'},
+          {"version", no_argument, 0, 'v'},
+          {"list-ports", no_argument, 0, 'l'},
+          {"list-port-classes", no_argument, 0, 'p'},
                 // {"parse",    no_argument,    0,  'p' },
                 // {"generate",   no_argument,    0,  'g' },
                 // {"timed", optional_argument,  0, 't'},
@@ -136,7 +155,7 @@ int main(int argc, char * argv[], char * env[]){
             {0,         0,              0,  0 }
         };
 
-        c = getopt_long(argc, argv, "h?l::io",
+        c = getopt_long(argc, argv, "vh?lp",
                         long_options, &option_index);
         if (c == -1)
             break;
@@ -144,24 +163,22 @@ int main(int argc, char * argv[], char * env[]){
         switch (c) {
             // case 0:
 
+            case 'v':
+                printVersion();
+                return EXIT_SUCCESS;
+
             case '?':
             case 'h':
                 printHelp();
                 return EXIT_SUCCESS;
 
             case 'l':
-              // if (optarg != NULL && strlen(optarg) > 0){
-              //   if (strlen(optarg) == 1 && optarg[0] == 'i'){
-              //     listInterfaces(true,false);
-              //   } else if (strlen(optarg) == 1 && optarg[0] == 'o'){
-              //     listInterfaces(false,true);
-              //   } else {
-              //     std::cerr << "ERROR invalid option for --list-interfaces" << std::endl;
-              //   }
-              // } else {
                 listInterfaces();
-              // }
-              return EXIT_SUCCESS;
+                return EXIT_SUCCESS;
+
+            case 'p':
+                listPortClasses();
+                return EXIT_SUCCESS;
 
             // case 'i':
             //   assert( optarg != NULL && strlen(optarg) > 0 );
