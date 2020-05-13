@@ -2,7 +2,7 @@
 #define PORT_PIPE_IN
 
 
-#include <AbstractInputPort.hpp>
+#include <AbstractStreamInputPort.hpp>
 
 #include <midimessage/parser.h>
 
@@ -14,7 +14,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-    class FileIn : AbstractInputPort {
+    class FileIn : AbstractStreamInputPort {
 
       public:
 
@@ -51,21 +51,21 @@ namespace MidiPatcher {
 
         void start();
         void stop();
-
-        uint8_t ParserBuffer[128];
-        uint8_t MsgBuffer[128];
-        MidiMessage::Parser_t Parser;
-        bool RunningStatusEnabled = false;
-        MidiMessage::Message_t MidiMessageMem = {
-          .Data = {
-            .SysEx = {
-              .ByteData = MsgBuffer
-            }
-          }
-        };
-
-        static void midiMessageHandler(MidiMessage::Message_t * message, void * context);
-        static void midiMessageDiscardHandler(uint8_t *bytes, uint8_t length, void *context);
+        //
+        // uint8_t ParserBuffer[128];
+        // uint8_t MsgBuffer[128];
+        // MidiMessage::Parser_t Parser;
+        // bool RunningStatusEnabled = false;
+        // MidiMessage::Message_t MidiMessageMem = {
+        //   .Data = {
+        //     .SysEx = {
+        //       .ByteData = MsgBuffer
+        //     }
+        //   }
+        // };
+        //
+        // static void midiMessageHandler(MidiMessage::Message_t * message, void * context);
+        // static void midiMessageDiscardHandler(uint8_t *bytes, uint8_t length, void *context);
 
       public:
 

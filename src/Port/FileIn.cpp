@@ -111,7 +111,8 @@ namespace MidiPatcher {
 
 
               // this->send(buffer,count);
-              parser_receivedData(&Parser, buffer, count);
+              receivedStreamData(buffer[0], count);
+              // parser_receivedData(&Parser, buffer, count);
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -131,25 +132,6 @@ namespace MidiPatcher {
         }
         // Running = false;
         // ReaderThread.join();
-      }
-
-      void FileIn::midiMessageHandler(MidiMessage::Message_t * message, void * context){
-        assert(context != NULL);
-
-        FileIn * self = (FileIn*)context;
-
-        unsigned char bytes[128];
-        size_t len = pack( (uint8_t*)bytes, message );
-
-        self->received(bytes, len);
-      }
-
-      void FileIn::midiMessageDiscardHandler(uint8_t *bytes, uint8_t length, void *context){
-        // std::cout << "Discarding ";
-        // for(int i = 0; i < length; i++){
-        //   std::cout << std::hex << (int)bytes[i] << " ";
-        // }
-        // std::cout << std::endl;
       }
 
   }
