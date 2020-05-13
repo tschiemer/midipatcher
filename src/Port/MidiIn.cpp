@@ -83,7 +83,7 @@ namespace MidiPatcher {
     }
 
 
-    MidiIn::MidiIn(std::string portName, unsigned int portNumber) : AbstractPort(TypeInput, portName) {
+    MidiIn::MidiIn(std::string portName, unsigned int portNumber) : AbstractInputPort(portName) {
       PortNumber = portNumber;
 
       (*KnownPorts)[portName] = this;
@@ -121,7 +121,7 @@ namespace MidiPatcher {
       //   std::cout << std::endl;
       // }
 
-      midiIn->send(message);
+      midiIn->received(message);
     }
 
     void MidiIn::start(){

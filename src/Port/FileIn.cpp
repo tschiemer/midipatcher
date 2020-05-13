@@ -16,7 +16,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-      FileIn::FileIn(std::string portName) : AbstractPort(TypeOutput, portName){
+      FileIn::FileIn(std::string portName) : AbstractInputPort(portName){
 
 
         parser_init(&Parser, RunningStatusEnabled, ParserBuffer, sizeof(ParserBuffer), &MidiMessageMem, midiMessageHandler, midiMessageDiscardHandler, this);
@@ -141,7 +141,7 @@ namespace MidiPatcher {
         unsigned char bytes[128];
         size_t len = pack( (uint8_t*)bytes, message );
 
-        self->send(bytes, len);
+        self->received(bytes, len);
       }
 
       void FileIn::midiMessageDiscardHandler(uint8_t *bytes, uint8_t length, void *context){

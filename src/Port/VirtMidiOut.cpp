@@ -7,7 +7,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-    VirtMidiOut::VirtMidiOut(std::string portName) : AbstractPort(TypeOutput, portName){
+    VirtMidiOut::VirtMidiOut(std::string portName) : AbstractOutputPort(portName){
 
       try {
 

@@ -8,7 +8,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-    VirtMidiIn::VirtMidiIn(std::string portName) : AbstractPort(TypeInput, portName){
+    VirtMidiIn::VirtMidiIn(std::string portName) : AbstractInputPort(portName){
 
       try {
 
@@ -48,10 +48,7 @@ namespace MidiPatcher {
         return;
       }
 
-      midiIn->send(message);
-      // std::for_each(midiIn->Connections.begin(), midiIn->Connections.end(), [message](AbstractPort* port){
-      //   dynamic_cast<AbstractOutputPort*>(port)->send(message);
-      // });
+      midiIn->received(message);
     }
 
   }

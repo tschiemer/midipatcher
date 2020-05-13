@@ -100,6 +100,7 @@ namespace MidiPatcher {
 
     protected:
 
+      AbstractPort(){};
       AbstractPort(Type_t type, std::string name);
 
     public:

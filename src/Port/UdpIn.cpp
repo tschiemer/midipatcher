@@ -5,7 +5,7 @@ namespace MidiPatcher {
   namespace Port {
 
     UdpIn::UdpIn(std::string portName, short port, std::string listenAddress, std::string multicastAddress)
-      :  AbstractPort(TypeInput, portName), Socket(IOContext)
+      :  AbstractInputPort(portName), Socket(IOContext)
       {
 
 // ;
@@ -91,7 +91,7 @@ namespace MidiPatcher {
 
 
             // this->send(buffer,count);
-            send(buffer, count);
+            received(buffer, count);
           }
 
           // std::this_thread::sleep_for(std::chrono::milliseconds(50));

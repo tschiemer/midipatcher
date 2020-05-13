@@ -9,7 +9,7 @@ namespace MidiPatcher {
   namespace Port {
 
 
-    FileOut::FileOut(std::string portName) : AbstractPort(TypeOutput, portName){
+    FileOut::FileOut(std::string portName) : AbstractOutputPort(portName){
 
         if (portName == FILE_STDOUT){
 

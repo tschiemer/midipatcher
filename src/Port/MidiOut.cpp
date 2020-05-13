@@ -76,7 +76,7 @@ namespace MidiPatcher {
       return result;
     }
 
-    MidiOut::MidiOut(std::string portName, unsigned int portNumber) : AbstractPort(TypeOutput, portName) {
+    MidiOut::MidiOut(std::string portName, unsigned int portNumber) : AbstractOutputPort(portName) {
       PortNumber = portNumber;
 
       (*KnownPorts)[portName] = this;
