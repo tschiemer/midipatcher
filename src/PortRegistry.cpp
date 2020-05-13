@@ -99,6 +99,13 @@ namespace MidiPatcher {
     return ports;
   }
 
+  AbstractPort * PortRegistry::getPortByKey(std::string key){
+    if (Ports.count(key) > 0){
+      return Ports[key];
+    }
+    return NULL;
+  }
+
   // AbstractPort * PortRegistry::getPortById( unsigned int id ){
   //   AbstractPort * result = NULL;
   //
@@ -108,19 +115,6 @@ namespace MidiPatcher {
   //   for(std::map<std::string,AbstractPort*>::iterator it = Ports.begin(); result == NULL && it != Ports.end(); i++){
   //     if (it.second->Id == id){
   //       result = it.second;
-  //     }
-  //   }
-  //
-  //   return result;
-  // }
-
-  // AbstractPort * PortRegistry::findPortByName( std::string needle, AbstractPort::Type_t portType){
-  //   AbstractPort * result = NULL;
-  //
-  //   for(int i = 0; result == NULL && i < Ports.size(); i++){
-  //     AbstractPort * port = Ports.at(i);
-  //     if (port->Type == portType && port->Name == needle){
-  //       result = port;
   //     }
   //   }
   //
@@ -170,9 +164,12 @@ namespace MidiPatcher {
     input->addConnection(output);
   }
 
-  // void connectPortsByDescriptor(PortDescriptor * indesc, PortDescriptor * outdesc){
-  //
-  // }
+  void PortRegistry::connectPortsByKey(std::string inputKey, std::string outputKey){
+    assert( getPortByKey(inputKey) != NULL );
+    assert( getPortByKey(outputKey) != NULL );
+
+    connectPorts( getPortByKey(inputKey), getPortByKey(outputKey) );
+  }
 
   void PortRegistry::disconnectPorts(AbstractPort *input, AbstractPort *output){
     assert(input != NULL);
@@ -182,6 +179,12 @@ namespace MidiPatcher {
     input->removeConnection(output);
   }
 
+  void PortRegistry::disconnectPortsByKey(std::string inputKey, std::string outputKey){
+    assert( getPortByKey(inputKey) != NULL );
+    assert( getPortByKey(outputKey) != NULL );
+
+    connectPorts( getPortByKey(inputKey), getPortByKey(outputKey) );
+  }
 
   void PortRegistry::enableAutoscan(unsigned int intervalMsec){
     if (AutoscanEnabled == true){

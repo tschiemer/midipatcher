@@ -52,13 +52,9 @@ namespace MidiPatcher {
 
       std::vector<AbstractPort*> * getAllPorts();
 
+      AbstractPort * getPortByKey(std::string key);
+
       // AbstractPort * getPortById( unsigned int id );
-
-      // AbstractPort * findPortByName( std::string needle, AbstractPort::Type_t portType );
-
-      // std::vector<AbstractPort*> * findPortsByType( AbstractPort::Type_t portType );
-      //
-      // std::vector<AbstractPort*> * findPortsByKey( std::string key );
 
       void registerPort(AbstractPort * port);
 
@@ -66,9 +62,10 @@ namespace MidiPatcher {
 
 
       void connectPorts(AbstractPort *input, AbstractPort *output);
-      // void connectPortsByDescriptor(PortDescriptor * indesc, PortDescriptor * outdesc);
+      void connectPortsByKey(std::string inputKey, std::string outputKey);
 
       void disconnectPorts(AbstractPort *input, AbstractPort *output);
+      void disconnectPortsByKey(std::string inputKey, std::string outputKey);
 
     protected:
 
