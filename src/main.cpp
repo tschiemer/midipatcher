@@ -229,7 +229,7 @@ int main(int argc, char * argv[], char * env[]){
       return EXIT_FAILURE;
     }
 
-    // portRegistry->rescan();
+    portRegistry->rescan();
 
     char ** args = &argv[optind];
 

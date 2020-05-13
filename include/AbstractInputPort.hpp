@@ -10,6 +10,7 @@ namespace MidiPatcher {
 
     public:
       AbstractInputPort(){}
+      AbstractInputPort(std::string name) : AbstractPort(TypeInput, name){}
 
     protected:
       void send(std::vector<unsigned char> *message );

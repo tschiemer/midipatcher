@@ -16,12 +16,11 @@
 namespace MidiPatcher {
   namespace Port {
 
-      FileIn::FileIn(PortRegistry * portRegistry, std::string portName) : AbstractPort(portRegistry, TypeOutput, portName){
+      FileIn::FileIn(std::string portName) : AbstractPort(TypeOutput, portName){
 
 
         parser_init(&Parser, RunningStatusEnabled, ParserBuffer, sizeof(ParserBuffer), &MidiMessageMem, midiMessageHandler, midiMessageDiscardHandler, this);
 
-        portRegistry->registerPort( this );
 
         if (portName == FILE_STDIN){
           // std::cout << "opening stdin" << std::endl;
@@ -65,6 +64,11 @@ namespace MidiPatcher {
             // fclose(FD);
             close(FD);
         }
+      }
+
+
+      void FileIn::registerPort(PortRegistry &portRegistry){
+        portRegistry.registerPort(this);
       }
 
       void FileIn::setNonBlocking(){

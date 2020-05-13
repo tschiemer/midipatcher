@@ -1,11 +1,13 @@
 #include <Port/VirtMidiOut.hpp>
 
+#include <PortRegistry.hpp>
+
 #include <iostream>
 
 namespace MidiPatcher {
   namespace Port {
 
-    VirtMidiOut::VirtMidiOut(PortRegistry * portRegistry, std::string portName) : AbstractPort(portRegistry, TypeOutput, portName){
+    VirtMidiOut::VirtMidiOut(std::string portName) : AbstractPort(TypeOutput, portName){
 
       try {
 
@@ -30,6 +32,9 @@ namespace MidiPatcher {
       delete MidiPort;
     }
 
+    void VirtMidiOut::registerPort(PortRegistry &portRegistry){
+      portRegistry.registerPort(this);
+    }
 
     void VirtMidiOut::send(unsigned char *message, size_t len){
 

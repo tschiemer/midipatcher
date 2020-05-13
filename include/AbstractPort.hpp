@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <cassert>
+#include <algorithm>
 
 #include <iostream>
 
@@ -28,7 +29,7 @@ namespace MidiPatcher {
     public:
 
       typedef std::vector<AbstractPort*>  * (*PortScanner)(PortRegistry * portRegistry);
-      typedef AbstractPort * (*PortFactory)(PortRegistry * portRegistry, PortDescriptor * portDescriptor);
+      typedef AbstractPort * (*PortFactory)(PortDescriptor * portDescriptor);
 
       struct PortClassRegistryInfo {
         std::string Key;
@@ -55,6 +56,7 @@ namespace MidiPatcher {
       typedef enum {
         TypeInput        = 1,
         TypeOutput       = 2,
+        TypeInputOutput  = 3
       } Type_t;
 
 
@@ -87,7 +89,6 @@ namespace MidiPatcher {
         return getPortClass() + ":" + Name;
       };
 
-
       virtual PortDescriptor * getPortDescriptor() {
         return new PortDescriptor("AbstractPort","Corona Milkbar");
       };
@@ -99,11 +100,13 @@ namespace MidiPatcher {
 
     protected:
 
-      AbstractPort(PortRegistry * portRegistry, Type_t type, std::string name);
+      AbstractPort(Type_t type, std::string name);
 
     public:
 
       virtual ~AbstractPort();
+
+      virtual void registerPort(PortRegistry &portRegistry){}
 
     private:
 

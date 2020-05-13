@@ -18,17 +18,19 @@ namespace MidiPatcher {
         return PortClass;
       }
 
-      static AbstractPort* factory(PortRegistry * portRegistry, PortDescriptor * portDescriptor){
+      static AbstractPort* factory(PortDescriptor * portDescriptor){
         assert( portDescriptor->PortClass == PortClass );
-        return new VirtMidiOut(portRegistry, portDescriptor->Name);
+        return new VirtMidiOut(portDescriptor->Name);
       }
 
       static PortClassRegistryInfo * getPortClassRegistryInfo() {
         return new PortClassRegistryInfo(PortClass, factory, nullptr, nullptr, nullptr);
       }
 
-      VirtMidiOut(PortRegistry * portRegistry, std::string portName);
+      VirtMidiOut(std::string portName);
       ~VirtMidiOut();
+
+      void registerPort(PortRegistry &portRegistry);
 
       void send(unsigned char *message, size_t len);
 

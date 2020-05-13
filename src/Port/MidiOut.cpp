@@ -49,7 +49,7 @@ namespace MidiPatcher {
 
             seen[name] = true;
           } else {
-            mi = new MidiOut(portRegistry, name, i);
+            mi = new MidiOut(name, i);
 
             mi->publishDeviceDiscovered();
           }
@@ -76,12 +76,12 @@ namespace MidiPatcher {
       return result;
     }
 
-    MidiOut::MidiOut(PortRegistry * portRegistry, std::string portName, unsigned int portNumber) : AbstractPort(portRegistry, TypeOutput, portName) {
+    MidiOut::MidiOut(std::string portName, unsigned int portNumber) : AbstractPort(TypeOutput, portName) {
       PortNumber = portNumber;
 
       (*KnownPorts)[portName] = this;
 
-      portRegistry->registerPort( this );
+      // portRegistry->registerPort( this );
     }
 
     MidiOut::~MidiOut() {
@@ -89,6 +89,10 @@ namespace MidiPatcher {
         MidiPort->closePort();
         delete MidiPort;
       }
+    }
+
+    void MidiOut::registerPort(PortRegistry &portRegistry){
+      portRegistry.registerPort(this);
     }
 
     void MidiOut::start(){

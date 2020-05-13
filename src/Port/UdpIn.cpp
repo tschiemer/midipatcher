@@ -4,8 +4,8 @@
 namespace MidiPatcher {
   namespace Port {
 
-    UdpIn::UdpIn(PortRegistry * portRegistry, std::string portName, short port, std::string listenAddress, std::string multicastAddress)
-      :  AbstractPort(portRegistry, TypeInput, portName), Socket(IOContext)
+    UdpIn::UdpIn(std::string portName, short port, std::string listenAddress, std::string multicastAddress)
+      :  AbstractPort(TypeInput, portName), Socket(IOContext)
       {
 
 // ;
@@ -33,7 +33,7 @@ namespace MidiPatcher {
       //   asio::ip::multicast::join_group(multicast_address)
       // );
 
-      portRegistry->registerPort( this );
+      // portRegistry->registerPort( this );
 
 
           // size_t length = Socket.receive_from(asio::buffer(DataBuffer, sizeof(DataBuffer)), Endpoint);
@@ -52,6 +52,10 @@ namespace MidiPatcher {
 
     UdpIn::~UdpIn(){
 
+    }
+
+    void UdpIn::registerPort(PortRegistry &portRegistry){
+      portRegistry.registerPort(this);
     }
 
     void UdpIn::start(){

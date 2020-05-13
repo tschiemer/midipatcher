@@ -1,5 +1,6 @@
 #include <Port/VirtMidiIn.hpp>
 
+#include <PortRegistry.hpp>
 #include <AbstractOutputPort.hpp>
 
 #include <iostream>
@@ -7,7 +8,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-    VirtMidiIn::VirtMidiIn(PortRegistry * portRegistry, std::string portName) : AbstractPort(portRegistry, TypeInput, portName){
+    VirtMidiIn::VirtMidiIn(std::string portName) : AbstractPort(TypeInput, portName){
 
       try {
 
@@ -34,6 +35,9 @@ namespace MidiPatcher {
       delete MidiPort;
     }
 
+    void VirtMidiIn::registerPort(PortRegistry &portRegistry){
+      portRegistry.registerPort(this);
+    }
 
     void VirtMidiIn::rtMidiCallback( double timeStamp, std::vector<unsigned char> *message, void * midiInRef ){
       assert(midiInRef != NULL);

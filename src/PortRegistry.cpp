@@ -83,7 +83,16 @@ namespace MidiPatcher {
     {
       // std::cout << "Scanning " << it->first << std::endl;
       if (it->second->Scanner != NULL){
-        it->second->Scanner(this);
+        std::vector<AbstractPort*>  * list = it->second->Scanner(this);
+
+        for(int i = 0; i < list->size(); i++){
+          std::string key = list->at(i)->getKey();
+          if (getPortByKey(key) == NULL){
+            list->at(i)->registerPort( *this );
+          }
+        }
+
+        delete list;
       }
     }
 
@@ -150,7 +159,11 @@ namespace MidiPatcher {
     }
     // std::cout << "doesn't exist! " << portDescriptor->getKey() << std::endl;
 
-    return PortClassRegistryInfoMap[portDescriptor->PortClass]->Factory(this, portDescriptor);
+    AbstractPort * port = PortClassRegistryInfoMap[portDescriptor->PortClass]->Factory(portDescriptor);
+
+    registerPort(port);
+
+    return port;
   }
 
 

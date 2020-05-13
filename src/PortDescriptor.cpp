@@ -1,5 +1,8 @@
 #include <PortDescriptor.hpp>
 
+#include <cassert>
+#include <algorithm>
+
 namespace MidiPatcher {
 
     PortDescriptor::PortDescriptor(std::string str){

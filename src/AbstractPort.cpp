@@ -5,7 +5,7 @@
 namespace MidiPatcher {
 
 
-  AbstractPort::AbstractPort(PortRegistry * portRegistry, Type_t type, std::string name){
+  AbstractPort::AbstractPort(Type_t type, std::string name){
 
     Type = type;
     Name = name;
@@ -21,7 +21,6 @@ namespace MidiPatcher {
     // no other error related to this occurring first....)
     assert( Connections.size() == 0);
   };
-
 
   void AbstractPort::addConnection(AbstractPort * port){
     std::cout << Name << ".addConnection " << port->Name << std::endl;

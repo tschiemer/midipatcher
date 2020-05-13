@@ -9,7 +9,7 @@ namespace MidiPatcher {
   namespace Port {
 
 
-    FileOut::FileOut(PortRegistry * portRegistry, std::string portName) : AbstractPort(portRegistry, TypeOutput, portName){
+    FileOut::FileOut(std::string portName) : AbstractPort(TypeOutput, portName){
 
         if (portName == FILE_STDOUT){
 
@@ -40,11 +40,16 @@ namespace MidiPatcher {
         }
 
 
-      portRegistry->registerPort( this );
+      // portRegistry->registerPort( this );
     }
 
     FileOut::~FileOut(){
 
+    }
+
+
+    void FileOut::registerPort(PortRegistry &portRegistry){
+      portRegistry.registerPort(this);
     }
 
     void FileOut::send(unsigned char *message, size_t len){

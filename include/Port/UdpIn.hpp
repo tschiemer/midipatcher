@@ -18,7 +18,7 @@ namespace MidiPatcher {
           return PortClass;
         }
 
-        static AbstractPort* factory(PortRegistry * portRegistry, PortDescriptor * portDescriptor){
+        static AbstractPort* factory(PortDescriptor * portDescriptor){
           assert( portDescriptor->PortClass == PortClass );
 
           int port = std::atoi(portDescriptor->Name.c_str());
@@ -28,15 +28,17 @@ namespace MidiPatcher {
           // std::cout << "Key " << portDescriptor->getKey() << std::endl;
           // std::cout << portDescriptor->toString() << std::endl;
 
-          return new UdpIn(portRegistry, portDescriptor->Name, port, listenAddress, multicastAddress);
+          return new UdpIn(portDescriptor->Name, port, listenAddress, multicastAddress);
         }
 
         static PortClassRegistryInfo * getPortClassRegistryInfo() {
           return new PortClassRegistryInfo(PortClass, factory, nullptr, nullptr, nullptr);
         }
 
-        UdpIn(PortRegistry * portRegistry, std::string portName, short port, std::string listenAddress = "0.0.0.0", std::string multicastAddress = "255.255.255.255");
+        UdpIn(std::string portName, short port, std::string listenAddress = "0.0.0.0", std::string multicastAddress = "255.255.255.255");
         ~UdpIn();
+
+        void registerPort(PortRegistry &portRegistry);
 
       protected:
 
