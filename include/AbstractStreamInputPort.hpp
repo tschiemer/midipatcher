@@ -1,6 +1,8 @@
 #ifndef ABSTRACT_STREAM_INPUT_PORT_H
 #define ABSTRACT_STREAM_INPUT_PORT_H
 
+// #include <cstdlib>
+
 #include "AbstractInputPort.hpp"
 
 // #include <midimessage.h>
@@ -15,7 +17,7 @@ namespace MidiPatcher {
         uint8_t ParserBuffer[128];
         uint8_t MsgBuffer[128];
         MidiMessage::Parser_t Parser;
-        bool RunningStatusEnabled = false;
+        bool RunningStatusEnabled;
         MidiMessage::Message_t MidiMessageMem = {
           .Data = {
             .SysEx = {
@@ -23,6 +25,8 @@ namespace MidiPatcher {
             }
           }
         };
+
+        AbstractStreamInputPort(bool runningStatusEnabled);
 
         void receivedStreamData(uint8_t &data, size_t len);
 

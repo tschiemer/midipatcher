@@ -16,10 +16,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-      FileIn::FileIn(std::string portName) : AbstractInputPort(portName){
-
-
-        parser_init(&Parser, RunningStatusEnabled, ParserBuffer, sizeof(ParserBuffer), &MidiMessageMem, midiMessageHandler, midiMessageDiscardHandler, this);
+      FileIn::FileIn(std::string portName, bool runningStatusEnabled) : AbstractInputPort(portName), AbstractStreamInputPort(runningStatusEnabled) {
 
 
         if (portName == FILE_STDIN){

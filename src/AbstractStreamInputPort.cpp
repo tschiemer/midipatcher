@@ -2,6 +2,12 @@
 
 namespace MidiPatcher {
 
+  AbstractStreamInputPort::AbstractStreamInputPort(bool runningStatusEnabled){
+    RunningStatusEnabled = runningStatusEnabled;
+
+    parser_init(&Parser, runningStatusEnabled, ParserBuffer, sizeof(ParserBuffer), &MidiMessageMem, midiMessageHandler, midiMessageDiscardHandler, this);
+  }
+
   void AbstractStreamInputPort::receivedStreamData(uint8_t &data, size_t len){
     parser_receivedData(&Parser, &data, len);
   }

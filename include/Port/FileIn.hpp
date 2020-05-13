@@ -33,7 +33,7 @@ namespace MidiPatcher {
           return new PortClassRegistryInfo(PortClass, factory, nullptr, nullptr, nullptr);
         }
 
-        FileIn(std::string portName);
+        FileIn(std::string portName, bool runningStatusEnabled = true);
         ~FileIn();
 
         void registerPort(PortRegistry &portRegistry);
