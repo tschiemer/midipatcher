@@ -134,7 +134,7 @@ namespace MidiPatcher {
 
     std::string key = port->getKey();
 
-    std::cout << "registerPort? [" << key << "]" << std::endl;
+    // std::cout << "registerPort? [" << key << "]" << std::endl;
 
     // do not re-register port with identical descriptor
     if (Ports.count(key) > 0){
