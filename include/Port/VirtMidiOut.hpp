@@ -32,7 +32,7 @@ namespace MidiPatcher {
 
       void registerPort(PortRegistry &portRegistry);
 
-      void send(unsigned char *message, size_t len);
+      void sendMessage(unsigned char * message, size_t len);
 
       protected:
 

@@ -36,21 +36,21 @@ namespace MidiPatcher {
       portRegistry.registerPort(this);
     }
 
-    void VirtMidiOut::send(unsigned char *message, size_t len){
+    void VirtMidiOut::sendMessage(unsigned char * message, size_t len){
 
-      std::cout << "send 1" << std::endl;
+      // std::cout << "send 1" << std::endl;
 
       if (getDeviceState() == DeviceStateNotConnected){
         return;
       }
 
-      std::cout << "send 2" << std::endl;
+      // std::cout << "send 2" << std::endl;
 
       if (MidiPort == NULL){
         return;
       }
 
-      std::cout << "send 3" << std::endl;
+      // std::cout << "send 3" << std::endl;
 
 
       MidiPort->sendMessage(message, len);

@@ -102,22 +102,8 @@ namespace MidiPatcher {
 
           count = Socket.receive_from(asio::buffer(buffer, sizeof(buffer)), Endpoint);
 
-          if (count == -1){
-            // std::cout << "ERROR" << std::endl;
-          }
-          else if (count == 0){
-            // std::cout << "nothing to read" << std::endl;
-          }
-          else if (count > 0){
-            // std::cout << "read (" << count << ") ";
-            // for(int i = 0; i < count; i++){
-            //   std::cout << std::hex << (int)buffer[i];
-            // }
-            // std::cout << std::endl;
-
-
-            // this->send(buffer,count);
-            received(buffer, count);
+          if (count > 0){
+            readFromStream(buffer, count);
           }
 
           // std::this_thread::sleep_for(std::chrono::milliseconds(50));

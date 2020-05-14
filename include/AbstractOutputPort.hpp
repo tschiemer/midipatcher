@@ -7,7 +7,7 @@ namespace MidiPatcher {
   class AbstractOutputPort : public virtual AbstractPort {
 
     protected:
-      
+
       AbstractOutputPort(){};
       AbstractOutputPort(std::string name){
           Type = TypeOutput;
@@ -16,10 +16,7 @@ namespace MidiPatcher {
 
     public:
 
-      virtual void send(unsigned char * message, size_t len) = 0;
-      virtual void send(std::vector<unsigned char> * message){
-        send(&message->at(0), message->size());
-      }
+      virtual void sendMessage(unsigned char * message, size_t len) = 0;
   };
 }
 

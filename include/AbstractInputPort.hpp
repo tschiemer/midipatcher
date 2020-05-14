@@ -16,10 +16,7 @@ namespace MidiPatcher {
         Name = name;
       }
 
-      void received(unsigned char * message, size_t len );
-      void received(std::vector<unsigned char> *message ){
-        received(&message->at(0), message->size());
-      }
+      void receivedMessage(unsigned char * message, size_t len );
   };
 }
 

@@ -128,7 +128,7 @@ namespace MidiPatcher {
       MidiPort = NULL;
     }
 
-    void MidiOut::send(unsigned char *message, size_t len){
+    void MidiOut::sendMessage(unsigned char * message, size_t len){
       // std::cout << "send 1" << std::endl;
 
       if (getDeviceState() == DeviceStateNotConnected){

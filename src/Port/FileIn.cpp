@@ -101,8 +101,7 @@ namespace MidiPatcher {
 
 
               // this->send(buffer,count);
-              receivedStreamData(buffer[0], count);
-              // parser_receivedData(&Parser, buffer, count);
+              readFromStream(buffer, count);
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(50));

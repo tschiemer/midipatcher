@@ -22,8 +22,8 @@ namespace MidiPatcher {
     free(MsgBuffer);
   }
 
-  void AbstractStreamInputPort::receivedStreamData(uint8_t &data, size_t len){
-    parser_receivedData(&Parser, &data, len);
+  void AbstractStreamInputPort::readFromStream(uint8_t * data, size_t len){
+    parser_receivedData(&Parser, data, len);
   }
 
   void AbstractStreamInputPort::midiMessageHandler(MidiMessage::Message_t * message, void * context){
@@ -34,7 +34,7 @@ namespace MidiPatcher {
     unsigned char bytes[128];
     size_t len = pack( (uint8_t*)bytes, message );
 
-    self->received(bytes, len);
+    self->receivedMessage(bytes, len);
   }
 
   void AbstractStreamInputPort::midiMessageDiscardHandler(uint8_t *bytes, uint8_t length, void *context){

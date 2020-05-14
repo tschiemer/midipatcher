@@ -22,22 +22,22 @@ namespace MidiPatcher {
         MidiMessage::Parser_t Parser;
         MidiMessage::Message_t MidiMessageMem;
 
-        void receivedStreamData(uint8_t &data, size_t len);
+        void readFromStream(unsigned char * data, size_t len);
 
         static void midiMessageHandler(MidiMessage::Message_t * message, void * context);
         static void midiMessageDiscardHandler(uint8_t *bytes, uint8_t length, void *context);
 
       public:
 
-          bool getRunningStatusEnabled(){
-            return Parser.RunningStatusEnabled;
-          }
+        bool getRunningStatusEnabled(){
+          return Parser.RunningStatusEnabled;
+        }
 
-          void setRunningStatusEnabled(bool enabled){
-            Parser.RunningStatusEnabled = enabled;
+        void setRunningStatusEnabled(bool enabled){
+          Parser.RunningStatusEnabled = enabled;
 
-            // MidiMessage::parser_reset( &Parser );
-          }
+          // MidiMessage::parser_reset( &Parser );
+        }
 
   };
 

@@ -1,7 +1,7 @@
 #ifndef PORT_FILE_OUT_H
 #define PORT_FILE_OUT_H
 
-#include "../AbstractOutputPort.hpp"
+#include "../AbstractStreamOutputPort.hpp"
 
 
 #include <thread>
@@ -9,7 +9,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-    class FileOut : AbstractOutputPort {
+    class FileOut : AbstractStreamOutputPort {
 
       public:
         static const constexpr char * PortClass = "FileOut";
@@ -32,7 +32,10 @@ namespace MidiPatcher {
 
         void registerPort(PortRegistry &portRegistry);
 
-        void send(unsigned char *message, size_t len);
+      public:
+
+          static const constexpr char * FILE_STDOUT = "STDOUT";
+          static const constexpr char * FILE_STDERR = "STDERR";
 
       protected:
 
@@ -40,10 +43,8 @@ namespace MidiPatcher {
 
         int FD = -1;
 
-      public:
+        void writeToStream(unsigned char * data, size_t len);
 
-          static const constexpr char * FILE_STDOUT = "STDOUT";
-          static const constexpr char * FILE_STDERR = "STDERR";
     };
 
   }

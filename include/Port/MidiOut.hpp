@@ -70,7 +70,7 @@ namespace MidiPatcher {
 
       public:
 
-        void send(unsigned char *message, size_t len);
+        void sendMessage(unsigned char * message, size_t len);
 
     };
 

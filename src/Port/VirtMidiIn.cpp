@@ -48,7 +48,7 @@ namespace MidiPatcher {
         return;
       }
 
-      midiIn->received(message);
+      midiIn->receivedMessage(&message->at(0), message->size());
     }
 
   }

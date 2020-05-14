@@ -39,8 +39,6 @@ namespace MidiPatcher {
 
         }
 
-
-      // portRegistry->registerPort( this );
     }
 
     FileOut::~FileOut(){
@@ -52,12 +50,12 @@ namespace MidiPatcher {
       portRegistry.registerPort(this);
     }
 
-    void FileOut::send(unsigned char *message, size_t len){
+    void FileOut::writeToStream(unsigned char *data, size_t len){
       if (getDeviceState() != DeviceStateConnected){
         return;
       }
 
-      write( FD, message, len );
+      write( FD, data, len );
     }
 
   }
