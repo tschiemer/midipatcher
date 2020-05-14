@@ -23,6 +23,7 @@ namespace MidiPatcher {
   }
 
   void AbstractStreamInputPort::readFromStream(uint8_t * data, size_t len){
+    std::cout << "readFromStream " << len << std::endl;
     parser_receivedData(&Parser, data, len);
   }
 

@@ -1,6 +1,8 @@
 #include <Port/UdpIn.hpp>
 #include <PortRegistry.hpp>
 
+#include <exception>
+
 namespace MidiPatcher {
   namespace Port {
 
@@ -36,49 +38,68 @@ namespace MidiPatcher {
         Socket(IOContext)
       {
 
-
-      std::cout << "UdpIn listenAddress = " << listenAddress << std::endl;
-      std::cout << "UdpIn port = " << port << std::endl;
-
-      // std::cout << "UdpIn multicastAddress = " << multicastAddress << std::endl;
-
-      asio::ip::address listenAddress_ = asio::ip::make_address(listenAddress);
-      // asio::ip::address multicastAddress_ = asio::ip::make_address(multicastAddress);
+      // try {
 
 
-      Endpoint = asio::ip::udp::endpoint(
-        listenAddress_, port
-      );
 
+        if (multicastAddress == ""){
 
-      Socket.open(Endpoint.protocol());
-      Socket.set_option(asio::ip::udp::socket::reuse_address(true));
-      Socket.bind(Endpoint);
+          asio::ip::address listenAddress_ = asio::ip::make_address(listenAddress);
 
-      // Join the multicast group.
-      // socket_.set_option(
-      //   asio::ip::multicast::join_group(multicast_address)
-      // );
+          std::cout << "UdpIn listenAddress = " << listenAddress << std::endl;
+          std::cout << "UdpIn port = " << port << std::endl;
+          // std::cout << "UdpIn multicastAddress = " << multicastAddress << std::endl;
 
-      // portRegistry->registerPort( this );
+          ListenEndpoint = asio::ip::udp::endpoint(
+            listenAddress_, port
+          );
 
+          Socket.open(ListenEndpoint.protocol());
+          Socket.set_option(asio::ip::udp::socket::reuse_address(true));
+          Socket.bind(ListenEndpoint);
 
-          // size_t length = Socket.receive_from(asio::buffer(DataBuffer, sizeof(DataBuffer)), Endpoint);
+        } else {
+        asio::ip::address listenAddress_ = asio::ip::make_address(listenAddress);
+          asio::ip::address multicastAddress_ = asio::ip::make_address(multicastAddress);
 
-          // std::cout << "RX " << length <<std::endl;
+          std::cout << "UdpIn interfaceAddress = " << listenAddress << std::endl;
+          std::cout << "UdpIn port = " << port << std::endl;
+          std::cout << "UdpIn multicastAddress = " << multicastAddress << std::endl;
 
-      // IOContext.run();
+          ListenEndpoint = asio::ip::udp::endpoint(
+            // listenAddress_, port
+            // multicastAddress_, port
+            asio::ip::address_v4::any(), port
+          );
+
+          Socket.open(ListenEndpoint.protocol());
+          Socket.set_option(asio::ip::udp::socket::reuse_address(true));
+          Socket.bind(ListenEndpoint);
+
+          if (listenAddress == "0.0.0.0"){
+            Socket.set_option(
+              asio::ip::multicast::join_group(multicastAddress_)
+            );
+          } else {
+            Socket.set_option(
+              // asio::ip::multicast::join_group(multicastAddress_.to_v4())
+              asio::ip::multicast::join_group(multicastAddress_.to_v4(), listenAddress_.to_v4())
+            );
+          }
+
+        }
+
+      // } catch( const std::exception& e){
+      //   std::cout << "EXCEPTION " << e.what() << std::endl;
+      //
+      //   throw e;
+      // }
 
       this->setDeviceState(DeviceStateConnected);
-
-      // std::thread([this](){
-      //
-      //   setDeviceState(DeviceStateConnected);
-      // });
     }
 
     UdpIn::~UdpIn(){
-
+      Socket.close();
     }
 
     void UdpIn::registerPort(PortRegistry &portRegistry){
@@ -90,18 +111,23 @@ namespace MidiPatcher {
       if (Running){
         return;
       }
-
+      std::cout << "UDPIN.START" << std::endl;
       // this->setNonBlocking();
 
-
+      // IOContext.run();
+      //
+      // doRx();
       ReaderThread = std::thread([this](){
         this->Running = true;
 
         while(this->getDeviceState() == DeviceStateConnected){
+
+          // std::cout << "recv" << std::endl;
           unsigned char buffer[128];
           size_t count = 0;
 
-          count = Socket.receive_from(asio::buffer(buffer, sizeof(buffer)), Endpoint);
+          asio::ip::udp::endpoint senderEndpoint;
+          count = Socket.receive_from(asio::buffer(buffer, sizeof(buffer)), senderEndpoint);
 
           if (count > 0){
             readFromStream(buffer, count);
@@ -117,6 +143,24 @@ namespace MidiPatcher {
       // ReaderThread.detach();
 
     }
+
+//     void UdpIn::doRx(){
+// std::cout << "doRx()" << std::endl;
+//       Socket.async_receive_from(
+//         asio::buffer(data_), SenderEndpoint,
+//         [this](std::error_code ec, std::size_t length)
+//         {
+//           if (!ec)
+//           {
+//             // std::cout.write(data_, length);
+//             // std::cout << std::endl;
+//
+//             std::cout << "rx " << length << std::endl;
+//
+//             doRx();
+//           }
+//         });
+//     }
 
     void UdpIn::stop(){
       if (Running == false){

@@ -33,13 +33,17 @@ namespace MidiPatcher {
 
         asio::io_context IOContext;
         asio::ip::udp::socket Socket;
-        asio::ip::udp::endpoint Endpoint;
+        asio::ip::udp::endpoint ListenEndpoint;
 
         volatile bool Running = false;
         std::thread ReaderThread;
 
         void start();
         void stop();
+
+        // std::array<char, 1024> data_;
+        // asio::ip::udp::endpoint SenderEndpoint;
+        // void doRx();
 
     };
 

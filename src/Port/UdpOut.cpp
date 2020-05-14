@@ -36,8 +36,8 @@ namespace MidiPatcher {
         Socket(IOContext, asio::ip::udp::endpoint(asio::ip::udp::v4(), 0))
       {
 
-      std::cout << "UdpIn remoteAddress = " << remoteAddress << std::endl;
-      std::cout << "UdpIn port = " << port << std::endl;
+      std::cout << "UdpOut remoteAddress = " << remoteAddress << std::endl;
+      std::cout << "UdpOut port = " << port << std::endl;
 
       asio::ip::udp::resolver resolver(IOContext);
       asio::ip::udp::resolver::results_type endpoints = resolver.resolve(asio::ip::udp::v4(), remoteAddress, std::to_string(port));
