@@ -59,7 +59,7 @@ namespace MidiPatcher {
           Socket.bind(ListenEndpoint);
 
         } else {
-        asio::ip::address listenAddress_ = asio::ip::make_address(listenAddress);
+          asio::ip::address listenAddress_ = asio::ip::make_address(listenAddress);
           asio::ip::address multicastAddress_ = asio::ip::make_address(multicastAddress);
 
           std::cout << "UdpIn interfaceAddress = " << listenAddress << std::endl;
@@ -111,7 +111,7 @@ namespace MidiPatcher {
       if (Running){
         return;
       }
-      std::cout << "UDPIN.START" << std::endl;
+      // std::cout << "UDPIN.START" << std::endl;
       // this->setNonBlocking();
 
       // IOContext.run();
