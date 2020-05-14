@@ -1,11 +1,8 @@
 #ifndef ABSTRACT_STREAM_INPUT_PORT_H
 #define ABSTRACT_STREAM_INPUT_PORT_H
 
-// #include <cstdlib>
-
 #include "AbstractInputPort.hpp"
 
-// #include <midimessage.h>
 #include <midimessage/parser.h>
 
 namespace MidiPatcher {

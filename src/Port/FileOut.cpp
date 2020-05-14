@@ -51,6 +51,8 @@ namespace MidiPatcher {
     }
 
     void FileOut::writeToStream(unsigned char *data, size_t len){
+// std::cout << "writeToStream (" << len << ")" << std::endl;
+
       if (getDeviceState() != DeviceStateConnected){
         return;
       }

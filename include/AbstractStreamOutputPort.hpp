@@ -9,7 +9,7 @@ namespace MidiPatcher {
 
     protected:
 
-      AbstractStreamOutputPort(bool runningStatusEnabled = true);
+      AbstractStreamOutputPort(bool runningStatusEnabled = false);
 
       bool RunningStatusEnabled;
       uint8_t RunningStatusState;

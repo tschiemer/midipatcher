@@ -3,8 +3,6 @@
 
 #include "AbstractPort.hpp"
 
-#include <iostream>
-
 namespace MidiPatcher {
    class AbstractInputPort : public virtual AbstractPort {
 
@@ -17,6 +15,7 @@ namespace MidiPatcher {
       }
 
       void receivedMessage(unsigned char * message, size_t len );
+      
   };
 }
 

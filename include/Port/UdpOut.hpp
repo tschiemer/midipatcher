@@ -1,12 +1,14 @@
 #ifndef PORT_UDP_OUT_H
 #define PORT_UDP_OUT_H
 
-#include "../AbstractOutputPort.hpp"
+#include "../AbstractStreamOutputPort.hpp"
+
+#include "asio.hpp"
 
 namespace MidiPatcher {
   namespace Port {
 
-    class UdpOut : AbstractOutputPort {
+    class UdpOut : AbstractStreamOutputPort {
 
       public:
 
@@ -22,13 +24,22 @@ namespace MidiPatcher {
           return new PortClassRegistryInfo(PortClass, factory, nullptr, nullptr, nullptr);
         }
 
-        UdpOut(std::string portName, std::string remoteAddress, short port, std::string multicastAddress = "");
+        UdpOut(std::string portName, std::string remoteAddress, short port, std::string multicastAddress = "", bool runningStatusEnabled = false);
         ~UdpOut();
 
         void registerPort(PortRegistry &portRegistry);
 
 
-    }
+      protected:
+
+        asio::io_context IOContext;
+        asio::ip::udp::socket Socket;
+        asio::ip::udp::endpoint Endpoint;
+
+        void writeToStream(unsigned char * data, size_t len);
+
+
+    };
 
   }
 }

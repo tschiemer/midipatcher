@@ -10,8 +10,8 @@ namespace MidiPatcher {
 
       AbstractOutputPort(){};
       AbstractOutputPort(std::string name){
-          Type = TypeOutput;
-          Name = name;
+        Type = TypeOutput;
+        Name = name;
       };
 
     public:

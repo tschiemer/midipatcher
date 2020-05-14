@@ -21,6 +21,8 @@ namespace MidiPatcher {
 
   void AbstractStreamOutputPort::sendMessage(unsigned char * message, size_t len){
 
+    // std::cout << "sendMessage (" << len << ")" << std::endl;
+
     if (RunningStatusEnabled && MidiMessage::updateRunningStatus( &RunningStatusState, message[0] )){
         writeToStream( &message[1], len-1);
     } else {

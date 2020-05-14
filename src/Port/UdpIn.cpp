@@ -31,14 +31,15 @@ namespace MidiPatcher {
     }
 
     UdpIn::UdpIn(std::string portName, std::string listenAddress, short port, std::string multicastAddress, bool runningStatusEnabled)
-      :  AbstractInputPort(portName), AbstractStreamInputPort(runningStatusEnabled), Socket(IOContext)
+      :  AbstractInputPort(portName),
+        AbstractStreamInputPort(runningStatusEnabled),
+        Socket(IOContext)
       {
 
-// ;
-
-      std::cout << "UdpIn port = " << port << std::endl;
 
       std::cout << "UdpIn listenAddress = " << listenAddress << std::endl;
+      std::cout << "UdpIn port = " << port << std::endl;
+
       // std::cout << "UdpIn multicastAddress = " << multicastAddress << std::endl;
 
       asio::ip::address listenAddress_ = asio::ip::make_address(listenAddress);

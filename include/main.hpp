@@ -8,6 +8,7 @@
 #include <Port/FileIn.hpp>
 #include <Port/FileOut.hpp>
 #include <Port/UdpIn.hpp>
+#include <Port/UdpOut.hpp>
 
 MidiPatcher::AbstractPort::PortClassRegistryInfo* PortClassRegistryInfoConfig[] = {
   MidiPatcher::Port::MidiIn::getPortClassRegistryInfo(),
@@ -16,7 +17,8 @@ MidiPatcher::AbstractPort::PortClassRegistryInfo* PortClassRegistryInfoConfig[] 
   MidiPatcher::Port::VirtMidiOut::getPortClassRegistryInfo(),
   MidiPatcher::Port::FileIn::getPortClassRegistryInfo(),
   MidiPatcher::Port::FileOut::getPortClassRegistryInfo(),
-  MidiPatcher::Port::UdpIn::getPortClassRegistryInfo()
+  MidiPatcher::Port::UdpIn::getPortClassRegistryInfo(),
+  MidiPatcher::Port::UdpOut::getPortClassRegistryInfo()
 };
 
 #define VERSION "v1.0.0"
