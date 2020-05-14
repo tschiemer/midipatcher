@@ -52,7 +52,7 @@ void printHelp( void ) {
     printf("\n");
     printf("Examples:\n\n");
     printf("midipatcher MidiIn:BCF2000 \"MidiOut:Yamaha 01V96 Port1\"\n");
-    printf("midipatcher \"MidiIn:from Max 1\" \"VirtMidiOut:p1\" \"MidiIn:p1\" \"VirtMidiOut:p2\" \"MidiIn:p2\" \"MidiOut:to Max 1\"\n");
+    printf("midipatcher \"MidiIn:from Max 1\" VirtMidiOut:p1 MidiIn:p1 VirtMidiOut:p2 MidiIn:p2 \"MidiOut:to Max 1\"\n");
     printf("midipatcher \"MidiIn:from Max 1\" VirtMidiOut:ComboPort \"MidiIn:from Max 2\" VirtMidiOut:ComboPort\n");
     printf("midipatcher MidiIn:BCF2000 UdpOut:10.0.0.4:3000 UdpIn:3001 MidiOut:BCF2000\n");
     printf("midipatcher UdpIn:3000 \"VirtMidiOut:From other computer\" \"VirtMidiIn:To other computer\" UdpOut:10.0.0.2:3001\n");

@@ -37,7 +37,7 @@ The <port-key> part of the descriptors acts as unique port identifier.
 Examples:
 
 midipatcher MidiIn:BCF2000 "MidiOut:Yamaha 01V96 Port1"
-midipatcher "MidiIn:from Max 1" "VirtMidiOut:p1" "MidiIn:p1" "VirtMidiOut:p2" "MidiIn:p2" "MidiOut:to Max 1"
+midipatcher "MidiIn:from Max 1" VirtMidiOut:p1 MidiIn:p1 VirtMidiOut:p2 MidiIn:p2 "MidiOut:to Max 1"
 midipatcher "MidiIn:from Max 1" VirtMidiOut:ComboPort "MidiIn:from Max 2" VirtMidiOut:ComboPort
 midipatcher MidiIn:BCF2000 UdpOut:10.0.0.4:3000 UdpIn:3001 MidiOut:BCF2000
 midipatcher UdpIn:3000 "VirtMidiOut:From other computer" "VirtMidiIn:To other computer" UdpOut:10.0.0.2:3001
