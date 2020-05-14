@@ -14,24 +14,30 @@ namespace MidiPatcher {
 
     protected:
 
-        uint8_t ParserBuffer[128];
-        uint8_t MsgBuffer[128];
-        MidiMessage::Parser_t Parser;
-        bool RunningStatusEnabled;
-        MidiMessage::Message_t MidiMessageMem = {
-          .Data = {
-            .SysEx = {
-              .ByteData = MsgBuffer
-            }
-          }
-        };
+        AbstractStreamInputPort(bool runningStatusEnabled = true, int bufferSize = 128);
+        ~AbstractStreamInputPort();
 
-        AbstractStreamInputPort(bool runningStatusEnabled);
+        uint8_t * ParserBuffer;
+        uint8_t * MsgBuffer;
+        MidiMessage::Parser_t Parser;
+        MidiMessage::Message_t MidiMessageMem;
 
         void receivedStreamData(uint8_t &data, size_t len);
 
         static void midiMessageHandler(MidiMessage::Message_t * message, void * context);
         static void midiMessageDiscardHandler(uint8_t *bytes, uint8_t length, void *context);
+
+      public:
+
+          bool getRunningStatusEnabled(){
+            return Parser.RunningStatusEnabled;
+          }
+
+          void setRunningStatusEnabled(bool enabled){
+            Parser.RunningStatusEnabled = enabled;
+
+            // MidiMessage::parser_reset( &Parser );
+          }
 
   };
 

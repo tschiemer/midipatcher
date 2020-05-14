@@ -20,22 +20,15 @@ namespace MidiPatcher {
 
 
         if (portName == FILE_STDIN){
-          // std::cout << "opening stdin" << std::endl;
-          // FD = stdin;
+
           FD = 0;
 
           setDeviceState(DeviceStateConnected);
 
         } else {
-          // FD = fopen( portName.c_str(), "r");
-//
-          // std::cout << "FD = " << (int)*FD << std::endl;
-
-          // assert( FD != nullptr );
 
           OpenThread = std::thread([this,portName](){
             this->FD = open(portName.c_str(), O_RDONLY);
-            // std::cout << "FD = " << this->FD << std::endl;
 
             this->setDeviceState(DeviceStateConnected);
           });

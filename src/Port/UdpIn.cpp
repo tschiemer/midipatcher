@@ -4,8 +4,34 @@
 namespace MidiPatcher {
   namespace Port {
 
-    UdpIn::UdpIn(std::string portName, short port, std::string listenAddress, std::string multicastAddress)
-      :  AbstractInputPort(portName), Socket(IOContext)
+    AbstractPort* UdpIn::factory(PortDescriptor * portDescriptor){
+      assert( portDescriptor->PortClass == PortClass );
+
+      std::string str = portDescriptor->Name;
+
+      short port;
+      std::string listenAddress;
+
+      size_t pos = str.find(":");
+
+      // if no colon, assume just port and standard listen address
+      if (pos != std::string::npos){
+        port = std::atoi(str.c_str());
+        listenAddress = "0.0.0.0";
+      } else {
+        listenAddress = str.substr(0, pos);
+        str.erase(0,pos + 1);
+        port = std::atoi(str.c_str());
+      }
+
+      std::string multicastAddress = portDescriptor->Options.count("multicast") ? portDescriptor->Options["multicast"] : "";
+      bool runningStatusEnabled = portDescriptor->Options.count("runningstatus") && portDescriptor->Options["runningstatus"][0] != '\0' ? (portDescriptor->Options["runningstatus"][0] == '1') : true;
+
+      return new UdpIn(portDescriptor->Name, listenAddress, port, multicastAddress, runningStatusEnabled);
+    }
+
+    UdpIn::UdpIn(std::string portName, std::string listenAddress, short port, std::string multicastAddress, bool runningStatusEnabled)
+      :  AbstractInputPort(portName), AbstractStreamInputPort(runningStatusEnabled), Socket(IOContext)
       {
 
 // ;
@@ -112,31 +138,6 @@ namespace MidiPatcher {
       // Running = false;
       // ReaderThread.join();
     }
-
-
-    // void UdpIn::start(){
-    //   std::cout << "UdpIn.start" << std::endl;
-    //   doReceive();
-    // }
-//
-    // void UdpIn::doReceive(){
-    //   std::cout << "UdpIn.doReceive" << std::endl;
-    //   Socket.async_receive_from(
-    //     asio::buffer(DataBuffer, sizeof(DataBuffer)), Endpoint, [this](std::error_code ec, std::size_t nRx)
-    //       {
-    //         std::cout << "received??" << std::endl;
-    //         if (!ec && nRx > 0)
-    //         {
-    //           std::cout << "rx " << nRx << std::endl;
-    //           this->send((unsigned char *)DataBuffer, nRx);
-    //         }
-    //         else
-    //         {
-    //           doReceive();
-    //         }
-    //     });
-    // }
-
 
   }
 }

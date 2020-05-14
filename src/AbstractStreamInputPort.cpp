@@ -1,11 +1,25 @@
 #include <AbstractStreamInputPort.hpp>
 
+#include <cstdlib>
+#include <cassert>
+
 namespace MidiPatcher {
 
-  AbstractStreamInputPort::AbstractStreamInputPort(bool runningStatusEnabled){
-    RunningStatusEnabled = runningStatusEnabled;
+  AbstractStreamInputPort::AbstractStreamInputPort(bool runningStatusEnabled, int bufferSize){
 
-    parser_init(&Parser, runningStatusEnabled, ParserBuffer, sizeof(ParserBuffer), &MidiMessageMem, midiMessageHandler, midiMessageDiscardHandler, this);
+    assert( 3 <= bufferSize );
+
+    ParserBuffer = (uint8_t*)malloc(bufferSize);
+    MsgBuffer = (uint8_t*)malloc(bufferSize);
+
+    MidiMessageMem.Data.SysEx.ByteData = MsgBuffer;
+
+    parser_init(&Parser, runningStatusEnabled, ParserBuffer, bufferSize, &MidiMessageMem, midiMessageHandler, midiMessageDiscardHandler, this);
+  }
+
+  AbstractStreamInputPort::~AbstractStreamInputPort(){
+    free(ParserBuffer);
+    free(MsgBuffer);
   }
 
   void AbstractStreamInputPort::receivedStreamData(uint8_t &data, size_t len){
