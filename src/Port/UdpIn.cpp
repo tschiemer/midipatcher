@@ -15,7 +15,7 @@ namespace MidiPatcher {
       size_t pos = str.find(":");
 
       // if no colon, assume just port and standard listen address
-      if (pos != std::string::npos){
+      if (pos == std::string::npos){
         port = std::atoi(str.c_str());
         listenAddress = "0.0.0.0";
       } else {
