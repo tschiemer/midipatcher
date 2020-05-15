@@ -75,7 +75,7 @@ target_include_directories(myProject "${MIDIPATCHER_INCLUDES}")
 target_link_libraries(myProject midipatch)
 ```
 
-and use the convenience include header `include/midipatcher/midipatcher.hpp` in any source files.
+and use the convenience include header `<midipatcher/midipatcher.hpp>` in any source files.
 
 ## License
 
