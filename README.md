@@ -8,19 +8,42 @@ https://github.com/tschiemer/midipatcher
 ```bash
 Usage:
 	 midipatcher [-vh?]
-	 midipatcher (-l|--list-ports)
-	 midipatcher (-p|--list-port-classes)
-	 midipatcher <in-descriptor1> <out-descriptor1> ...
+	 midipatcher (-l|--ports)
+	 midipatcher (--pc|--port-classes)
+
+	 midipatcher [--cp|--control-port] [--cp-in <control-in-port-descriptor>] [--cp-out <control-out-port-descriptor>] ...
+	 midipatcher [-f|patch-file <patch-file>] ...
+	 midipatcher ... [<in-port-descriptor1> <out-port-descriptor1> ... ]
+
+	 midipatcher (-r|--remote) [--remote-in <remote-control-in-port-descriptor>] [--remote-out <remote-control-out-port-descriptor>] <remote-command...>
 
 Options:
 	 -v 				 Show version.
 	 -h|-? 				 Show this help.
-	 -l|--list-ports 		 List known/detected ports (descriptors).
-	 -p|--list-port-classes 	 List registered port classes.
+	 -a|--autoscan <autoscan-interval> 	 Set regular rescanning of ports with given interval in millisec (default 1000; 0 = off).
+	 -p|--ports 			 List known/detected ports (descriptors).
+	 --pc|--port-classes 		 List registered port classes.
 
-<in-/out-descriptor> := <port-key>[<options>]
-<port-key> := <PortClass>:<PortName>
-<options> := (,<opt> ...)
+	 -f|--patch-file <patch-file> 	 Use <patch-file> for patching configuration
+
+	 --cp|--control-port
+	 --cp-in|--control-in-port <control-in-port-descriptor>
+	 --cp-out|--control-out-port <control-out-port-descriptor>
+					 Use control port with default options: "--cp-in VirtMidiIn:MidiPatcher-Control --cp-out VirtMidiOut:MidiPatcher-Control".
+
+	 -r|--remote ... <remote-command>
+	 --remote-in <remote-control-in-port-descriptor>
+	 --remote-out <remote-control-out-port-descriptor>
+					 Act as remote control with default port options "--remote-in MidiOut:MidiPatcher-Control --remote-out MidiIn:MidiPatcher-Control".
+
+					 connect <in-port-descriptor> <out-port-descriptor> ...
+					 disconnect <in-port-descriptor> <out-port-descriptor> ...
+					 dump
+						 Dumps connection
+
+	 <in-/out-/control-port-descriptor> := <port-key>[<options>]
+	 <port-key> := <PortClass>:<PortName>
+	 <options> := (,<opt> ...)
 
 	 MidiIn:<PortName>, 	 Connects (or waits for) MIDI port with given name
 	 MidiOut:<PortName>
@@ -47,7 +70,7 @@ Thanks to:
 RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi
 Asio (Networking) C++ Library, https://think-async.com/Asio
 
-MIT license (https://github.com/tschiemer/midipatcher)
+MIT license, https://github.com/tschiemer/midipatcher
 ```
 
 ## Building
