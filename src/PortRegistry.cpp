@@ -1,8 +1,6 @@
 #include <PortRegistry.hpp>
 
-#include <AbstractPort.hpp>
-#include <Port/MidiIn.hpp>
-#include <Port/MidiOut.hpp>
+#include <Port/AbstractPort.hpp>
 
 #include <cassert>
 #include <utility>

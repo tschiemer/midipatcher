@@ -1,7 +1,7 @@
 #include <Port/VirtMidiIn.hpp>
 
 #include <PortRegistry.hpp>
-#include <AbstractOutputPort.hpp>
+#include <Port/AbstractOutputPort.hpp>
 
 #include <iostream>
 

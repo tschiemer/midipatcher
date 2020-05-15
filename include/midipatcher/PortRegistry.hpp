@@ -11,7 +11,7 @@
 
 #include <RtMidi.h>
 
-#include "AbstractPort.hpp"
+#include "Port/AbstractPort.hpp"
 
 namespace MidiPatcher {
 

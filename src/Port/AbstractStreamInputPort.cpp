@@ -1,4 +1,4 @@
-#include <AbstractStreamInputPort.hpp>
+#include <Port/AbstractStreamInputPort.hpp>
 
 #include <cstdlib>
 #include <cassert>

@@ -1,7 +1,7 @@
 #ifndef VIRT_MIDI_IN_H
 #define VIRT_MIDI_IN_H
 
-#include "../AbstractInputPort.hpp"
+#include "AbstractInputPort.hpp"
 
 #include <RtMidi.h>
 

@@ -1,7 +1,7 @@
 #ifndef PORT_MIDI_IN_H
 #define PORT_MIDI_IN_H
 
-#include <AbstractInputPort.hpp>
+#include "AbstractInputPort.hpp"
 
 #include <RtMidi.h>
 

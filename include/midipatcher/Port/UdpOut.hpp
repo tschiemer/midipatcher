@@ -1,7 +1,7 @@
 #ifndef PORT_UDP_OUT_H
 #define PORT_UDP_OUT_H
 
-#include "../AbstractStreamOutputPort.hpp"
+#include "AbstractStreamOutputPort.hpp"
 
 #include "asio.hpp"
 

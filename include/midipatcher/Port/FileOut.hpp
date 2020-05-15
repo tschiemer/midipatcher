@@ -1,7 +1,7 @@
 #ifndef PORT_FILE_OUT_H
 #define PORT_FILE_OUT_H
 
-#include "../AbstractStreamOutputPort.hpp"
+#include "AbstractStreamOutputPort.hpp"
 
 
 #include <thread>

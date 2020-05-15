@@ -14,8 +14,8 @@ namespace MidiPatcher {
         Name = name;
       }
 
-      void receivedMessage(unsigned char * message, size_t len );
-      
+      virtual void receivedMessage(unsigned char * message, size_t len );
+
   };
 }
 

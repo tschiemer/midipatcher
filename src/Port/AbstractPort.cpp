@@ -1,6 +1,6 @@
-#include <AbstractPort.hpp>
+#include <Port/AbstractPort.hpp>
 
-#include "PortRegistry.hpp"
+#include <PortRegistry.hpp>
 
 namespace MidiPatcher {
 

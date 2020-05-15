@@ -1,4 +1,4 @@
-#include <AbstractStreamOutputPort.hpp>
+#include <Port/AbstractStreamOutputPort.hpp>
 
 #include <midimessage.h>
 

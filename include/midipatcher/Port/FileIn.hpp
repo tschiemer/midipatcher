@@ -2,7 +2,7 @@
 #define PORT_PIPE_IN
 
 
-#include <AbstractStreamInputPort.hpp>
+#include "AbstractStreamInputPort.hpp"
 
 #include <midimessage/parser.h>
 
