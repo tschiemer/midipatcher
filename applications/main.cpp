@@ -11,6 +11,10 @@
 
 MidiPatcher::PortRegistry * portRegistry = NULL;
 
+bool controlPort = false;
+
+bool persistEnabled = false;
+
 int sigintTicks = 0;
 volatile bool Running = false;
 
@@ -21,18 +25,42 @@ void printVersion( void ){
 void printHelp( void ) {
     printf("Usage:\n");
     printf("\t midipatcher [-vh?]\n");
-    printf("\t midipatcher (-l|--list-ports)\n");
-    printf("\t midipatcher (-p|--list-port-classes)\n");
-    printf("\t midipatcher <in-descriptor1> <out-descriptor1> ... \n");
+    printf("\t midipatcher (-l|--ports)\n");
+    printf("\t midipatcher (--pc|--port-classes)\n");
+    printf("\n");
+    printf("\t midipatcher [--cp|--control-port] [--cp-in <control-in-port-descriptor>] [--cp-out <control-out-port-descriptor>] ...\n");
+    printf("\t midipatcher [-f|patch-file <patch-file>] ...\n");
+    printf("\t midipatcher ... [<in-port-descriptor1> <out-port-descriptor1> ... ]\n");
+    printf("\n");
+    printf("\t midipatcher (-r|--remote) [--remote-in <remote-control-in-port-descriptor>] [--remote-out <remote-control-out-port-descriptor>] <remote-command...>\n");
+
     printf("\nOptions:\n");
     printf("\t -v \t\t\t\t Show version.\n");
     printf("\t -h|-? \t\t\t\t Show this help.\n");
-    printf("\t -l|--list-ports \t\t List known/detected ports (descriptors).\n");
-    printf("\t -p|--list-port-classes \t List registered port classes.\n");
+    printf("\t -a|--autoscan <autoscan-interval> \t Set regular rescanning of ports with given interval in millisec (default 1000; 0 = off).\n");
+    printf("\t -p|--ports \t\t\t List known/detected ports (descriptors).\n");
+    printf("\t --pc|--port-classes \t\t List registered port classes.\n");
     printf("\n");
-    printf("<in-/out-descriptor> := <port-key>[<options>]\n");
-    printf("<port-key> := <PortClass>:<PortName>\n");
-    printf("<options> := (,<opt> ...)\n");
+    // printf("\t -p|--persist \t\t\t Enable port persistance, ie do not exit when a port is or becomes unavailable.\n");
+    printf("\t -f|--patch-file <patch-file> \t Use <patch-file> for patching configuration\n");
+    printf("\n");
+    printf("\t --cp|--control-port\n");
+    printf("\t --cp-in|--control-in-port <control-in-port-descriptor>\n");
+    printf("\t --cp-out|--control-out-port <control-out-port-descriptor>\n");
+    printf("\t\t\t\t\t Use control port with default options: \"--cp-in VirtMidiIn:MidiPatcher-Control --cp-out VirtMidiOut:MidiPatcher-Control\".\n");
+    printf("\n");
+    printf("\t -r|--remote ... <remote-command>\n");
+    printf("\t --remote-in <remote-control-in-port-descriptor>\n");
+    printf("\t --remote-out <remote-control-out-port-descriptor>\n");
+    printf("\t\t\t\t\t Act as remote control with default port options \"--remote-in MidiOut:MidiPatcher-Control --remote-out MidiIn:MidiPatcher-Control\".\n");
+    printf("\n\t\t\t\t\t connect <in-port-descriptor> <out-port-descriptor> ...\n");
+    printf("\t\t\t\t\t disconnect <in-port-descriptor> <out-port-descriptor> ...\n");
+    printf("\t\t\t\t\t dump\n");
+    printf("\t\t\t\t\t\t Dumps connection\n");
+    printf("\n");
+    printf("\t <in-/out-/control-port-descriptor> := <port-key>[<options>]\n");
+    printf("\t <port-key> := <PortClass>:<PortName>\n");
+    printf("\t <options> := (,<opt> ...)\n");
     printf("\n");
     printf("\t MidiIn:<PortName>, \t Connects (or waits for) MIDI port with given name\n");
     printf("\t MidiOut:<PortName>\n");
@@ -85,7 +113,7 @@ void setupSignalHandler(){
 }
 
 
-void listInterfaces(bool printCount = true, bool printList = true){
+void listPorts(bool printCount = true, bool printList = true){
 
   portRegistry->rescan();
 
@@ -151,6 +179,9 @@ int main(int argc, char * argv[], char * env[]){
   int c;
   int digit_optind = 0;
 
+  std::string patchFile = "";
+  int autoscanInterval = 1000;
+
   if (argc <= 1){
       printHelp();
       return EXIT_SUCCESS;
@@ -162,30 +193,46 @@ int main(int argc, char * argv[], char * env[]){
 
         static struct option long_options[] = {
           {"version", no_argument, 0, 'v'},
-          {"list-ports", no_argument, 0, 'l'},
-          {"list-port-classes", no_argument, 0, 'p'},
-                // {"parse",    no_argument,    0,  'p' },
-                // {"generate",   no_argument,    0,  'g' },
-                // {"timed", optional_argument,  0, 't'},
-                // {"running-status", optional_argument, 0, 'r'},
-                // {"prefix", required_argument, 0, 0},
-                // {"suffix", required_argument, 0, 0},
-                // {"verbose", optional_argument, 0, 'v'},
-                // {"exit-on-error", required_argument, 0, 'x'},
-                // {"help",    no_argument,    0,  'h' },
-                // {"convert", required_argument, 0, 0},
-                // {"hex", no_argument, 0, 0},
-                // {"nrpn-filter", no_argument, 0, 'n'},
-            {0,         0,              0,  0 }
+          {"help", no_argument, 0, 'h'},
+          {"ports", no_argument, 0, 'p'},
+          {"autoscan", required_argument, 0, 'a'},
+
+          {"pc", no_argument, 0, 1},
+          {"port-classes", no_argument, 0, 1},
+          // {"persist", no_argument, 0, 'p'},
+
+          // {"pf", required_argument, 0, 'f'},
+          {"patch-file", required_argument, 0, 'f'},
+
+          {"cp", no_argument, 0, 2},
+          {"control-port", no_argument, 0, 2},
+          {"cp-in", required_argument, 0, 3},
+          {"control-port-in", required_argument, 0, 3},
+          {"cp-out", required_argument, 0, 4},
+          {"control-port-out", required_argument, 0, 4},
+
+          {"remote", no_argument, 0, 'r'},
+          {"remote-in", required_argument, 0, 5},
+          {"remote-out", required_argument, 0, 6},
+
+          {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "vh?lp",
+        c = getopt_long(argc, argv, "vh?a:pf:r",
                         long_options, &option_index);
         if (c == -1)
             break;
 
         switch (c) {
             // case 0:
+
+            case 1:
+              listPortClasses();
+              return EXIT_SUCCESS;
+
+            case 2:
+                std::cout << "Using control port" << std::endl;
+                return EXIT_SUCCESS;
 
             case 'v':
                 printVersion();
@@ -196,13 +243,30 @@ int main(int argc, char * argv[], char * env[]){
                 printHelp();
                 return EXIT_SUCCESS;
 
-            case 'l':
-                listInterfaces();
+            case 'p':
+                listPorts();
                 return EXIT_SUCCESS;
 
-            case 'p':
-                listPortClasses();
-                return EXIT_SUCCESS;
+            case 'a':
+                autoscanInterval = std::atoi(optarg);
+                if (autoscanInterval < 0){
+                  std::cerr << "ERROR invalid autscan value " << autoscanInterval << std::endl;
+                  return EXIT_FAILURE;
+                }
+                break;
+
+            case 'f':
+                // if (optarg == NULL){
+                //   std::cerr << "ERROR patch file option without file" << std::endl;
+                //   return EXIT_FAILURE;
+                // }
+                patchFile = optarg;
+                break;
+
+            // case 'p':
+            //     persistEnabled = true;
+            //     break;
+
 
             // case 'i':
             //   assert( optarg != NULL && strlen(optarg) > 0 );
@@ -241,6 +305,7 @@ int main(int argc, char * argv[], char * env[]){
         }
 
     }
+
 
     int arg = argc - optind;
 
@@ -316,7 +381,9 @@ int main(int argc, char * argv[], char * env[]){
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    portRegistry->enableAutoscan(1000);
+    if (autoscanInterval > 0){
+      portRegistry->enableAutoscan(autoscanInterval);
+    }
 
     // listInterfaces();
 
