@@ -59,10 +59,10 @@ target_link_libraries(asio "${OPENSSL_LIBRARIES}")  # Using ASIO requires you li
 ###########
 
 file(GLOB MIDIPATCHER_INCLUDES
-    "include/*.h"
-    "include/*.hpp"
-    "src/Port/*.h"
-    "src/Port/*.hpp"
+    "include/midipatcher/*.h"
+    "include/midipatcher/*.hpp"
+    "include/midipatcher/Port/*.h"
+    "include/midipatcher/Port/*.hpp"
 )
 
 file(GLOB MIDIPATCHER_SRC
@@ -74,7 +74,7 @@ file(GLOB MIDIPATCHER_SRC
 
 add_library(midipatch STATIC ${MIDIPATCHER_INCLUDES} ${MIDIPATCHER_SRC})
 target_include_directories(midipatch PUBLIC
-    "include"
+    "include/midipatcher"
     "${RTMIDI_INCLUDES}"
     "${MIDIMESSAGE_INCLUDES}"
     "${ASIO_INCLUDES}"
