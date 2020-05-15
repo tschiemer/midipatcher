@@ -22,12 +22,41 @@ set(MIDIMESSAGE_INCLUDES ${MIDIMESSAGE_DIR}/include)
 
 #########
 
+set(ENABLE_SSL false)
+
 set(ASIO_INCLUDES ${ASIO_DIR}/include)
 set(ASIO_SRC
   "${ASIO_DIR}/src/asio.cpp"
-  "${ASIO_DIR}/src/asio_ssl.cpp"
 )
 
+if(ENABLE_SSL)
+  message(STATUS "SSL enabled")
+
+  list(APPEND ASIO_SRC "${ASIO_DIR}/src/asio_ssl.cpp")
+
+  if(APPLE)
+    set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
+  else()
+    set(OPENSSL_ROOT_DIR /usr/local/ssl)
+  endif()
+
+  find_package(openssl REQUIRED)
+
+  message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
+  message("OpenSSL libraries: ${OPENSSL_LIBRARIES}")
+
+else()
+  message(STATUS "SSL disabled (momentarily not in use anyways)")
+endif()
+
+
+add_library(asio STATIC ${ASIO_SRC})
+target_compile_definitions(asio PUBLIC ASIO_SEPARATE_COMPILATION ASIO_STANDALONE)
+#target_compile_options(asio PUBLIC ASIO_STANDALONE)
+target_include_directories(asio PUBLIC "${ASIO_INCLUDES}" "${OPENSSL_INCLUDE_DIR}")
+target_link_libraries(asio "${OPENSSL_LIBRARIES}")  # Using ASIO requires you link your final executable/library with your system's threading library (e.g. pthread on linux)
+
+###########
 
 file(GLOB MIDIPATCHER_INCLUDES
     "include/*.h"
@@ -42,25 +71,6 @@ file(GLOB MIDIPATCHER_SRC
     "src/Port/*.c"
     "src/Port/*.cpp"
 )
-
-###########
-
-if(APPLE)
-    set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
-endif()
-
-find_package(openssl REQUIRED)
-
-message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
-message("OpenSSL libraries: ${OPENSSL_LIBRARIES}")
-
-add_library(asio STATIC ${ASIO_SRC})
-target_compile_definitions(asio PUBLIC ASIO_SEPARATE_COMPILATION ASIO_STANDALONE)
-#target_compile_options(asio PUBLIC ASIO_STANDALONE)
-target_include_directories(asio PUBLIC "${ASIO_INCLUDES}" "${OPENSSL_INCLUDE_DIR}")
-target_link_libraries(asio "${OPENSSL_LIBRARIES}")  # Using ASIO requires you link your final executable/library with your system's threading library (e.g. pthread on linux)
-
-#############
 
 add_library(midipatch STATIC ${MIDIPATCHER_INCLUDES} ${MIDIPATCHER_SRC})
 target_include_directories(midipatch PUBLIC
