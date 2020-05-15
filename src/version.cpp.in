@@ -1,0 +1,8 @@
+#include <version.h>
+
+namespace MidiPatcher {
+
+  const std::string VERSION = "@VERSION@";
+  const std::string VERSION_SHORT = "@VERSION_SHORT@";
+
+}

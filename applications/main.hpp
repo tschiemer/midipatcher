@@ -1,14 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <Port/MidiIn.hpp>
-#include <Port/MidiOut.hpp>
-#include <Port/VirtMidiIn.hpp>
-#include <Port/VirtMidiOut.hpp>
-#include <Port/FileIn.hpp>
-#include <Port/FileOut.hpp>
-#include <Port/UdpIn.hpp>
-#include <Port/UdpOut.hpp>
+#include <midipatcher/midipatcher.hpp>
 
 MidiPatcher::AbstractPort::PortClassRegistryInfo* PortClassRegistryInfoConfig[] = {
   MidiPatcher::Port::MidiIn::getPortClassRegistryInfo(),
@@ -20,7 +13,5 @@ MidiPatcher::AbstractPort::PortClassRegistryInfo* PortClassRegistryInfoConfig[] 
   MidiPatcher::Port::UdpIn::getPortClassRegistryInfo(),
   MidiPatcher::Port::UdpOut::getPortClassRegistryInfo()
 };
-
-#define VERSION "v1.0.0"
 
 #endif /* MAIN_H */

@@ -7,10 +7,6 @@
 
 #include <map>
 
-#include <RtMidi.h>
-
-
-#include <PortRegistry.hpp>
 
 
 MidiPatcher::PortRegistry * portRegistry = NULL;
@@ -19,7 +15,7 @@ int sigintTicks = 0;
 volatile bool Running = false;
 
 void printVersion( void ){
-    std::cout << "midipatcher " << VERSION << std::endl;
+    std::cout << "midipatcher " << MidiPatcher::VERSION << std::endl;
 }
 
 void printHelp( void ) {

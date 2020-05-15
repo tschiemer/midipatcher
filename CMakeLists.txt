@@ -64,10 +64,30 @@ endif()
 add_library(asio STATIC ${ASIO_SRC})
 target_compile_definitions(asio PUBLIC ASIO_SEPARATE_COMPILATION ASIO_STANDALONE)
 #target_compile_options(asio PUBLIC ASIO_STANDALONE)
-target_include_directories(asio PUBLIC "${ASIO_INCLUDES}" "${OPENSSL_INCLUDE_DIR}")
+target_include_directories(asio PRIVATE "${ASIO_INCLUDES}" "${OPENSSL_INCLUDE_DIR}")
 target_link_libraries(asio "${OPENSSL_LIBRARIES}")  # Using ASIO requires you link your final executable/library with your system's threading library (e.g. pthread on linux)
 
 ###########
+
+### get version from git tag
+# https://ipenguin.ws/2012/11/cmake-automatically-use-git-tags-as.html
+include(cmake/GetGitRevisionDescription.cmake)
+git_describe(VERSION --tags)
+
+#parse the version information into pieces.
+string(REGEX REPLACE "^v([0-9]+)\\..*" "\\1" VERSION_MAJOR "${VERSION}")
+string(REGEX REPLACE "^v[0-9]+\\.([0-9]+).*" "\\1" VERSION_MINOR "${VERSION}")
+string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" VERSION_PATCH "${VERSION}")
+string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.[0-9]+(.*)" "\\1" VERSION_SHA1 "${VERSION}")
+set(VERSION_SHORT "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+
+message(STATUS "midipatcher version: ${VERSION} (${VERSION_SHORT})")
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/version.cpp.in
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/version.cpp)
+set(MIDIPATCHER_VERSION_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/version.cpp")
+
+###
 
 file(GLOB MIDIPATCHER_INCLUDES
     "include/midipatcher/*.h"
@@ -83,7 +103,7 @@ file(GLOB MIDIPATCHER_SRC
     "src/Port/*.cpp"
 )
 
-add_library(midipatch STATIC ${MIDIPATCHER_INCLUDES} ${MIDIPATCHER_SRC})
+add_library(midipatch STATIC ${MIDIPATCHER_INCLUDES} ${MIDIPATCHER_SRC} ${MIDIPATCHER_VERSION_SRC})
 target_include_directories(midipatch PUBLIC
     "include/midipatcher"
     "${RTMIDI_INCLUDES}"

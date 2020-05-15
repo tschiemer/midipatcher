@@ -35,3 +35,4 @@ CMakeFiles
 Makefile
 bin
 .DS_Store
+src/version.cpp
