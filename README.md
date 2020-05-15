@@ -53,12 +53,26 @@ MIT license (https://github.com/tschiemer/midipatcher)
 ## Building
 
 ```bash
-
 git clone --recursive https://github.com/tschiemer/midipatcher
 cd midipatcher
 cmake .
 make
 
+```
+
+## Using as library
+
+The project uses cmake, thus simply do something as follows:
+
+```
+set(MIDIPATCHER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/midipatcher)
+
+add_subdirectory(${MIDIPATCHER_DIR} EXCLUDE_FROM_ALL)
+set(MIDIPATCHER_INCLUDES ${MIDIPATCHER_DIR}/include)
+
+add_executable(myProject ...)
+target_include_directories(myProject "${MIDIPATCHER_INCLUDES}")
+target_link_libraries(myProject midipatch)
 ```
 
 
