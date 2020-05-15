@@ -5,6 +5,8 @@ project(midipatcher)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 link_directories("/usr/local/lib/")
 
@@ -14,13 +16,22 @@ set(RTMIDI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/rtmidi)
 set(MIDIMESSAGE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/midimessage)
 set(ASIO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/asio/asio)
 
-add_subdirectory(${RTMIDI_DIR} EXCLUDE_FROM_ALL)
-set(RTMIDI_INCLUDES ${RTMIDI_DIR})
+
+########
 
 add_subdirectory(${MIDIMESSAGE_DIR} EXCLUDE_FROM_ALL)
 set(MIDIMESSAGE_INCLUDES ${MIDIMESSAGE_DIR}/include)
 
+
+########
+
+set(RTMIDI_BUILD_STATIC_LIBS true)
+
+add_subdirectory(${RTMIDI_DIR} EXCLUDE_FROM_ALL)
+set(RTMIDI_INCLUDES ${RTMIDI_DIR})
+
 #########
+
 
 set(ENABLE_SSL false)
 
