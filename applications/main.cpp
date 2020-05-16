@@ -47,6 +47,10 @@ struct {
     .OutDesc = "MidiOut:MidiPatcher-Control"
   }
 };
+//
+// struct {
+//
+// } RemoteControl;
 
 
 /***************************/
@@ -60,7 +64,7 @@ int setupPortsFromArgs(int argc, char * argv[]);
 int setupPortsFromFile(std::string file);
 
 void setupControlPort();
-void setupRemoteControl();
+void remoteControl(int argc, char * argv[]);
 
 void init();
 void deinit();
@@ -258,11 +262,77 @@ int setupPortsFromFile(std::string file){
 }
 
 void setupControlPort(){
-    std::cerr << "TODO Control Port" << std::endl;
+  MidiPatcher::PortDescriptor * desc;
+  MidiPatcher::AbstractPort * inport, * outport;
+
+  desc = MidiPatcher::PortDescriptor::fromString(Options.ControlPort.InDesc);
+  inport = portRegistry->registerPortFromDescriptor(desc);
+  delete desc;
+
+  desc = MidiPatcher::PortDescriptor::fromString(Options.ControlPort.OutDesc);
+  outport = portRegistry->registerPortFromDescriptor(desc);
+  delete desc;
+
+  MidiPatcher::Port::ControlPort * cp = new MidiPatcher::Port::ControlPort(portRegistry);
+  portRegistry->registerPort( cp );
+
+  portRegistry->connectPorts(inport, cp);
+  portRegistry->connectPorts(cp, outport);
 }
 
-void setupRemoteControl(){
-    std::cerr << "TODO Remote Control" << std::endl;
+void remoteControl(int argc, char * argv[]){
+
+  portRegistry->rescan();
+
+  MidiPatcher::PortDescriptor * desc;
+  MidiPatcher::AbstractPort * inport, * outport;
+
+  desc = MidiPatcher::PortDescriptor::fromString(Options.RemoteControl.InDesc);
+  inport = portRegistry->registerPortFromDescriptor(desc);
+  delete desc;
+
+  desc = MidiPatcher::PortDescriptor::fromString(Options.RemoteControl.OutDesc);
+  outport = portRegistry->registerPortFromDescriptor(desc);
+  delete desc;
+
+  MidiPatcher::Port::InjectorPort * ip = new MidiPatcher::Port::InjectorPort("RemoteControl", [](unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
+    std::cout << "Received (" << len << ")" << std::endl;
+
+    // TODO
+  });
+
+  portRegistry->registerPort( ip );
+
+  portRegistry->connectPorts(inport, ip);
+  portRegistry->connectPorts(ip, outport);
+
+  // TODO wait for connections..
+
+  // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+  std::vector<std::string> argVec;
+
+  for(int i = 0; i < argc; i++){
+    argVec.push_back(argv[i]);
+  }
+
+  unsigned char midi[128];
+
+  int len = MidiPatcher::Port::ControlPort::packMessage( midi, argVec );
+
+  assert( len > 0 );
+
+  // std::cout << "remote (" << len << ") ";
+
+  // for(int i = 0; i < len; i++){
+  //   std::cout << std::hex << (int)midi[i] << " ";
+  // }
+  // std::cout << std::endl;
+
+  ip->sendMessage( midi, len );
+
+
+
 }
 
 void init(){
@@ -412,11 +482,10 @@ int main(int argc, char * argv[], char * env[]){
 
       if (argC <= 0){
         std::cerr << "ERROR Missing remote commands" << std::endl;
+        return EXIT_FAILURE;
       }
 
-      setupRemoteControl();
-
-
+      remoteControl(argC, argV);
 
       return EXIT_SUCCESS;
     }

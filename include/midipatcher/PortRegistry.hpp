@@ -57,6 +57,7 @@ namespace MidiPatcher {
       // AbstractPort * getPortById( unsigned int id );
 
       void registerPort(AbstractPort * port);
+      void unregisterPort(AbstractPort * port);
 
       AbstractPort * registerPortFromDescriptor(PortDescriptor * portDescriptor);
 

@@ -25,7 +25,7 @@ namespace MidiPatcher {
   };
 
   void AbstractPort::addConnection(AbstractPort * port){
-    std::cout << Name << ".addConnection " << port->Name << std::endl;
+    // std::cout << Name << ".addConnection " << port->Name << std::endl;
 
     addConnectionImpl(port);
 

@@ -28,6 +28,7 @@ namespace MidiPatcher {
       std::vector<AbstractPort *> * connections = port->getConnections();
 
       std::for_each(connections->begin(), connections->end(), [port](AbstractPort*other){
+        // removeConnection(port, other);
         port->removeConnection(other);
         other->removeConnection(port);
       });
@@ -145,6 +146,31 @@ namespace MidiPatcher {
     // std::cout << "YES " << Ports.size() <<  std::endl;
 
     port->subscribePortUpdateReveicer( this );
+  }
+
+  void PortRegistry::unregisterPort(AbstractPort * port){
+    std::string key = port->getKey();
+
+    if (Ports.count(key) == 0){
+      return;
+    }
+
+    port->unsubscribePortUpdateReveicer( this );
+
+    std::vector<AbstractPort *> * connections = port->getConnections();
+
+    // remove all connections
+    std::for_each(connections->begin(), connections->end(), [port](AbstractPort*other){
+      // removeConnection(port, other);
+      port->removeConnection(other);
+      other->removeConnection(port);
+    });
+
+    delete connections;
+
+    // should it be deleted? naah.
+    // delete port;
+
   }
 
   AbstractPort* PortRegistry::registerPortFromDescriptor(PortDescriptor * portDescriptor){

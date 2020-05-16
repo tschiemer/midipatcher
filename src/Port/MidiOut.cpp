@@ -153,7 +153,7 @@ namespace MidiPatcher {
                   //   };
                   //   std::cout << std::endl;
                   // }
-
+// std::cout << "MO.sendMessage" << std::endl;
       MidiPort->sendMessage(message, len);
     }
   }

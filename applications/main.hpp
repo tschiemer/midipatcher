@@ -1,7 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <midipatcher/midipatcher.hpp>
+#include <midipatcher.hpp>
 
 MidiPatcher::AbstractPort::PortClassRegistryInfo* PortClassRegistryInfoConfig[] = {
   MidiPatcher::Port::MidiIn::getPortClassRegistryInfo(),
