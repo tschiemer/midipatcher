@@ -129,7 +129,7 @@ void printHelp( void ) {
     printf("midipatcher \"MidiIn:from Max 1\" VirtMidiOut:ComboPort \"MidiIn:from Max 2\" VirtMidiOut:ComboPort\n");
     printf("midipatcher MidiIn:BCF2000 UdpOut:10.0.0.4:3000 UdpIn:3001 MidiOut:BCF2000\n");
     printf("midipatcher UdpIn:3000 \"VirtMidiOut:From other computer\" \"VirtMidiIn:To other computer\" UdpOut:10.0.0.2:3001\n");
-    printf("midipatcher FileIn:STDIN RawExec:examples/RawExec/inc-channel RawExec:examples/RawExec/inc-channel FileOut:STDOUT\n");
+    printf("midimessage -g | midipatcher FileIn:STDIN RawExec:examples/RawExec/inc-channel RawExec:examples/RawExec/inc-channel FileOut:STDOUT | midimessage -p\n");
     printf("\n");
     printf("Thanks to:\n\n");
     printf("RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi\n");
