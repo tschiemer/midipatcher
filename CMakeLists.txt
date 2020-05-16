@@ -110,7 +110,7 @@ target_include_directories(midipatch PUBLIC
     "${MIDIMESSAGE_INCLUDES}"
     "${ASIO_INCLUDES}"
 )
-target_link_libraries(midipatch rtmidi midimessage asio)
+target_link_libraries(midipatch rtmidi midimsg asio)
 
 #############
 
