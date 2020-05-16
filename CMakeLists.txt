@@ -19,19 +19,31 @@ set(ASIO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/asio/asio)
 
 ########
 
+message(STATUS "Configuring midimessage")
 add_subdirectory(${MIDIMESSAGE_DIR} EXCLUDE_FROM_ALL)
 set(MIDIMESSAGE_INCLUDES ${MIDIMESSAGE_DIR}/include)
 
 
 ########
 
+message(STATUS "Configuring RtMidi")
+
 set(RTMIDI_BUILD_STATIC_LIBS true)
 
 add_subdirectory(${RTMIDI_DIR} EXCLUDE_FROM_ALL)
 set(RTMIDI_INCLUDES ${RTMIDI_DIR})
 
+if (APPLE)
+  message("")
+  message("WARNING WARNING WARNING WARNING WARNING WARNING")
+  message("At the time of writing this there is a bug in RtMidi on macOS systems which might cause persistent errors, also see https://github.com/thestk/rtmidi/issues/155")
+  message("WARNING WARNING WARNING WARNING WARNING WARNING")
+  message("")
+endif()
+
 #########
 
+message(STATUS "Configuring asio")
 
 set(ENABLE_SSL false)
 
@@ -68,6 +80,10 @@ target_include_directories(asio PRIVATE "${ASIO_INCLUDES}" "${OPENSSL_INCLUDE_DI
 target_link_libraries(asio "${OPENSSL_LIBRARIES}")  # Using ASIO requires you link your final executable/library with your system's threading library (e.g. pthread on linux)
 
 ###########
+
+message("")
+
+##########
 
 ### get version from git tag
 # https://ipenguin.ws/2012/11/cmake-automatically-use-git-tags-as.html
@@ -120,6 +136,10 @@ target_include_directories(midipatcher PUBLIC
     "include"
 )
 target_link_libraries(midipatcher midipatch)
+
+
+#############
+
 
 
 ##################
