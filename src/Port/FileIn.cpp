@@ -94,11 +94,11 @@ namespace MidiPatcher {
               // std::cout << "nothing to read" << std::endl;
             }
             else if (count > 0){
-              // std::cout << "read (" << count << ") ";
-              // for(int i = 0; i < count; i++){
-              //   std::cout << std::hex << (int)buffer[i];
-              // }
-              // std::cout << std::endl;
+              std::cout << "FileIn[" << Name << "] read (" << count << ") ";
+              for(int i = 0; i < count; i++){
+                std::cout << std::hex << (int)buffer[i];
+              }
+              std::cout << std::endl;
 
 
               // this->send(buffer,count);
