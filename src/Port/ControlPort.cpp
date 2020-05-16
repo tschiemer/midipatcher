@@ -1,6 +1,9 @@
 #include <Port/ControlPort.hpp>
 
+#include <PortRegistry.hpp>
+
 #include <cassert>
+#include <future>
 
 namespace MidiPatcher {
 
@@ -161,11 +164,11 @@ namespace MidiPatcher {
 
       // std::cout << "received control port message (" << dataLen << ") " << std::endl;
 
-      std::vector<std::string> argv;
+      std::vector<std::string> * argv = new std::vector<std::string>();
 
-      unpackArguments(argv, data, dataLen);
+      unpackArguments(*argv, data, dataLen);
 
-      if (argv.size() == 0){
+      if (argv->size() == 0){
         return;
       }
 
@@ -173,17 +176,238 @@ namespace MidiPatcher {
       //   std::cout << "arg[" << i << "] = " << argv[i] << std::endl;
       // }
 
-      handleCommand(argv);
+      new std::thread([this, argv](){
+        handleCommand(*argv);
+        delete argv;
+      });
+
     }
 
     void ControlPort::handleCommand(std::vector<std::string> &argv){
 
+      for(int i = 0; i < argv.size(); i++){
+        std::cout << argv[i] << " ";
+      }
+      std::cout << std::endl;
 
       if (argv[0] == "ping"){
-        send(1,"pong");
+        send("s","pong");
         return ok();
       }
 
+      if (argv[0] == "portclasses"){
+        if (argv.size() > 1){
+          return error("Expected: portclasses");
+        }
+
+        std::vector<MidiPatcher::AbstractPort::PortClassRegistryInfo*> * classes = PortRegistryRef->getPortClassRegistryInfoList();
+
+        send("si", "classes", classes->size());
+
+        for(int i = 0; i < classes->size(); i++){
+          send("sis", "classes", i, classes->at(i)->Key.c_str() );
+        }
+
+        delete classes;
+
+        return ok();
+      }
+
+      if (argv[0] == "ports"){
+        if (argv.size() > 1){
+          return error("Expected: ports");
+        }
+
+        std::vector<AbstractPort*> * ports = PortRegistryRef->getAllPorts();
+
+        send("si", "ports", ports->size());
+
+        for(int i = 0; i < ports->size(); i++){
+          send("sis","ports", i, ports->at(i)->getKey().c_str());
+        }
+
+        delete ports;
+
+        return ok();
+      }
+
+      if (argv[0] == "devstate"){
+
+        if (argv.size() > 2){
+          return error("Expected: devstate [<port-descriptor>]");
+        }
+
+        AbstractPort * port;
+
+        if (argv.size() == 2){
+
+          port = PortRegistryRef->getPortByKey(argv[1]);
+
+          if (port == nullptr){
+            return error("No such port: " + argv[1]);
+          }
+
+
+          bool connected = port->getDeviceState() == DeviceStateConnected;
+
+          send("sss", "devstate", port->getKey().c_str(), connected ? "connected" : "disconnected" );
+
+          return ok();
+
+        } else {
+          std::vector<AbstractPort*> * ports = PortRegistryRef->getAllPorts();
+
+          send("si", "devstate", ports->size() );
+
+          for(int i = 0; i < ports->size(); i++){
+            AbstractPort * port = ports->at(i);
+            bool connected = port->getDeviceState() == DeviceStateConnected;
+            send("siss", "devstate", i, port->getKey().c_str(),connected ? "connected" : "disconnected" );
+          }
+
+          delete ports;
+
+          return ok();
+        }
+
+
+      }
+
+      if (argv[0] == "register"){
+        if (argv.size() != 2){
+          return error("Expected: register <port-descriptor>");
+        }
+      }
+
+      if (argv[0] == "unregister"){
+        if (argv.size() != 2){
+          return error("Expected: unregister <port-descriptor>");
+        }
+      }
+
+      if (argv[0] == "constate"){
+        if (argv.size() > 3){
+          return error("Expected: constate [<port1-descriptor> [<port2-descriptor>]]");
+        }
+        if (argv.size() == 3){
+          AbstractPort * inport = PortRegistryRef->getPortByKey(argv[1]);
+          AbstractPort * outport = PortRegistryRef->getPortByKey(argv[2]);
+
+          if (inport == nullptr){
+            return error("No such port: " + argv[1]);
+          }
+          if (outport == nullptr){
+            return error("No such port: " + argv[2]);
+          }
+
+          int constate = inport->isConnectedTo(outport) ? 1 : 0;
+
+          send("sssi", "constate", argv[1].c_str(), argv[2].c_str(), constate );
+
+          return ok();
+        }
+        else if (argv.size() == 2){
+
+          AbstractPort * port = PortRegistryRef->getPortByKey(argv[1]);
+
+          if (port == nullptr){
+            return error("No such port: " + argv[1]);
+          }
+
+          std::vector<AbstractPort*> * connections = port->getConnections();
+
+          for(int i = 0; i < connections->size(); i++){
+            AbstractPort * other = connections->at(i);
+
+            int constate = port->isConnectedTo(other);
+
+            send("sssi", "constate", argv[1].c_str(), other->getKey().c_str(), constate );
+          }
+
+          delete connections;
+
+          return ok();
+        }
+        else {
+
+            std::vector<AbstractPort*> * ports = PortRegistryRef->getAllPorts();
+
+            // send("si", "constate", ports->size() );
+
+            for(int i = 0; i < ports->size(); i++){
+              AbstractPort * port = ports->at(i);
+              AbstractInputPort * inport = dynamic_cast<AbstractInputPort*>(port);
+
+              if (inport != nullptr){
+
+                std::vector<AbstractPort*> * connections = port->getConnections();
+
+                for(int j = 0; j < connections->size(); j++){
+                  AbstractPort * other = connections->at(j);
+
+                  int constate = port->isConnectedTo(other);
+
+                  send("sssi", "constate", port->getKey().c_str(), other->getKey().c_str(), constate );
+                }
+
+                delete connections;
+              }
+            }
+
+            delete ports;
+
+            return ok();
+        }
+
+      }
+
+      if (argv[0] == "connect"){
+        if (argv.size() != 3){
+          return error("Expected: connect <in-port-descriptor> <out-port-descriptor>");
+        }
+
+        AbstractPort * inport = PortRegistryRef->getPortByKey(argv[1]);
+        AbstractPort * outport = PortRegistryRef->getPortByKey(argv[2]);
+
+        if (inport == nullptr){
+          return error("No such port: " + argv[1]);
+        }
+        if (outport == nullptr){
+          return error("No such port: " + argv[2]);
+        }
+
+        if (!inport->isConnectedTo(outport)){
+          PortRegistryRef->connectPorts(inport, outport);
+        }
+
+        send("sss", "connected", argv[1].c_str(), argv[2].c_str());
+
+        return ok();
+      }
+
+      if (argv[0] == "disconnect"){
+        if (argv.size() != 3){
+          return error("Expected: disconnect <in-port-descriptor> <out-port-descriptor>");
+        }
+
+        AbstractPort * inport = PortRegistryRef->getPortByKey(argv[1]);
+        AbstractPort * outport = PortRegistryRef->getPortByKey(argv[2]);
+
+        if (inport == nullptr){
+          return error("No such port: " + argv[1]);
+        }
+        if (outport == nullptr){
+          return error("No such port: " + argv[2]);
+        }
+
+        if (inport->isConnectedTo(outport)){
+          PortRegistryRef->disconnectPorts(inport, outport);
+        }
+
+        send("sss", "disconnected", argv[1].c_str(), argv[2].c_str());
+
+        return ok();
+      }
 
       error("Unknown command");
     }
@@ -223,18 +447,25 @@ namespace MidiPatcher {
       receivedMessage( midi, len );
     }
 
-    void ControlPort::send(int argc, ...){
-      assert( 0 < argc && argc < 128 );
+    void ControlPort::send(const char * fmt, ...){
+      assert( fmt != nullptr );
 
       va_list args;
-      va_start(args, argc);
+      va_start(args, fmt);
 
       std::vector<std::string> argv;
 
-      for(;argc > 0; argc--){
+      for(int i = 0; fmt[i] != '\0'; i++){
 
-        char * str = va_arg(args, char *);
-        argv.push_back( str );
+        if (fmt[i] == 's'){
+          char * str = va_arg(args, char *);
+          argv.push_back( str );
+        }
+        else if (fmt[i] == 'i'){
+          int j = va_arg(args, int);
+          argv.push_back(std::to_string(j));
+        }
+
 
       }
 

@@ -22,6 +22,10 @@ namespace MidiPatcher {
           return PortClass;
         }
 
+        std::string getKey(){
+          return PortClass;
+        }
+
         ControlPort(PortRegistry * portRegistry) : AbstractInputOutputPort("ControlPort"){
           assert(portRegistry != nullptr);
 
@@ -56,7 +60,7 @@ namespace MidiPatcher {
         void handleCommand(std::vector<std::string> &argv);
 
         void send(std::vector<std::string> &argv);
-        void send(int argc, ...);
+        void send(const char * fmt, ...);
 
         void ok();
 

@@ -153,6 +153,14 @@ namespace MidiPatcher {
         return connections;
       }
 
+      bool isConnectedTo(std::string portKey){
+        return Connections.count(portKey) > 0;
+      }
+
+      bool isConnectedTo(AbstractPort * port){
+        return isConnectedTo(port->getKey());
+      }
+
     protected:
 
       virtual void onDeviceConnected();
