@@ -1,6 +1,7 @@
 #include "main.hpp"
 
 #include <iostream>
+#include <fstream>
 #include <getopt.h>
 #include <csignal>
 #include <cstdlib>
@@ -67,7 +68,7 @@ void deinit();
 /***************************/
 
 void printVersion( void ){
-    std::cout << "midipatcher " << MidiPatcher::VERSION << std::endl;
+    std::cout << MidiPatcher::VERSION << std::endl;
 }
 
 void printHelp( void ) {
@@ -128,12 +129,13 @@ void printHelp( void ) {
     printf("midipatcher \"MidiIn:from Max 1\" VirtMidiOut:ComboPort \"MidiIn:from Max 2\" VirtMidiOut:ComboPort\n");
     printf("midipatcher MidiIn:BCF2000 UdpOut:10.0.0.4:3000 UdpIn:3001 MidiOut:BCF2000\n");
     printf("midipatcher UdpIn:3000 \"VirtMidiOut:From other computer\" \"VirtMidiIn:To other computer\" UdpOut:10.0.0.2:3001\n");
+    printf("midipatcher FileIn:STDIN RawExec:examples/RawExec/inc-channel RawExec:examples/RawExec/inc-channel FileOut:STDOUT\n");
     printf("\n");
     printf("Thanks to:\n\n");
     printf("RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi\n");
     printf("Asio (Networking) C++ Library, https://think-async.com/Asio\n");
     printf("\n");
-    printf("MIT license, https://github.com/tschiemer/midipatcher\n");
+    printf("midipatcher %s, MIT license, https://github.com/tschiemer/midipatcher\n", MidiPatcher::VERSION.c_str());
 }
 
 // void SignalHandler(int signal)
@@ -225,7 +227,16 @@ void setupPortsFromArgs(int argc, char * argv[]){
 }
 
 void setupPortsFromFile(std::string file){
+  std::ifstream patchfile;
+  patchfile.open(file);
 
+  // expected format:
+  // <in-port-desc> ;; <out-port-desc>
+
+  std::string line;
+  while(getline(patchfile, line)){
+    std::cerr << "read " << line.size() << " " << line << std::endl;
+  }
 }
 
 void setupControlPort(){
