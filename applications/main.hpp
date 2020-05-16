@@ -11,7 +11,8 @@ MidiPatcher::AbstractPort::PortClassRegistryInfo* PortClassRegistryInfoConfig[] 
   MidiPatcher::Port::FileIn::getPortClassRegistryInfo(),
   MidiPatcher::Port::FileOut::getPortClassRegistryInfo(),
   MidiPatcher::Port::UdpIn::getPortClassRegistryInfo(),
-  MidiPatcher::Port::UdpOut::getPortClassRegistryInfo()
+  MidiPatcher::Port::UdpOut::getPortClassRegistryInfo(),
+  MidiPatcher::Port::RawExec::getPortClassRegistryInfo()
 };
 
 #endif /* MAIN_H */

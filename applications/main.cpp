@@ -7,16 +7,64 @@
 
 #include <map>
 
-
+/***************************/
 
 MidiPatcher::PortRegistry * portRegistry = NULL;
-
-bool controlPort = false;
-
-bool persistEnabled = false;
-
-int sigintTicks = 0;
+// int sigintTicks = 0;
 volatile bool Running = false;
+
+struct {
+    int AutoscanInterval;
+    struct {
+      bool Using;
+      std::string Path;
+    } PatchFile;
+    struct {
+      bool Enabled;
+      std::string InDesc;
+      std::string OutDesc;
+    } ControlPort;
+    struct {
+      bool Enabled;
+      std::string InDesc;
+      std::string OutDesc;
+    } RemoteControl;
+} Options = {
+  .AutoscanInterval = 1000,
+  .PatchFile = {
+    .Using = false,
+    .Path = ""
+  },
+  .ControlPort = {
+    .Enabled = false,
+    .InDesc = "VirtMidiIn:MidiPatcher-Control",
+    .OutDesc = "VirtMidiOut:MidiPatcher-Control"
+  },
+  .RemoteControl = {
+    .Enabled = false,
+    .InDesc = "MidiIn:MidiPatcher-Control",
+    .OutDesc = "MidiOut:MidiPatcher-Control"
+  }
+};
+
+
+/***************************/
+
+void printVersion( void );
+void printHelp( void );
+void listPorts();
+void listPortClasses();
+
+void setupPortsFromArgs(int argc, char * argv[]);
+void setupPortsFromFile(std::string file);
+
+void setupControlPort();
+void setupRemoteControl();
+
+void init();
+void deinit();
+
+/***************************/
 
 void printVersion( void ){
     std::cout << "midipatcher " << MidiPatcher::VERSION << std::endl;
@@ -88,48 +136,44 @@ void printHelp( void ) {
     printf("MIT license, https://github.com/tschiemer/midipatcher\n");
 }
 
-void SignalHandler(int signal)
-{
-  // if (SIG)
-  sigintTicks++;
+// void SignalHandler(int signal)
+// {
+//   // if (SIG)
+//   sigintTicks++;
+//
+//   if (sigintTicks == 1){
+//     std::cerr << "Press CTRL-C again to quit." << std::endl;
+//     return;
+//   }
+//
+//   // Attempt to gracefully stop process.
+//   Running = false;
+//
+//   // Force quit if necessary
+//   if (sigintTicks > 2){
+//     exit(EXIT_FAILURE);
+//   }
+// }
+//
+// void setupSignalHandler(){
+//   sigintTicks = 0;
+//   std::signal(SIGINT, SignalHandler);
+// }
 
-  if (sigintTicks == 1){
-    std::cerr << "Press CTRL-C again to quit." << std::endl;
-    return;
-  }
 
-  // Attempt to gracefully stop process.
-  Running = false;
-
-  // Force quit if necessary
-  if (sigintTicks > 2){
-    exit(EXIT_FAILURE);
-  }
-}
-
-void setupSignalHandler(){
-  sigintTicks = 0;
-  std::signal(SIGINT, SignalHandler);
-}
-
-
-void listPorts(bool printCount = true, bool printList = true){
+void listPorts(){
 
   portRegistry->rescan();
 
   std::vector<MidiPatcher::AbstractPort*> * ports = portRegistry->getAllPorts();
 
-  if (printCount){
-    std::cout << ports->size() << std::endl;
-  }
+  std::cout << ports->size() << std::endl;
 
-  if (printList){
-    std::for_each(ports->begin(), ports->end(), [](MidiPatcher::AbstractPort* port){
-      MidiPatcher::PortDescriptor * desc = port->getPortDescriptor();
-      std::cout << desc->toString() << std::endl;
-      delete desc;
-    });
-  }
+  std::for_each(ports->begin(), ports->end(), [](MidiPatcher::AbstractPort* port){
+    MidiPatcher::PortDescriptor * desc = port->getPortDescriptor();
+    std::cout << desc->toString() << std::endl;
+    delete desc;
+  });
 
   delete ports;
 }
@@ -146,7 +190,51 @@ void listPortClasses(){
   delete list;
 }
 
-void deinit();
+
+void setupPortsFromArgs(int argc, char * argv[]){
+
+  std::vector<MidiPatcher::AbstractPort*> inports = std::vector<MidiPatcher::AbstractPort*>();
+  std::vector<MidiPatcher::AbstractPort*> outports = std::vector<MidiPatcher::AbstractPort*>();
+
+  for (int i = 0, j = 1; i < argc; i += 2, j += 2){
+
+    MidiPatcher::PortDescriptor * desc;
+    MidiPatcher::AbstractPort * port;
+
+    desc = MidiPatcher::PortDescriptor::fromString(argv[i]);
+    port = portRegistry->registerPortFromDescriptor(desc);
+    inports.push_back(port);
+
+    desc = MidiPatcher::PortDescriptor::fromString(argv[j]);
+    port = portRegistry->registerPortFromDescriptor(desc);
+    outports.push_back(port);
+  }
+
+      // portRegistry->rescan();
+
+  assert( inports.size() == outports.size() );
+
+  // setupSignalHandler();
+
+  for( int i = 0; i < inports.size(); i++){
+    portRegistry->connectPorts( inports.at(i), outports.at(i) );
+  }
+
+  // delete inports;
+  // delete outports;
+}
+
+void setupPortsFromFile(std::string file){
+
+}
+
+void setupControlPort(){
+    std::cerr << "TODO Control Port" << std::endl;
+}
+
+void setupRemoteControl(){
+    std::cerr << "TODO Remote Control" << std::endl;
+}
 
 void init(){
 
@@ -178,9 +266,6 @@ int main(int argc, char * argv[], char * env[]){
 
   int c;
   int digit_optind = 0;
-
-  std::string patchFile = "";
-  int autoscanInterval = 1000;
 
   if (argc <= 1){
       printHelp();
@@ -231,8 +316,28 @@ int main(int argc, char * argv[], char * env[]){
               return EXIT_SUCCESS;
 
             case 2:
-                std::cout << "Using control port" << std::endl;
+                Options.ControlPort.Enabled = true;
                 return EXIT_SUCCESS;
+
+            case 3:
+                Options.ControlPort.InDesc = optarg;
+                break;
+
+            case 4:
+                Options.ControlPort.OutDesc = optarg;
+                break;
+
+            case 'r':
+                Options.RemoteControl.Enabled = true;
+                break;
+
+            case 5:
+                Options.RemoteControl.InDesc = optarg;
+                break;
+
+            case 6:
+                Options.RemoteControl.OutDesc = optarg;
+                break;
 
             case 'v':
                 printVersion();
@@ -248,9 +353,9 @@ int main(int argc, char * argv[], char * env[]){
                 return EXIT_SUCCESS;
 
             case 'a':
-                autoscanInterval = std::atoi(optarg);
-                if (autoscanInterval < 0){
-                  std::cerr << "ERROR invalid autscan value " << autoscanInterval << std::endl;
+                Options.AutoscanInterval = std::atoi(optarg);
+                if (Options.AutoscanInterval < 0){
+                  std::cerr << "ERROR invalid autscan value " << Options.AutoscanInterval << std::endl;
                   return EXIT_FAILURE;
                 }
                 break;
@@ -260,45 +365,9 @@ int main(int argc, char * argv[], char * env[]){
                 //   std::cerr << "ERROR patch file option without file" << std::endl;
                 //   return EXIT_FAILURE;
                 // }
-                patchFile = optarg;
+                Options.PatchFile.Using = true;
+                Options.PatchFile.Path = optarg;
                 break;
-
-            // case 'p':
-            //     persistEnabled = true;
-            //     break;
-
-
-            // case 'i':
-            //   assert( optarg != NULL && strlen(optarg) > 0 );
-            //
-            //   std::cout << "opt-i " << optarg << std::endl;
-            //   break;
-            //
-            // case 'o':
-            //   assert( optarg != NULL && strlen(optarg) > 0 );
-            //
-            //   std::cout << "opt-o " << optarg << std::endl;
-            //   break;
-
-            // case 'c':
-            //   if (optarg != NULL && strlen(optarg) > 0){
-            //     for (int i = 0; i < ControlSurfaceCount; i++){
-            //       if (ControlSurfaceList[i].Key == optarg){
-            //         controlSurfaceFactory = ControlSurfaceList[i].Factory;
-            //         std::cout << "Control Surface: " << ControlSurfaceList[i].Key << std::endl;
-            //       }
-            //     }
-            //   }
-            //   break;
-            //
-            // case 's':
-            //   if (optarg != NULL && strlen(optarg) > 0){
-            //     sessionName = optarg;
-            //
-            //     std::cout << "Session Name: " << sessionName << std::endl;
-            //   }
-            //   break;
-
 
             default:
                 printf("?? getopt returned character code %o ??\n", c);
@@ -307,87 +376,52 @@ int main(int argc, char * argv[], char * env[]){
     }
 
 
-    int arg = argc - optind;
+    int argC = argc - optind;
+    char ** argV = &argv[optind];
 
-    if (arg <= 0){
-      std::cerr << "ERROR Missing ports to connect!" << std::endl;
-      return EXIT_FAILURE;
+    if (Options.RemoteControl.Enabled){
+
+      if (argC <= 0){
+        std::cerr << "ERROR Missing remote commands" << std::endl;
+      }
+
+      setupRemoteControl();
+
+
+
+      return EXIT_SUCCESS;
     }
-    if (arg % 2 == 1){
-      std::cerr << "ERROR port list must always be duplets of input-port and output-port" << std::endl;
-      return EXIT_FAILURE;
+
+
+    // validate possible argument listing of in-/out-port patching
+    if (argC > 0){
+      if (argC % 2 == 1){
+        std::cerr << "ERROR port list must always be duplets of input-port and output-port" << std::endl;
+        return EXIT_FAILURE;
+      }
     }
 
     portRegistry->rescan();
 
-    char ** args = &argv[optind];
-
-
-    std::vector<MidiPatcher::AbstractPort*> * inports = new std::vector<MidiPatcher::AbstractPort*>();
-    std::vector<MidiPatcher::AbstractPort*> * outports = new std::vector<MidiPatcher::AbstractPort*>();
-
-    // important..
-    //
-    // portRegistry->rescan();
-    //
-    // for (int i = 0, j = 1; i < arg; i += 2, j += 2){
-    //   MidiPatcher::AbstractPort * port;
-    //
-    //   port = portRegistry->findPortByName(args[i], MidiPatcher::AbstractPort::TypeInput);
-    //   if (port == NULL){
-    //     std::cerr << "ERROR input port '" << args[i] << "' not found." << std::endl;
-    //     return EXIT_FAILURE;
-    //   }
-    //   inports->push_back(port);
-    //
-    //   port = portRegistry->findPortByName(args[j], MidiPatcher::AbstractPort::TypeOutput);
-    //   if (port == NULL){
-    //     std::cerr << "ERROR output port '" << args[j] << "' not found." << std::endl;
-    //     return EXIT_FAILURE;
-    //   }
-    //   outports->push_back(port);
-    //
-    // }
-
-    for (int i = 0, j = 1; i < arg; i += 2, j += 2){
-
-      MidiPatcher::PortDescriptor * desc;
-      MidiPatcher::AbstractPort * port;
-
-      desc = MidiPatcher::PortDescriptor::fromString(args[i]);
-      port = portRegistry->registerPortFromDescriptor(desc);
-      inports->push_back(port);
-
-      desc = MidiPatcher::PortDescriptor::fromString(args[j]);
-      port = portRegistry->registerPortFromDescriptor(desc);
-      outports->push_back(port);
+    if (Options.ControlPort.Enabled){
+      setupControlPort();
     }
 
-        // portRegistry->rescan();
-
-    assert( inports->size() == outports->size() );
-
-    setupSignalHandler();
-
-    for( int i = 0; i < inports->size(); i++){
-      portRegistry->connectPorts( inports->at(i), outports->at(i) );
+    if (Options.PatchFile.Using){
+      setupPortsFromFile(Options.PatchFile.Path);
     }
 
-    delete inports;
-    delete outports;
-
-
-        // portRegistry->rescan();
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    if (autoscanInterval > 0){
-      portRegistry->enableAutoscan(autoscanInterval);
+    if (argC > 0){
+      setupPortsFromArgs(argC, argV);
     }
 
-    // listInterfaces();
 
-    std::cout << "Processing... quit by pressing CTRL-C twice." << std::endl;
+    if (Options.AutoscanInterval > 0){
+      portRegistry->enableAutoscan(Options.AutoscanInterval);
+    }
+
+
+    // std::cout << "Processing... quit by pressing CTRL-C twice." << std::endl;
     Running = true;
     while(Running){
       // wait...
