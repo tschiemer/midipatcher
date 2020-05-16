@@ -67,75 +67,36 @@ void deinit();
 
 /***************************/
 
+//https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+// trim from start (in place)
+static inline std::string & ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+        return !std::isspace(ch);
+    }));
+    return s;
+}
+
+// trim from end (in place)
+static inline std::string & rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+    return s;
+}
+
+// trim from both ends (in place)
+static inline std::string & trim(std::string &s) {
+    return ltrim(rtrim(s));
+    // rtrim(s);
+}
+
+
+
 void printVersion( void ){
     std::cout << MidiPatcher::VERSION << std::endl;
 }
 
 void printHelp( void ) {
-
-    // printf("Usage:\n");
-    // printf("\t midipatcher [-vh?]\n");
-    // printf("\t midipatcher (-l|--ports)\n");
-    // printf("\t midipatcher (--pc|--port-classes)\n");
-    // printf("\n");
-    // printf("\t midipatcher [--cp|--control-port] [--cp-in <control-in-port-descriptor>] [--cp-out <control-out-port-descriptor>] ...\n");
-    // printf("\t midipatcher [-f|patch-file <patch-file>] ...\n");
-    // printf("\t midipatcher ... [<in-port-descriptor1> <out-port-descriptor1> ... ]\n");
-    // printf("\n");
-    // printf("\t midipatcher (-r|--remote) [--remote-in <remote-control-in-port-descriptor>] [--remote-out <remote-control-out-port-descriptor>] <remote-command...>\n");
-    //
-    // printf("\nOptions:\n");
-    // printf("\t -v \t\t\t\t Show version.\n");
-    // printf("\t -h|-? \t\t\t\t Show this help.\n");
-    // printf("\t -a|--autoscan <autoscan-interval> \t Set regular rescanning of ports with given interval in millisec (default 1000; 0 = off).\n");
-    // printf("\t -p|--ports \t\t\t List known/detected ports (descriptors).\n");
-    // printf("\t --pc|--port-classes \t\t List registered port classes.\n");
-    // printf("\n");
-    // // printf("\t -p|--persist \t\t\t Enable port persistance, ie do not exit when a port is or becomes unavailable.\n");
-    // printf("\t -f|--patch-file <patch-file> \t Use <patch-file> for patching configuration\n");
-    // printf("\n");
-    // printf("\t --cp|--control-port\n");
-    // printf("\t --cp-in|--control-in-port <control-in-port-descriptor>\n");
-    // printf("\t --cp-out|--control-out-port <control-out-port-descriptor>\n");
-    // printf("\t\t\t\t\t Use control port with default options: \"--cp-in VirtMidiIn:MidiPatcher-Control --cp-out VirtMidiOut:MidiPatcher-Control\".\n");
-    // printf("\n");
-    // printf("\t -r|--remote ... <remote-command>\n");
-    // printf("\t --remote-in <remote-control-in-port-descriptor>\n");
-    // printf("\t --remote-out <remote-control-out-port-descriptor>\n");
-    // printf("\t\t\t\t\t Act as remote control with default port options \"--remote-in MidiOut:MidiPatcher-Control --remote-out MidiIn:MidiPatcher-Control\".\n");
-    // printf("\n\t\t\t\t\t connect <in-port-descriptor> <out-port-descriptor> ...\n");
-    // printf("\t\t\t\t\t disconnect <in-port-descriptor> <out-port-descriptor> ...\n");
-    // printf("\t\t\t\t\t dump\n");
-    // printf("\t\t\t\t\t\t Dumps connection\n");
-    // printf("\n");
-    // printf("\t <in-/out-/control-port-descriptor> := <port-key>[<options>]\n");
-    // printf("\t <port-key> := <PortClass>:<PortName>\n");
-    // printf("\t <options> := (,<opt> ...)\n");
-    // printf("\n");
-    // printf("\t MidiIn:<PortName>, \t Connects (or waits for) MIDI port with given name\n");
-    // printf("\t MidiOut:<PortName>\n");
-    // printf("\t VirtMidiIn:<PortName> \t Create virtual MIDI port with given name\n");
-    // printf("\t VirtMidiOut:<PortName>\n");
-    // printf("\t FileIn:(STDIN|<Filename>)[,runningstatus=(0|1*)]\n");
-    // printf("\t FileOut:(STDOUT|STDERR|<Filename>)[,runningstatus=(0*|1)]\n");
-    // printf("\t\t Opens said file for read/writing. Wether MIDI running status is enabled can be set (* = default)\n");
-    // printf("\t UdpIn:[<listen-addr>:]<port>[,multicast=<multicast-addr>][,runningstatus=(0|1*)]\n");
-    // printf("\t UdpOut:<port>[,runningstatus=(0*|1)]\n");
-    // printf("\n");
-    // printf("The <port-key> part of the descriptors acts as unique port identifier.\n");
-    // printf("\n");
-    // printf("Examples:\n\n");
-    // printf("midipatcher MidiIn:BCF2000 \"MidiOut:Yamaha 01V96 Port1\"\n");
-    // printf("midipatcher \"MidiIn:from Max 1\" VirtMidiOut:p1 MidiIn:p1 VirtMidiOut:p2 MidiIn:p2 \"MidiOut:to Max 1\"\n");
-    // printf("midipatcher \"MidiIn:from Max 1\" VirtMidiOut:ComboPort \"MidiIn:from Max 2\" VirtMidiOut:ComboPort\n");
-    // printf("midipatcher MidiIn:BCF2000 UdpOut:10.0.0.4:3000 UdpIn:3001 MidiOut:BCF2000\n");
-    // printf("midipatcher UdpIn:3000 \"VirtMidiOut:From other computer\" \"VirtMidiIn:To other computer\" UdpOut:10.0.0.2:3001\n");
-    // printf("midimessage -g | midipatcher FileIn:STDIN RawExec:examples/RawExec/inc-channel RawExec:examples/RawExec/inc-channel FileOut:STDOUT | midimessage -p\n");
-    // printf("\n");
-    // printf("Thanks to:\n\n");
-    // printf("RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi\n");
-    // printf("Asio (Networking) C++ Library, https://think-async.com/Asio\n");
-    // printf("\n");
 
     // https://stackoverflow.com/a/25021520/1982142
 
@@ -220,21 +181,19 @@ void setupPortsFromArgs(int argc, char * argv[]){
     outports.push_back(port);
   }
 
-      // portRegistry->rescan();
-
   assert( inports.size() == outports.size() );
-
-  // setupSignalHandler();
 
   for( int i = 0; i < inports.size(); i++){
     portRegistry->connectPorts( inports.at(i), outports.at(i) );
   }
 
-  // delete inports;
-  // delete outports;
 }
 
 void setupPortsFromFile(std::string file){
+
+  std::vector<MidiPatcher::AbstractPort*> inports = std::vector<MidiPatcher::AbstractPort*>();
+  std::vector<MidiPatcher::AbstractPort*> outports = std::vector<MidiPatcher::AbstractPort*>();
+
   std::ifstream patchfile;
   patchfile.open(file);
 
@@ -243,8 +202,58 @@ void setupPortsFromFile(std::string file){
 
   std::string line;
   while(getline(patchfile, line)){
-    std::cerr << "read " << line.size() << " " << line << std::endl;
+    trim(line);
+
+    int pos;
+    std::string in, out;
+
+    pos = line.find("#");
+
+    if (pos != std::string::npos){
+      line.erase(pos);
+    }
+
+    if (line.size() == 0){
+      continue;
+    }
+
+    pos = line.find("\t");
+
+    if (pos == std::string::npos){
+      std::cerr << "ERROR no tab separating in-/out-port-descriptors on line: " << line << std::endl;
+      exit(EXIT_FAILURE);
+    }
+
+    in = line.substr(0,pos);
+    trim(in);
+
+    line.erase(0,pos+1);
+    out = line;
+    trim(out);
+
+    // std::cout << "[" << in << "] [" << out << "]" << std::endl;
+
+
+    MidiPatcher::PortDescriptor * desc;
+    MidiPatcher::AbstractPort * port;
+
+    desc = MidiPatcher::PortDescriptor::fromString(in);
+    port = portRegistry->registerPortFromDescriptor(desc);
+    inports.push_back(port);
+
+    desc = MidiPatcher::PortDescriptor::fromString(out);
+    port = portRegistry->registerPortFromDescriptor(desc);
+    outports.push_back(port);
   }
+
+
+  assert( inports.size() == outports.size() );
+
+  for( int i = 0; i < inports.size(); i++){
+    portRegistry->connectPorts( inports.at(i), outports.at(i) );
+  }
+
+  // exit(EXIT_SUCCESS);
 }
 
 void setupControlPort(){

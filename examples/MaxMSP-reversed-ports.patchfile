@@ -1,0 +1,4 @@
+# loops back messages from Max/MSP reversing the port numbers
+MidiIn:from Max 1	MidiOut:to Max 2
+MidiIn:from Max 2	MidiOut:to Max 1
+
