@@ -121,6 +121,8 @@ namespace MidiPatcher {
       //   std::cout << std::endl;
       // }
 
+      // std::cerr << "MidiIn.rx (" << message->size() << ")" << std::endl;
+
       midiIn->receivedMessage(&message->at(0), message->size());
     }
 

@@ -30,16 +30,15 @@ namespace MidiPatcher {
         void * UserData = NULL;
         ReceivedMessageHandler ReceivedMessageHandlerRef;
 
-        void receivedMessage(unsigned char * message, size_t len ){
-          std::cout << "receivedMessage" << std::endl;
+        void sendMessage(unsigned char * message, size_t len){
           ReceivedMessageHandlerRef(message, len, this, UserData);
         }
 
+
       public:
 
-        void sendMessage(unsigned char * message, size_t len){
-          // std::cout << "sendMessage" << std::endl;
-          AbstractInputPort::receivedMessage(message, len);
+        void send( unsigned char * message, size_t len){
+          receivedMessage(message, len);
         }
 
     };

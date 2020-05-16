@@ -50,64 +50,17 @@ namespace MidiPatcher {
 
         static uint8_t packMessage(unsigned char * midi, std::vector<std::string> &argv);
         static void unpackMessage(std::vector<std::string> &argv, unsigned char * midi, uint8_t midiLen);
-        //
-        // enum Type_t {
-        //   TypeRequest         = 1,
-        //   TypeResponse        = 2,
-        //   TypeUnsolicitedInfo = 3
-        // };
-        //
-        // enum Status_t {
-        //   StatusNone          = 0,
-        //   StatusOK            = 1,
-        //   StatusError         = 2,
-        // };
-
-        // enum Type_t {
-        //   TypePing               = 01,
-        //   TypePong               = 02,
-        //
-        //   TypeVersionReqquest    = 05,
-        //   TypeVersionResponse    = 06,
-        //
-        //   TypeListPortsRequest   = 10,
-        //   TypeListPortsResponse  = 10,
-        //   TypeListPortsItem      = 11,
-        //
-        //   TypeConnectionStatusRequest   = 20,
-        //   TypeConnectionStatusResponse  = 21,
-        //   TypeConnectionStatusItem = 22,
-        //
-        //   TypeConnectPortsRequest       = 30,
-        //   TypeConnectPortsResponse      = 31,
-        //   TypeDisconnectPortsRequest    = 32,
-        //   TypeDisconnectPortsResponse   = 33,
-        //
-        //   TypeRegisterPortRequest       = 40,
-        //   TypeRegisterPortResponse      = 41,
-        //   TypeUnregisterPortRequest     = 42,
-        //   TypeUnregisterPortResponse    = 43,
-        //
-        //   TypeInformation        = 200,
-        //   TypeWarning            = 201,
-        //   TypeError              = 202
-        //
-        //   TypeKillRequest        = 254,
-        //   TypeKillACK            = 255
-        // };
-        //
-        // struct Message_t {
-        //   Type_t Type;
-        //   std::string Str1;
-        //   std::string Str2;
-        //   int Int1;
-        // };
-
-        // static uint8_t packMessage(uint8_t * sysex, Type_t type, ... );
 
       protected:
 
+        void handleCommand(std::vector<std::string> &argv);
 
+        void send(std::vector<std::string> &argv);
+        void send(int argc, ...);
+
+        void ok();
+
+        void error(std::string msg = "");
 
     };
 

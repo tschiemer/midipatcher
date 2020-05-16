@@ -159,7 +159,7 @@ namespace MidiPatcher {
         return;
       }
 
-      std::cout << "received control port message (" << dataLen << ") " << std::endl;
+      // std::cout << "received control port message (" << dataLen << ") " << std::endl;
 
       std::vector<std::string> argv;
 
@@ -169,10 +169,80 @@ namespace MidiPatcher {
         return;
       }
 
-      for(int i = 0; i < argv.size(); i++){
-        std::cout << "arg[" << i << "] = " << argv[i] << std::endl;
-      }
+      // for(int i = 0; i < argv.size(); i++){
+      //   std::cout << "arg[" << i << "] = " << argv[i] << std::endl;
+      // }
+
+      handleCommand(argv);
     }
+
+    void ControlPort::handleCommand(std::vector<std::string> &argv){
+
+
+      if (argv[0] == "ping"){
+        send(1,"pong");
+        return ok();
+      }
+
+
+      error("Unknown command");
+    }
+
+    void ControlPort::ok(){
+      std::vector<std::string> argv;
+      argv.push_back("OK");
+      send(argv);
+    }
+
+    void ControlPort::error(std::string msg){
+      std::vector<std::string> argv;
+
+      argv.push_back("ERROR");
+
+      if (msg.size() > 0){
+        argv.push_back(msg);
+      }
+
+      send(argv);
+    }
+
+    void ControlPort::send(std::vector<std::string> &argv){
+      unsigned char midi[128];
+
+      int len = MidiPatcher::Port::ControlPort::packMessage( midi, argv );
+
+      assert( len > 0 );
+
+      // std::cout << "cp.send (" << len << ") ";
+      //
+      // for(int i = 0; i < len; i++){
+      //   std::cout << std::hex << (int)midi[i] << " ";
+      // }
+      // std::cout << std::endl;
+
+      receivedMessage( midi, len );
+    }
+
+    void ControlPort::send(int argc, ...){
+      assert( 0 < argc && argc < 128 );
+
+      va_list args;
+      va_start(args, argc);
+
+      std::vector<std::string> argv;
+
+      for(;argc > 0; argc--){
+
+        char * str = va_arg(args, char *);
+        argv.push_back( str );
+
+      }
+
+      va_end(args);
+
+      send(argv);
+    }
+
 
   }
 

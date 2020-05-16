@@ -64,7 +64,9 @@ int setupPortsFromArgs(int argc, char * argv[]);
 int setupPortsFromFile(std::string file);
 
 void setupControlPort();
+
 void remoteControl(int argc, char * argv[]);
+void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData);
 
 void init();
 void deinit();
@@ -295,11 +297,10 @@ void remoteControl(int argc, char * argv[]){
   outport = portRegistry->registerPortFromDescriptor(desc);
   delete desc;
 
-  MidiPatcher::Port::InjectorPort * ip = new MidiPatcher::Port::InjectorPort("RemoteControl", [](unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
-    std::cout << "Received (" << len << ")" << std::endl;
+  MidiPatcher::Port::InjectorPort * ip = new MidiPatcher::Port::InjectorPort("RemoteControl", remoteControlReceived);
+  //[](unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
 
-    // TODO
-  });
+  // });
 
   portRegistry->registerPort( ip );
 
@@ -310,15 +311,15 @@ void remoteControl(int argc, char * argv[]){
 
   // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-  std::vector<std::string> argVec;
+  std::vector<std::string> command;
 
   for(int i = 0; i < argc; i++){
-    argVec.push_back(argv[i]);
+    command.push_back(argv[i]);
   }
 
   unsigned char midi[128];
 
-  int len = MidiPatcher::Port::ControlPort::packMessage( midi, argVec );
+  int len = MidiPatcher::Port::ControlPort::packMessage( midi, command );
 
   assert( len > 0 );
 
@@ -329,10 +330,34 @@ void remoteControl(int argc, char * argv[]){
   // }
   // std::cout << std::endl;
 
-  ip->sendMessage( midi, len );
+  Running = true;
 
+  ip->send( midi, len );
 
+  while(Running){
+    // wait
+  }
+}
 
+void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
+  // std::cout << "Received (" << len << ")" << std::endl;
+
+  std::vector<std::string> response;
+
+  MidiPatcher::Port::ControlPort::unpackMessage(response, data, len);
+
+  if (response.size() == 0){
+    return;
+  }
+
+  for(int i = 0; i < response.size(); i++){
+    std::cout << response[i] << " ";
+  }
+  std::cout << std::endl;
+
+  if (response[0] == "OK" || response[0] == "ERROR"){
+    Running = false;
+  }
 }
 
 void init(){
