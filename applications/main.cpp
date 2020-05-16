@@ -56,8 +56,8 @@ void printHelp( void );
 void listPorts();
 void listPortClasses();
 
-void setupPortsFromArgs(int argc, char * argv[]);
-void setupPortsFromFile(std::string file);
+int setupPortsFromArgs(int argc, char * argv[]);
+int setupPortsFromFile(std::string file);
 
 void setupControlPort();
 void setupRemoteControl();
@@ -162,7 +162,7 @@ void listPortClasses(){
 }
 
 
-void setupPortsFromArgs(int argc, char * argv[]){
+int setupPortsFromArgs(int argc, char * argv[]){
 
   std::vector<MidiPatcher::AbstractPort*> inports = std::vector<MidiPatcher::AbstractPort*>();
   std::vector<MidiPatcher::AbstractPort*> outports = std::vector<MidiPatcher::AbstractPort*>();
@@ -187,9 +187,10 @@ void setupPortsFromArgs(int argc, char * argv[]){
     portRegistry->connectPorts( inports.at(i), outports.at(i) );
   }
 
+  return inports.size();
 }
 
-void setupPortsFromFile(std::string file){
+int setupPortsFromFile(std::string file){
 
   std::vector<MidiPatcher::AbstractPort*> inports = std::vector<MidiPatcher::AbstractPort*>();
   std::vector<MidiPatcher::AbstractPort*> outports = std::vector<MidiPatcher::AbstractPort*>();
@@ -253,7 +254,7 @@ void setupPortsFromFile(std::string file){
     portRegistry->connectPorts( inports.at(i), outports.at(i) );
   }
 
-  // exit(EXIT_SUCCESS);
+  return inports.size();
 }
 
 void setupControlPort(){
@@ -429,20 +430,28 @@ int main(int argc, char * argv[], char * env[]){
       }
     }
 
-    portRegistry->rescan();
 
     if (Options.ControlPort.Enabled){
       setupControlPort();
     }
 
+    int portCount = 0;
+
     if (Options.PatchFile.Using){
-      setupPortsFromFile(Options.PatchFile.Path);
+      portCount += setupPortsFromFile(Options.PatchFile.Path);
     }
 
     if (argC > 0){
-      setupPortsFromArgs(argC, argV);
+      portCount += setupPortsFromArgs(argC, argV);
     }
 
+    // no ports were actually set up and control port was not enabled -> no reason to actually run.
+    if (portCount == 0){
+      std::cerr << "ERROR neither have any ports been configured nor are you using a control port to dynamically change the setup" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    portRegistry->rescan();
 
     if (Options.AutoscanInterval > 0){
       portRegistry->enableAutoscan(Options.AutoscanInterval);
