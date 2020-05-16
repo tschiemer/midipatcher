@@ -346,7 +346,7 @@ int main(int argc, char * argv[], char * env[]){
 
             case 2:
                 Options.ControlPort.Enabled = true;
-                return EXIT_SUCCESS;
+                break;
 
             case 3:
                 Options.ControlPort.InDesc = optarg;
@@ -446,7 +446,7 @@ int main(int argc, char * argv[], char * env[]){
     }
 
     // no ports were actually set up and control port was not enabled -> no reason to actually run.
-    if (portCount == 0){
+    if (portCount == 0 && Options.ControlPort.Enabled == false){
       std::cerr << "ERROR neither have any ports been configured nor are you using a control port to dynamically change the setup" << std::endl;
       return EXIT_FAILURE;
     }
