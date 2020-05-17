@@ -257,7 +257,7 @@ namespace MidiPatcher {
 
       if (argv[0] == "ports"){
         if (argv.size() > 3){
-          return error("Expected: ports [<port-id>|<port-descriptor>]");
+          return error("Expected: ports [<port-id>|<port-key>]");
         }
         if (argv.size() == 2){
 
@@ -291,7 +291,7 @@ namespace MidiPatcher {
       if (argv[0] == "devstate"){
 
         if (argv.size() > 2){
-          return error("Expected: devstate [<port-descriptor>]");
+          return error("Expected: devstate [<port-id>|<port-key>]");
         }
 
         AbstractPort * port;
@@ -378,7 +378,7 @@ namespace MidiPatcher {
 
       if (argv[0] == "unregister"){
         if (argv.size() != 2){
-          return error("Expected: unregister (<port-id>|<port-descriptor>)");
+          return error("Expected: unregister (<port-id>|<port-key>)");
         }
 
         AbstractPort * port = getPortByIdOrKey( argv[1] );
@@ -402,7 +402,7 @@ namespace MidiPatcher {
 
       if (argv[0] == "constate"){
         if (argv.size() > 3){
-          return error("Expected: constate [(<port1-id>|<port1-descriptor>) [(<port2-id>|<port2-descriptor>)]]");
+          return error("Expected: constate [(<port1-id>|<port1-key>) [(<port2-id>|<port2-key>)]]");
         }
         if (argv.size() == 3){
           AbstractPort * inport = getPortByIdOrKey(argv[1]);
@@ -490,7 +490,7 @@ namespace MidiPatcher {
 
       if (argv[0] == "connect"){
         if (argv.size() != 3){
-          return error("Expected: connect (<in-port-id>|<in-port-descriptor>) (<in-port-id>|<out-port-descriptor>)");
+          return error("Expected: connect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)");
         }
 
         AbstractPort * inport = getPortByIdOrKey(argv[1]);
@@ -518,7 +518,7 @@ namespace MidiPatcher {
 
       if (argv[0] == "disconnect"){
         if (argv.size() != 3){
-          return error("Expected: disconnect <in-port-descriptor> <out-port-descriptor>");
+          return error("Expected: disconnect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)");
         }
 
         AbstractPort * inport = getPortByIdOrKey(argv[1]);

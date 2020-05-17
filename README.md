@@ -20,7 +20,8 @@ Usage:
 Options:
 	 -v 				 Show version.
 	 -h|-? 				 Show this help.
-	 -a|--autoscan <autoscan-interval> 	 Set regular rescanning of ports with given interval in millisec (default 1000; 0 = off).
+	 -a|--autoscan <autoscan-interval>
+					 Set regular rescanning of ports with given interval in millisec (default 1000; 0 = off).
 	 -p|--ports 			 List known/detected ports (descriptors).
 	 --pc|--port-classes 		 List registered port classes.
 
@@ -36,10 +37,32 @@ Options:
 	 --remote-out <remote-control-out-port-descriptor>
 					 Act as remote control with default port options "--remote-in MidiOut:MidiPatcher-Control --remote-out MidiIn:MidiPatcher-Control".
 
-					 connect <in-port-descriptor> <out-port-descriptor> ...
-					 disconnect <in-port-descriptor> <out-port-descriptor> ...
-					 dump
-						 Dumps connection
+					 Commands:
+
+					 ping
+					 		Connection test
+					 version
+					 		Get midipatcher version
+					 option <option-key> [<option-value>]
+					 		Get/set open
+							<option-key> := return-ids 	return port-id instead of port-key
+					 portclasses
+					 		Get list of available port classes
+					 ports [<port-id>|<port-key>]
+					 		Get basic port listing of given or all port(s); response contains port-id and port-key
+					 devstate [<port-id>|<port-key>]
+					 		Get DeviceState of given or all port(s) (is device connected/enabled or not?)
+					 register <port-descriptor>
+					 		Register new port using given descriptor
+					 unregister (<port-id>|<port-key>)
+					 		Unregister port
+					 constate [(<port1-id>|<port1-key>) [(<port2-id>|<port2-key>)]]
+					    Get connection state between input- and output-port; either query specific connection, or list connections of specific/all input ports
+					 connect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)
+					 		Connect two (registered) ports
+					 disconnect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)
+					 		Disconnect two ports
+
 
 	 <in-/out-/control-port-descriptor> := <port-key>[<options>]
 	 <port-key> := <PortClass>:<PortName>
@@ -64,13 +87,16 @@ midipatcher "MidiIn:from Max 1" VirtMidiOut:p1 MidiIn:p1 VirtMidiOut:p2 MidiIn:p
 midipatcher "MidiIn:from Max 1" VirtMidiOut:ComboPort "MidiIn:from Max 2" VirtMidiOut:ComboPort
 midipatcher MidiIn:BCF2000 UdpOut:10.0.0.4:3000 UdpIn:3001 MidiOut:BCF2000
 midipatcher UdpIn:3000 "VirtMidiOut:From other computer" "VirtMidiIn:To other computer" UdpOut:10.0.0.2:3001
+midimessage -g | midipatcher FileIn:STDIN RawExec:examples/RawExec/inc-channel RawExec:examples/RawExec/inc-channel FileOut:STDOUT | midimessage -p
+midipatcher --cp
+midipatcher -r ping
 
 Thanks to:
 
 RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi
 Asio (Networking) C++ Library, https://think-async.com/Asio
 
-MIT license, https://github.com/tschiemer/midipatcher
+midipatcher v0.1.0-19-g1906333, MIT license, https://github.com/tschiemer/midipatcher
 ```
 
 ## Building
