@@ -183,12 +183,26 @@ namespace MidiPatcher {
 
     }
 
+    AbstractPort * ControlPort::getPortByIdOrKey( std::string &idOrKey ){
+
+      if (std::all_of(idOrKey.begin(), idOrKey.end(), ::isdigit)){
+        return PortRegistryRef->getPortById( std::stoi(idOrKey) );
+      }
+
+      return PortRegistryRef->getPortByKey( idOrKey );
+    }
+
     void ControlPort::handleCommand(std::vector<std::string> &argv){
 
       for(int i = 0; i < argv.size(); i++){
         std::cout << argv[i] << " ";
       }
       std::cout << std::endl;
+
+      bool requestedId = argv[0] == "id";
+      if (requestedId){
+        argv.erase(argv.begin());
+      }
 
       if (argv[0] == "ping"){
         send("s","pong");
@@ -205,7 +219,7 @@ namespace MidiPatcher {
         send("si", "classes", classes->size());
 
         for(int i = 0; i < classes->size(); i++){
-          send("sis", "classes", i, classes->at(i)->Key.c_str() );
+          send("ss", "classes", classes->at(i)->Key.c_str() );
         }
 
         delete classes;
@@ -214,21 +228,36 @@ namespace MidiPatcher {
       }
 
       if (argv[0] == "ports"){
-        if (argv.size() > 1){
-          return error("Expected: ports");
+        if (argv.size() > 3){
+          return error("Expected: ports [<port-id>|<port-descriptor>]");
         }
+        if (argv.size() == 2){
 
-        std::vector<AbstractPort*> * ports = PortRegistryRef->getAllPorts();
+          AbstractPort * port = getPortByIdOrKey(argv[1]);
 
-        send("si", "ports", ports->size());
+          if (port == nullptr){
+            return error("No such port: " + argv[1]);
+          }
 
-        for(int i = 0; i < ports->size(); i++){
-          send("sis","ports", i, ports->at(i)->getKey().c_str());
+          send("sis", "ports", port->getId(), port->getKey().c_str());
+
+          return ok();
+
+        } else {
+
+          std::vector<AbstractPort*> * ports = PortRegistryRef->getAllPorts();
+
+          send("si", "ports", ports->size());
+
+          for(int i = 0; i < ports->size(); i++){
+            AbstractPort * port = ports->at(i);
+            send("sis","ports", port->getId(), port->getKey().c_str());
+          }
+
+          delete ports;
+
+          return ok();
         }
-
-        delete ports;
-
-        return ok();
       }
 
       if (argv[0] == "devstate"){
@@ -241,16 +270,20 @@ namespace MidiPatcher {
 
         if (argv.size() == 2){
 
-          port = PortRegistryRef->getPortByKey(argv[1]);
+          port = getPortByIdOrKey(argv[1]);
 
           if (port == nullptr){
             return error("No such port: " + argv[1]);
           }
 
 
-          bool connected = port->getDeviceState() == DeviceStateConnected;
+          int connected = port->getDeviceState() == DeviceStateConnected ? 1 : 0;
 
-          send("sss", "devstate", port->getKey().c_str(), connected ? "connected" : "disconnected" );
+          if (requestedId){
+            send("sii", "devstate", port->getId(), connected  );
+          } else {
+            send("ssi", "devstate", port->getKey().c_str(), connected  );
+          }
 
           return ok();
 
@@ -261,8 +294,12 @@ namespace MidiPatcher {
 
           for(int i = 0; i < ports->size(); i++){
             AbstractPort * port = ports->at(i);
-            bool connected = port->getDeviceState() == DeviceStateConnected;
-            send("siss", "devstate", i, port->getKey().c_str(),connected ? "connected" : "disconnected" );
+            int connected = port->getDeviceState() == DeviceStateConnected ? 1 : 0;
+            if (requestedId){
+              send("sii", "devstate", port->getId(), connected );
+            } else {
+              send("ssi", "devstate", port->getKey().c_str(), connected );
+            }
           }
 
           delete ports;
@@ -277,21 +314,65 @@ namespace MidiPatcher {
         if (argv.size() != 2){
           return error("Expected: register <port-descriptor>");
         }
+
+        PortDescriptor * desc = nullptr;
+
+        try {
+          desc = PortDescriptor::fromString( argv[1] );
+        } catch(const char * e){
+          return error(e);
+        }
+
+        AbstractPort * port = PortRegistryRef->getPortByKey( desc->getKey() );
+
+        if (port != nullptr){
+          error("Already registered key: " + desc->getKey());
+        } else {
+
+          try {
+            port = PortRegistryRef->registerPortFromDescriptor( desc );
+
+            send("sis", "ports", port->getId(), port->getKey().c_str());
+
+            ok();
+
+          } catch (std::exception &e) {
+
+            error(e.what());
+          }
+
+        }
+
+        delete desc;
+
+        return;
       }
 
       if (argv[0] == "unregister"){
         if (argv.size() != 2){
-          return error("Expected: unregister <port-descriptor>");
+          return error("Expected: unregister (<port-id>|<port-descriptor>)");
         }
+
+        AbstractPort * port = getPortByIdOrKey( argv[1] );
+
+        if (port == nullptr){
+          return error("No such port: " + argv[1]);
+        }
+
+        PortRegistryRef->unregisterPort( port );
+
+        delete port;
+
+        return ok();
       }
 
       if (argv[0] == "constate"){
         if (argv.size() > 3){
-          return error("Expected: constate [<port1-descriptor> [<port2-descriptor>]]");
+          return error("Expected: constate [(<port1-id>|<port1-descriptor>) [(<port2-id>|<port2-descriptor>)]]");
         }
         if (argv.size() == 3){
-          AbstractPort * inport = PortRegistryRef->getPortByKey(argv[1]);
-          AbstractPort * outport = PortRegistryRef->getPortByKey(argv[2]);
+          AbstractPort * inport = getPortByIdOrKey(argv[1]);
+          AbstractPort * outport = getPortByIdOrKey(argv[2]);
 
           if (inport == nullptr){
             return error("No such port: " + argv[1]);
@@ -302,13 +383,17 @@ namespace MidiPatcher {
 
           int constate = inport->isConnectedTo(outport) ? 1 : 0;
 
-          send("sssi", "constate", argv[1].c_str(), argv[2].c_str(), constate );
+          if (requestedId){
+            send("siii", "constate", inport->getId(), outport->getId(), constate );
+          } else {
+            send("sssi", "constate", argv[1].c_str(), argv[2].c_str(), constate );
+          }
 
           return ok();
         }
         else if (argv.size() == 2){
 
-          AbstractPort * port = PortRegistryRef->getPortByKey(argv[1]);
+          AbstractPort * port = getPortByIdOrKey(argv[1]);
 
           if (port == nullptr){
             return error("No such port: " + argv[1]);
@@ -321,7 +406,11 @@ namespace MidiPatcher {
 
             int constate = port->isConnectedTo(other);
 
-            send("sssi", "constate", argv[1].c_str(), other->getKey().c_str(), constate );
+            if (requestedId){
+              send("siii", "constate", port->getId(), other->getId(), constate );
+            } else {
+              send("sssi", "constate", argv[1].c_str(), other->getKey().c_str(), constate );
+            }
           }
 
           delete connections;
@@ -347,7 +436,11 @@ namespace MidiPatcher {
 
                   int constate = port->isConnectedTo(other);
 
-                  send("sssi", "constate", port->getKey().c_str(), other->getKey().c_str(), constate );
+                  if (requestedId){
+                    send("siii", "constate", port->getId(), other->getId(), constate );
+                  } else {
+                    send("sssi", "constate", port->getKey().c_str(), other->getKey().c_str(), constate );
+                  }
                 }
 
                 delete connections;
@@ -363,11 +456,11 @@ namespace MidiPatcher {
 
       if (argv[0] == "connect"){
         if (argv.size() != 3){
-          return error("Expected: connect <in-port-descriptor> <out-port-descriptor>");
+          return error("Expected: connect (<in-port-id>|<in-port-descriptor>) (<in-port-id>|<out-port-descriptor>)");
         }
 
-        AbstractPort * inport = PortRegistryRef->getPortByKey(argv[1]);
-        AbstractPort * outport = PortRegistryRef->getPortByKey(argv[2]);
+        AbstractPort * inport = getPortByIdOrKey(argv[1]);
+        AbstractPort * outport = getPortByIdOrKey(argv[2]);
 
         if (inport == nullptr){
           return error("No such port: " + argv[1]);
@@ -380,7 +473,11 @@ namespace MidiPatcher {
           PortRegistryRef->connectPorts(inport, outport);
         }
 
-        send("sss", "connected", argv[1].c_str(), argv[2].c_str());
+        if (requestedId){
+          send("siii", "constate", inport->getId(), outport->getId(), 1);
+        } else {
+          send("sssi", "constate", argv[1].c_str(), argv[2].c_str(), 1);
+        }
 
         return ok();
       }
@@ -390,8 +487,8 @@ namespace MidiPatcher {
           return error("Expected: disconnect <in-port-descriptor> <out-port-descriptor>");
         }
 
-        AbstractPort * inport = PortRegistryRef->getPortByKey(argv[1]);
-        AbstractPort * outport = PortRegistryRef->getPortByKey(argv[2]);
+        AbstractPort * inport = getPortByIdOrKey(argv[1]);
+        AbstractPort * outport = getPortByIdOrKey(argv[2]);
 
         if (inport == nullptr){
           return error("No such port: " + argv[1]);
@@ -404,7 +501,11 @@ namespace MidiPatcher {
           PortRegistryRef->disconnectPorts(inport, outport);
         }
 
-        send("sss", "disconnected", argv[1].c_str(), argv[2].c_str());
+        if (requestedId){
+          send("sssi", "constate", inport->getId(), outport->getId(), 0);
+        } else {
+          send("sssi", "constate", argv[1].c_str(), argv[2].c_str(), 0);
+        }
 
         return ok();
       }

@@ -57,6 +57,8 @@ namespace MidiPatcher {
 
       protected:
 
+        AbstractPort * getPortByIdOrKey( std::string &idOrKey );
+
         void handleCommand(std::vector<std::string> &argv);
 
         void send(std::vector<std::string> &argv);

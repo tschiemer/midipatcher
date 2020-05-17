@@ -52,10 +52,9 @@ namespace MidiPatcher {
 
       std::vector<AbstractPort*> * getAllPorts();
 
+      AbstractPort * getPortById( unsigned int id );
       AbstractPort * getPortByKey(std::string key);
-
-      // AbstractPort * getPortById( unsigned int id );
-
+      
       void registerPort(AbstractPort * port);
       void unregisterPort(AbstractPort * port);
 

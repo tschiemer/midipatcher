@@ -8,11 +8,11 @@ namespace MidiPatcher {
     PortDescriptor::PortDescriptor(std::string str){
       size_t pos = str.find(":");
 
-      assert( pos != std::string::npos );
+      if( pos == std::string::npos ){
+        throw "Invalid descriptor format";
+      }
 
       PortClass = str.substr(0, pos);
-
-      // assert( PortRegistry::getPortFamilyDeclarations()->count(Key) > 0 );
 
       str.erase(0,pos + 1);
 

@@ -114,20 +114,17 @@ namespace MidiPatcher {
     return NULL;
   }
 
-  // AbstractPort * PortRegistry::getPortById( unsigned int id ){
-  //   AbstractPort * result = NULL;
-  //
-  //   // assuming we never delete Ports this works...
-  //   // result = Ports.at(id - 1);
-  //
-  //   for(std::map<std::string,AbstractPort*>::iterator it = Ports.begin(); result == NULL && it != Ports.end(); i++){
-  //     if (it.second->Id == id){
-  //       result = it.second;
-  //     }
-  //   }
-  //
-  //   return result;
-  // }
+  AbstractPort * PortRegistry::getPortById( unsigned int id ){
+    AbstractPort * result = NULL;
+
+    for(std::map<std::string,AbstractPort*>::iterator it = Ports.begin(); result == NULL && it != Ports.end(); it++){
+      if (it->second->Id == id){
+        result = it->second;
+      }
+    }
+
+    return result;
+  }
 
   void PortRegistry::registerPort(AbstractPort * port){
 
@@ -175,7 +172,9 @@ namespace MidiPatcher {
 
   AbstractPort* PortRegistry::registerPortFromDescriptor(PortDescriptor * portDescriptor){
     assert( portDescriptor != NULL );
-    assert( portClassExists(portDescriptor->PortClass) );
+    if ( portClassExists(portDescriptor->PortClass) == false ){
+      throw "PortClass " + portDescriptor->PortClass + " does not exist";
+    }
 
     if (Ports.count(portDescriptor->getKey()) > 0){
       // std::cout << "exists! " << portDescriptor->getKey() << std::endl;
