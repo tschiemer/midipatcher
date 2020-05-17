@@ -1,6 +1,7 @@
 #include <Port/ControlPort.hpp>
 
 #include <PortRegistry.hpp>
+#include <version.h>
 
 #include <cassert>
 #include <future>
@@ -12,6 +13,15 @@ namespace MidiPatcher {
     static const constexpr unsigned char MessageHeader[] = {0xF0, 0x7D, 0x01, 0x03, 0x03, 0x07};
 
     static const constexpr unsigned char MessageTail[] = {0xF7};
+
+
+    ControlPort::ControlPort(PortRegistry * portRegistry) : AbstractInputOutputPort("ControlPort"){
+      assert(portRegistry != nullptr);
+
+      PortRegistryRef = portRegistry;
+
+      PortRegistryRef->subscribePortUpdateReveicer( this );
+    }
 
     uint8_t ControlPort::packMidiMessage(unsigned char * midi, unsigned char * data, uint8_t dataLen){
       assert( midi != nullptr );
@@ -194,19 +204,37 @@ namespace MidiPatcher {
 
     void ControlPort::handleCommand(std::vector<std::string> &argv){
 
+      std::cout << "(" << argv.size() << ") ";
       for(int i = 0; i < argv.size(); i++){
         std::cout << argv[i] << " ";
       }
       std::cout << std::endl;
 
-      bool requestedId = argv[0] == "id";
-      if (requestedId){
-        argv.erase(argv.begin());
-      }
 
       if (argv[0] == "ping"){
         send("s","pong");
         return ok();
+      }
+
+      if (argv[0] == "version"){
+        send("ss", "version", VERSION.c_str());
+        return ok();
+      }
+
+      if (argv[0] == "option"){
+        if (1 == argv.size() || argv.size() > 3){
+          return error("Expected: option <option-key> [<option-value>]");
+        }
+
+        if (argv[1] == "return-ids"){
+          if (argv.size() == 3){
+            OptReturnIds = std::stoi(argv[2]);
+          }
+          send("ssi", "option", "return-ids", OptReturnIds ? 1 : 0);
+          return ok();
+        }
+
+        return error("Unknown option: " + argv[1]);
       }
 
       if (argv[0] == "portclasses"){
@@ -279,7 +307,7 @@ namespace MidiPatcher {
 
           int connected = port->getDeviceState() == DeviceStateConnected ? 1 : 0;
 
-          if (requestedId){
+          if (OptReturnIds){
             send("sii", "devstate", port->getId(), connected  );
           } else {
             send("ssi", "devstate", port->getKey().c_str(), connected  );
@@ -295,7 +323,7 @@ namespace MidiPatcher {
           for(int i = 0; i < ports->size(); i++){
             AbstractPort * port = ports->at(i);
             int connected = port->getDeviceState() == DeviceStateConnected ? 1 : 0;
-            if (requestedId){
+            if (OptReturnIds){
               send("sii", "devstate", port->getId(), connected );
             } else {
               send("ssi", "devstate", port->getKey().c_str(), connected );
@@ -361,6 +389,12 @@ namespace MidiPatcher {
 
         PortRegistryRef->unregisterPort( port );
 
+        if (OptReturnIds){
+          send("si", "unregister", port->getId());
+        } else {
+          send("ss", "unregister", port->getKey().c_str());
+        }
+
         delete port;
 
         return ok();
@@ -383,7 +417,7 @@ namespace MidiPatcher {
 
           int constate = inport->isConnectedTo(outport) ? 1 : 0;
 
-          if (requestedId){
+          if (OptReturnIds){
             send("siii", "constate", inport->getId(), outport->getId(), constate );
           } else {
             send("sssi", "constate", argv[1].c_str(), argv[2].c_str(), constate );
@@ -406,7 +440,7 @@ namespace MidiPatcher {
 
             int constate = port->isConnectedTo(other);
 
-            if (requestedId){
+            if (OptReturnIds){
               send("siii", "constate", port->getId(), other->getId(), constate );
             } else {
               send("sssi", "constate", argv[1].c_str(), other->getKey().c_str(), constate );
@@ -436,7 +470,7 @@ namespace MidiPatcher {
 
                   int constate = port->isConnectedTo(other);
 
-                  if (requestedId){
+                  if (OptReturnIds){
                     send("siii", "constate", port->getId(), other->getId(), constate );
                   } else {
                     send("sssi", "constate", port->getKey().c_str(), other->getKey().c_str(), constate );
@@ -473,7 +507,7 @@ namespace MidiPatcher {
           PortRegistryRef->connectPorts(inport, outport);
         }
 
-        if (requestedId){
+        if (OptReturnIds){
           send("siii", "constate", inport->getId(), outport->getId(), 1);
         } else {
           send("sssi", "constate", argv[1].c_str(), argv[2].c_str(), 1);
@@ -501,7 +535,7 @@ namespace MidiPatcher {
           PortRegistryRef->disconnectPorts(inport, outport);
         }
 
-        if (requestedId){
+        if (OptReturnIds){
           send("sssi", "constate", inport->getId(), outport->getId(), 0);
         } else {
           send("sssi", "constate", argv[1].c_str(), argv[2].c_str(), 0);
@@ -575,6 +609,19 @@ namespace MidiPatcher {
       send(argv);
     }
 
+
+    void ControlPort::deviceDiscovered(AbstractPort * port){
+      send("sis", "+ports", port->getId(), port->getKey().c_str());
+    }
+
+    void ControlPort::deviceStateChanged(AbstractPort * port, DeviceState_t newState){
+      int connected = newState == DeviceStateConnected ? 1 : 0;
+      if (OptReturnIds){
+        send("sii", "+devstate", port->getId(), connected);
+      } else {
+        send("ssi", "+devstate", port->getKey().c_str(), connected);
+      }
+    }
 
   }
 

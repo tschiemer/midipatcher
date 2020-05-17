@@ -190,35 +190,13 @@ namespace MidiPatcher {
 
       std::vector<PortUpdateReceiver *> PortUpdateReceiverList;
 
-      void publishDeviceDiscovered(){
-        // std::thread([this]() {
-        //   while (AutoscanEnabled)
-        //   {
-        //     this->rescan();
-        //     std::this_thread::sleep_for(std::chrono::milliseconds(AutoscanIntervalMsec));
-        //   }
-        // });
-        // AutoscanThread.detach()
-        std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [this](PortUpdateReceiver* receiver){
-          receiver->deviceDiscovered( this );
-        });
-      }
-
-      void publishDeviceStateChanged(){
-        std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [this](PortUpdateReceiver* receiver){
-          receiver->deviceStateChanged( this, this->getDeviceState() );
-        });
-      }
+      void publishDeviceDiscovered();
+      void publishDeviceStateChanged();
 
     public:
 
-      void subscribePortUpdateReveicer(PortUpdateReceiver *receiver){
-        PortUpdateReceiverList.push_back(receiver);
-      }
-
-      void unsubscribePortUpdateReveicer(PortUpdateReceiver *receiver){
-        PortUpdateReceiverList.erase(std::remove(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), receiver));
-      }
+      void subscribePortUpdateReveicer(PortUpdateReceiver *receiver);
+      void unsubscribePortUpdateReveicer(PortUpdateReceiver *receiver);
 
   };
 

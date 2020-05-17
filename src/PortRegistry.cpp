@@ -247,19 +247,34 @@ namespace MidiPatcher {
   }
 
   void PortRegistry::deviceDiscovered(AbstractPort * port){
-    PortDescriptor * desc = port->getPortDescriptor();
 
-    // std::cout << "deviceDiscovered [" << desc->toString() << "](" << port->Name.size() << ")" << std::endl;
+    publishDeviceDiscovered(port);
 
-    delete desc;
   }
 
   void PortRegistry::deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
-    PortDescriptor * desc = port->getPortDescriptor();
+    publishDeviceStateChanged(port, newState);
+  }
 
-    // std::cout << "deviceStateChanged for [" << desc->toString() << "] to " << (newState == AbstractPort::DeviceStateConnected ? "CONNECTED" : "NOT CONNECTED") << std::endl;
+  void PortRegistry::publishDeviceDiscovered(AbstractPort * port){
+    std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [port](PortUpdateReceiver* receiver){
+      receiver->deviceDiscovered( port );
+    });
+  }
 
-    delete desc;
+  void PortRegistry::publishDeviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
+    std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [port, newState](PortUpdateReceiver* receiver){
+      receiver->deviceStateChanged( port, newState );
+    });
+  }
+
+
+  void PortRegistry::subscribePortUpdateReveicer(PortUpdateReceiver *receiver){
+    PortUpdateReceiverList.push_back(receiver);
+  }
+
+  void PortRegistry::unsubscribePortUpdateReveicer(PortUpdateReceiver *receiver){
+    PortUpdateReceiverList.erase(std::remove(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), receiver));
   }
 
 }

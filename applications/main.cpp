@@ -29,6 +29,7 @@ struct {
       bool Enabled;
       std::string InDesc;
       std::string OutDesc;
+      bool StayConnected;
     } RemoteControl;
 } Options = {
   .AutoscanInterval = 1000,
@@ -44,7 +45,8 @@ struct {
   .RemoteControl = {
     .Enabled = false,
     .InDesc = "MidiIn:MidiPatcher-Control",
-    .OutDesc = "MidiOut:MidiPatcher-Control"
+    .OutDesc = "MidiOut:MidiPatcher-Control",
+    .StayConnected = false
   }
 };
 //
@@ -311,29 +313,30 @@ void remoteControl(int argc, char * argv[]){
 
   // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-  std::vector<std::string> command;
+  if (argc > 0){
+    std::vector<std::string> command;
 
-  for(int i = 0; i < argc; i++){
-    command.push_back(argv[i]);
+    for(int i = 0; i < argc; i++){
+      command.push_back(argv[i]);
+    }
+
+    unsigned char midi[128];
+
+    int len = MidiPatcher::Port::ControlPort::packMessage( midi, command );
+
+    // std::cout << "remote (" << len << ") ";
+
+    // for(int i = 0; i < len; i++){
+    //   std::cout << std::hex << (int)midi[i] << " ";
+    // }
+    // std::cout << std::endl;
+
+    assert( len > 0 );
+
+    ip->send( midi, len );
   }
 
-  unsigned char midi[128];
-
-  int len = MidiPatcher::Port::ControlPort::packMessage( midi, command );
-
-  assert( len > 0 );
-
-  // std::cout << "remote (" << len << ") ";
-
-  // for(int i = 0; i < len; i++){
-  //   std::cout << std::hex << (int)midi[i] << " ";
-  // }
-  // std::cout << std::endl;
-
   Running = true;
-
-  ip->send( midi, len );
-
   while(Running){
     // wait
   }
@@ -355,8 +358,10 @@ void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::Inj
   }
   std::cout << std::endl;
 
-  if (response[0] == "OK" || response[0] == "ERROR"){
-    Running = false;
+  if (Options.RemoteControl.StayConnected == false){
+    if (response[0] == "OK" || response[0] == "ERROR"){
+      Running = false;
+    }
   }
 }
 
@@ -506,8 +511,9 @@ int main(int argc, char * argv[], char * env[]){
     if (Options.RemoteControl.Enabled){
 
       if (argC <= 0){
-        std::cerr << "ERROR Missing remote commands" << std::endl;
-        return EXIT_FAILURE;
+        Options.RemoteControl.StayConnected = true;
+      //   std::cerr << "ERROR Missing remote commands" << std::endl;
+      //   return EXIT_FAILURE;
       }
 
       remoteControl(argC, argV);

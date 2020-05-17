@@ -12,7 +12,7 @@ namespace MidiPatcher {
 
   namespace Port {
 
-    class ControlPort : public virtual AbstractInputOutputPort {
+    class ControlPort : public virtual AbstractInputOutputPort, public virtual AbstractPort::PortUpdateReceiver {
 
       public:
 
@@ -26,17 +26,15 @@ namespace MidiPatcher {
           return PortClass;
         }
 
-        ControlPort(PortRegistry * portRegistry) : AbstractInputOutputPort("ControlPort"){
-          assert(portRegistry != nullptr);
-
-          PortRegistryRef = portRegistry;
-        }
+        ControlPort(PortRegistry * portRegistry);
 
         void sendMessage(unsigned char * message, size_t len);
 
       protected:
 
         PortRegistry * PortRegistryRef;
+
+        bool OptReturnIds = false;
 
       public:
 
@@ -68,6 +66,10 @@ namespace MidiPatcher {
 
         void error(std::string msg = "");
 
+      public:
+
+        void deviceDiscovered(AbstractPort * port);
+        void deviceStateChanged(AbstractPort * port, DeviceState_t newState);
     };
 
   }

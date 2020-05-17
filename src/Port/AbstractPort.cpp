@@ -67,4 +67,25 @@ namespace MidiPatcher {
     // }
   }
 
+
+  void AbstractPort::publishDeviceDiscovered(){
+    std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [this](PortUpdateReceiver* receiver){
+      receiver->deviceDiscovered( this );
+    });
+  }
+
+  void AbstractPort::publishDeviceStateChanged(){
+    std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [this](PortUpdateReceiver* receiver){
+      receiver->deviceStateChanged( this, this->getDeviceState() );
+    });
+  }
+
+  void AbstractPort::subscribePortUpdateReveicer(PortUpdateReceiver *receiver){
+    PortUpdateReceiverList.push_back(receiver);
+  }
+
+  void AbstractPort::unsubscribePortUpdateReveicer(PortUpdateReceiver *receiver){
+    PortUpdateReceiverList.erase(std::remove(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), receiver));
+  }
+
 }

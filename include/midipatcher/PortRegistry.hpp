@@ -54,7 +54,7 @@ namespace MidiPatcher {
 
       AbstractPort * getPortById( unsigned int id );
       AbstractPort * getPortByKey(std::string key);
-      
+
       void registerPort(AbstractPort * port);
       void unregisterPort(AbstractPort * port);
 
@@ -83,8 +83,22 @@ namespace MidiPatcher {
       void enableAutoscan(unsigned int intervalMsec = 1000);
       void disableAutoscan();
 
+
       void deviceDiscovered(AbstractPort * port);
       void deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState);
+
+      protected:
+
+        std::vector<PortUpdateReceiver *> PortUpdateReceiverList;
+
+        void publishDeviceDiscovered(AbstractPort * port);
+        void publishDeviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState);
+
+      public:
+
+        void subscribePortUpdateReveicer(PortUpdateReceiver *receiver);
+        void unsubscribePortUpdateReveicer(PortUpdateReceiver *receiver);
+
   };
 
 }
