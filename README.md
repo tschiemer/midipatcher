@@ -1,5 +1,5 @@
 # midipatcher
-Matrix patchbay for MIDI ports with additional connectivity for virtual ports and file, serial, network streams.
+Platform independent matrix patchbay for MIDI ports with additional connectivity for virtual ports and file, serial(work in progress), network streams, rtpmidi (work in progress).
 
 https://github.com/tschiemer/midipatcher
 
@@ -99,6 +99,23 @@ Asio (Networking) C++ Library, https://think-async.com/Asio
 midipatcher v0.1.0-19-g1906333, MIT license, https://github.com/tschiemer/midipatcher
 ```
 
+## Roadmap / Todos
+
+- Test, bugfix and complete current source base
+	- Introduce consistent error/exception system
+	- Introduce a simple parser / validator for stream based inputs (using midimessage library is too complex)
+		- Use bigger buffer size than merely 128 bytes.. (problem only for long sysex (and control port))
+	- Check concurrent model...
+- Add examples
+	- Using Max/MSP and PureData matrices in combination with control port
+- Integrate [rtpmidid](https://github.com/davidmoreno/rtpmidid) as possible transport for linux based systems.
+- Add serial port (using asio)
+- Add more intuitive Exec-type port using [midimessage](https://github.com/tschiemer/midimessage) string format instead of raw byte format (for simplified extensions/filters)
+- Consider Tcp based stream port
+- Add case insensitivity of portclasses (for creation descriptors)
+- Get/set port-specific options after creation (where sensible)
+
+
 ## Building
 
 ```bash
@@ -129,3 +146,8 @@ and use the convenience include header `<midipatcher/midipatcher.hpp>` in any so
 ## License
 
 MIT License (also see `LICENSE` file).
+
+Thanks to (and licensing according to component):
+
+- [RtMidi: realtime MIDI i/o C++ classes](http://www.music.mcgill.ca/~gary/rtmidi)
+- [Asio (Networking) C++ Library](https://think-async.com/Asio)
