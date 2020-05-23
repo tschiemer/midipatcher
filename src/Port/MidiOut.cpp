@@ -31,6 +31,12 @@ namespace MidiPatcher {
 
       return new MidiOut(name, api);
     }
+    
+    PortDescriptor * MidiOut::getPortDescriptor() {
+      std::map<std::string, std::string> opt;
+      opt["api"] = std::to_string(Api);
+      return new PortDescriptor(PortClass, Name, opt);
+    };
 
     std::vector<AbstractPort*> * MidiOut::scan(PortRegistry * portRegistry){
 

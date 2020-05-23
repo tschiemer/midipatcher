@@ -89,6 +89,11 @@ namespace MidiPatcher {
         return getPortClass() + ":" + Name;
       };
 
+      // virtual std::map<std::string,std::string> getOptions() {
+      //   std::map<std::string,std::string> opt;
+      //   return opt;
+      // }
+
       virtual PortDescriptor * getPortDescriptor() {
         return new PortDescriptor("AbstractPort","Corona Milkbar");
       };

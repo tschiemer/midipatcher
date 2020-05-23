@@ -27,6 +27,11 @@ namespace MidiPatcher {
         return new PortClassRegistryInfo(PortClass, factory, nullptr, nullptr, nullptr);
       }
 
+
+      PortDescriptor * getPortDescriptor(){
+        return new PortDescriptor(PortClass, Name);
+      }
+
       VirtMidiIn(std::string portName);
       ~VirtMidiIn();
 

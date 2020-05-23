@@ -244,10 +244,10 @@ namespace MidiPatcher {
 
         std::vector<MidiPatcher::AbstractPort::PortClassRegistryInfo*> * classes = PortRegistryRef->getPortClassRegistryInfoList();
 
-        send("si", "classes", classes->size());
+        send("si", "portclasses", classes->size());
 
         for(int i = 0; i < classes->size(); i++){
-          send("ss", "classes", classes->at(i)->Key.c_str() );
+          send("ss", "portclasses", classes->at(i)->Key.c_str() );
         }
 
         delete classes;
@@ -267,7 +267,11 @@ namespace MidiPatcher {
             return error("No such port: " + argv[1]);
           }
 
-          send("sis", "ports", port->getId(), port->getKey().c_str());
+          PortDescriptor * desc = port->getPortDescriptor();
+
+          send("sis", "ports", port->getId(), desc->toString().c_str());
+
+          delete desc;
 
           return ok();
 
@@ -279,7 +283,9 @@ namespace MidiPatcher {
 
           for(int i = 0; i < ports->size(); i++){
             AbstractPort * port = ports->at(i);
-            send("sis","ports", port->getId(), port->getKey().c_str());
+            PortDescriptor * desc = port->getPortDescriptor();
+            send("sis","ports", port->getId(), desc->toString().c_str());
+            delete desc;
           }
 
           delete ports;

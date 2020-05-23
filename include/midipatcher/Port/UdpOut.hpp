@@ -24,6 +24,10 @@ namespace MidiPatcher {
           return new PortClassRegistryInfo(PortClass, factory, nullptr, nullptr, nullptr);
         }
 
+        PortDescriptor * getPortDescriptor(){
+          return new PortDescriptor(PortClass, Name);
+        }
+        
         UdpOut(std::string portName, std::string remoteAddress, short port, std::string multicastAddress = "", bool runningStatusEnabled = false);
         ~UdpOut();
 

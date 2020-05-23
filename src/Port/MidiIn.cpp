@@ -3,8 +3,6 @@
 #include <PortRegistry.hpp>
 #include <Port/AbstractOutputPort.hpp>
 
-#include <iostream>
-
 #include <cstdlib>
 #include <ctime>
 
@@ -22,7 +20,7 @@ namespace MidiPatcher {
       RtMidi::Api api = portDescriptor->Options.count("api") ? static_cast<RtMidi::Api>(std::stoi(portDescriptor->Options["api"])) : RtMidi::UNSPECIFIED;
 
       std::string name = portDescriptor->Name;
-      
+
       //
       //
       // size_t pos = name.find(":");
@@ -36,6 +34,12 @@ namespace MidiPatcher {
 
       return new MidiIn(name, api);
     }
+
+    PortDescriptor * MidiIn::getPortDescriptor() {
+      std::map<std::string, std::string> opt;
+      opt["api"] = std::to_string(Api);
+      return new PortDescriptor(PortClass, Name, opt);
+    };
 
     std::vector<AbstractPort*> * MidiIn::scan(PortRegistry * portRegistry){
 

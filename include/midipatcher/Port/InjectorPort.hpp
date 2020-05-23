@@ -19,6 +19,10 @@ namespace MidiPatcher {
 
         typedef void (*ReceivedMessageHandler)(unsigned char * data, int len, InjectorPort * injectorPort, void * userData);
 
+        PortDescriptor * getPortDescriptor(){
+          return new PortDescriptor(PortClass, Name);
+        }
+
         InjectorPort(std::string name, ReceivedMessageHandler receivedMessageHandler, void * useData = NULL) : AbstractInputOutputPort(name){
           ReceivedMessageHandlerRef = receivedMessageHandler;
 

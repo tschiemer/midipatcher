@@ -22,8 +22,12 @@ namespace MidiPatcher {
           return PortClass;
         }
 
-        std::string getKey(){
-          return PortClass;
+        // std::string getKey(){
+        //   return PortClass;
+        // }
+
+        PortDescriptor * getPortDescriptor(){
+          return new PortDescriptor(PortClass, Name);
         }
 
         ControlPort(PortRegistry * portRegistry);

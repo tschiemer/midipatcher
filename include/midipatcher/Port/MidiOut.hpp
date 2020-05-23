@@ -33,9 +33,7 @@ namespace MidiPatcher {
           return PortClass;
         }
 
-        PortDescriptor * getPortDescriptor() {
-            return new PortDescriptor(PortClass, Name);
-        };
+        PortDescriptor * getPortDescriptor();
 
         static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
 
