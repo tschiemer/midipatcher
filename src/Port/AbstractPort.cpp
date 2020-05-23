@@ -68,11 +68,11 @@ namespace MidiPatcher {
   }
 
 
-  void AbstractPort::publishDeviceDiscovered(){
-    std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [this](PortUpdateReceiver* receiver){
-      receiver->deviceDiscovered( this );
-    });
-  }
+  // void AbstractPort::publishDeviceDiscovered(){
+  //   std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [this](PortUpdateReceiver* receiver){
+  //     receiver->deviceDiscovered( this );
+  //   });
+  // }
 
   void AbstractPort::publishDeviceStateChanged(){
     std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [this](PortUpdateReceiver* receiver){

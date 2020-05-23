@@ -187,7 +187,7 @@ namespace MidiPatcher {
 
       class PortUpdateReceiver {
         public:
-          virtual void deviceDiscovered(AbstractPort * port) = 0;
+          // virtual void deviceDiscovered(AbstractPort * port) = 0;
           virtual void deviceStateChanged(AbstractPort * port, DeviceState_t newState) = 0;
       };
 
@@ -195,7 +195,7 @@ namespace MidiPatcher {
 
       std::vector<PortUpdateReceiver *> PortUpdateReceiverList;
 
-      void publishDeviceDiscovered();
+      // void publishDeviceDiscovered();
       void publishDeviceStateChanged();
 
     public:

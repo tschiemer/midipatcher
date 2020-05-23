@@ -89,17 +89,28 @@ namespace MidiPatcher {
       void deviceDiscovered(AbstractPort * port);
       void deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState);
 
-      protected:
+    public:
 
-        std::vector<PortUpdateReceiver *> PortUpdateReceiverList;
+      class PortRegistryUpdateReceiver : public virtual PortUpdateReceiver {
+        public:
+          virtual void portRegistered( AbstractPort * port ) = 0;
+          virtual void portUnregistered( AbstractPort * port ) = 0;
+      };
 
-        void publishDeviceDiscovered(AbstractPort * port);
+    protected:
+
+      std::vector<PortRegistryUpdateReceiver *> PortRegistryUpdateReceiverList;
+
+
+        // void publishDeviceDiscovered(AbstractPort * port);
+        void publishPortRegistered(AbstractPort * port);
+        void publishPortUnregistered(AbstractPort * port);
         void publishDeviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState);
 
       public:
 
-        void subscribePortUpdateReveicer(PortUpdateReceiver *receiver);
-        void unsubscribePortUpdateReveicer(PortUpdateReceiver *receiver);
+        void subscribePortRegistryUpdateReveicer(PortRegistryUpdateReceiver *receiver);
+        void unsubscribePortRegistryUpdateReveicer(PortRegistryUpdateReceiver *receiver);
 
   };
 

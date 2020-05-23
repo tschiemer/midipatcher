@@ -2,17 +2,19 @@
 #define CONTROL_PORT_H
 
 #include "AbstractInputOutputPort.hpp"
+#include "PortRegistry.hpp"
 
 #include <cassert>
 #include <vector>
 
 namespace MidiPatcher {
 
-  class PortRegistry;
+  // class PortRegistry;
+  // class PortRegistry::PortRegistryUpdateReceiver;
 
   namespace Port {
 
-    class ControlPort : public virtual AbstractInputOutputPort, public virtual AbstractPort::PortUpdateReceiver {
+    class ControlPort : public virtual AbstractInputOutputPort, public virtual PortRegistry::PortRegistryUpdateReceiver {
 
       public:
 
@@ -72,8 +74,10 @@ namespace MidiPatcher {
 
       public:
 
-        void deviceDiscovered(AbstractPort * port);
+        // void deviceDiscovered(AbstractPort * port);
         void deviceStateChanged(AbstractPort * port, DeviceState_t newState);
+        void portRegistered( AbstractPort * port );
+        void portUnregistered( AbstractPort * port );
     };
 
   }

@@ -97,9 +97,9 @@ namespace MidiPatcher {
         std::vector<AbstractPort*>  * list = it->second->Scanner(this);
 
         for(int i = 0; i < list->size(); i++){
-          std::string key = list->at(i)->getKey();
-          if (getPortByKey(key) == NULL){
-            list->at(i)->registerPort( *this );
+          AbstractPort * port = list->at(i);
+          if (getPortByKey(port->getKey()) == NULL){
+            port->registerPort( *this );
           }
         }
 
@@ -154,7 +154,9 @@ namespace MidiPatcher {
 
     // std::cout << "YES " << Ports.size() <<  std::endl;
 
-    Log::print(1, "registerPort( " + port->getKey() + " )");
+    Log::print(0, "registerPort( " + port->getKey() + " )");
+
+    publishPortRegistered( port );
 
     port->subscribePortUpdateReveicer( this );
   }
@@ -181,6 +183,8 @@ namespace MidiPatcher {
 
     // should it be deleted? naah.
     // delete port;
+
+    publishPortUnregistered( port );
 
   }
 
@@ -260,35 +264,48 @@ namespace MidiPatcher {
     AutoscanThread.join();
   }
 
-  void PortRegistry::deviceDiscovered(AbstractPort * port){
-
-    publishDeviceDiscovered(port);
-
-  }
+  // void PortRegistry::deviceDiscovered(AbstractPort * port){
+  //
+  //   publishDeviceDiscovered(port);
+  //
+  // }
 
   void PortRegistry::deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
     publishDeviceStateChanged(port, newState);
   }
 
-  void PortRegistry::publishDeviceDiscovered(AbstractPort * port){
-    std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [port](PortUpdateReceiver* receiver){
-      receiver->deviceDiscovered( port );
+
+  // void PortRegistry::publishDeviceDiscovered(AbstractPort * port){
+  //   std::for_each(PortRegistryUpdateReceiverList.begin(), PortRegistryUpdateReceiverList.end(), [port](PortUpdateReceiver* receiver){
+  //     receiver->deviceDiscovered( port );
+  //   });
+  // }
+
+  void PortRegistry::publishPortRegistered(AbstractPort * port){
+    std::for_each(PortRegistryUpdateReceiverList.begin(), PortRegistryUpdateReceiverList.end(), [port](PortRegistryUpdateReceiver* receiver){
+      receiver->portRegistered( port );
+    });
+  }
+
+  void PortRegistry::publishPortUnregistered(AbstractPort * port){
+    std::for_each(PortRegistryUpdateReceiverList.begin(), PortRegistryUpdateReceiverList.end(), [port](PortRegistryUpdateReceiver* receiver){
+      receiver->portUnregistered( port );
     });
   }
 
   void PortRegistry::publishDeviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
-    std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [port, newState](PortUpdateReceiver* receiver){
+    std::for_each(PortRegistryUpdateReceiverList.begin(), PortRegistryUpdateReceiverList.end(), [port, newState](PortRegistryUpdateReceiver* receiver){
       receiver->deviceStateChanged( port, newState );
     });
   }
 
 
-  void PortRegistry::subscribePortUpdateReveicer(PortUpdateReceiver *receiver){
-    PortUpdateReceiverList.push_back(receiver);
+  void PortRegistry::subscribePortRegistryUpdateReveicer(PortRegistryUpdateReceiver *receiver){
+    PortRegistryUpdateReceiverList.push_back(receiver);
   }
 
-  void PortRegistry::unsubscribePortUpdateReveicer(PortUpdateReceiver *receiver){
-    PortUpdateReceiverList.erase(std::remove(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), receiver));
+  void PortRegistry::unsubscribePortRegistryUpdateReveicer(PortRegistryUpdateReceiver *receiver){
+    PortRegistryUpdateReceiverList.erase(std::remove(PortRegistryUpdateReceiverList.begin(), PortRegistryUpdateReceiverList.end(), receiver));
   }
 
 }

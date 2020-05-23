@@ -16,6 +16,7 @@ volatile bool Running = false;
 
 struct {
     int Verbosity;
+    bool ShowUpdates;
     int AutoscanInterval;
     struct {
       bool Using;
@@ -34,6 +35,7 @@ struct {
     } RemoteControl;
 } Options = {
   .Verbosity = 0,
+  .ShowUpdates = false,
   .AutoscanInterval = 1000,
   .PatchFile = {
     .Using = false,
@@ -56,13 +58,34 @@ struct {
 //
 // } RemoteControl;
 
-class NotificationHandler : public virtual MidiPatcher::AbstractPort::PortUpdateReceiver {
+class NotificationHandler : public virtual MidiPatcher::PortRegistry::PortRegistryUpdateReceiver {
 
-    void deviceDiscovered(MidiPatcher::AbstractPort * port){
-        std::cout << "DISCOVERED " << port->getKey() << std::endl;
+    // void deviceDiscovered(MidiPatcher::AbstractPort * port){
+    //     std::cout << "DISCOVERED " << port->getKey() << std::endl;
+    // }
+
+    void portRegistered( MidiPatcher::AbstractPort * port ){
+      if (Options.ShowUpdates == false){
+        return;
+      }
+      MidiPatcher::PortDescriptor * desc = port->getPortDescriptor();
+      std::cout << "REGISTERED " << desc->toString() << std::endl;
+      delete desc;
+    }
+
+    void portUnregistered( MidiPatcher::AbstractPort * port ){
+      if (Options.ShowUpdates == false){
+        return;
+      }
+      MidiPatcher::PortDescriptor * desc = port->getPortDescriptor();
+      std::cout << "UNREGISTERED " << desc->toString() << std::endl;
+      delete desc;
     }
 
     void deviceStateChanged(MidiPatcher::AbstractPort * port, MidiPatcher::AbstractPort::DeviceState_t newState){
+      if (Options.ShowUpdates == false){
+        return;
+      }
       std::cout << "DEVSTATE " << port->getKey() << " " << newState << std::endl;
     }
 };
@@ -400,7 +423,7 @@ void init(){
 
   std::atexit(deinit);
 
-  portRegistry->subscribePortUpdateReveicer(new NotificationHandler());
+  portRegistry->subscribePortRegistryUpdateReveicer(new NotificationHandler());
 }
 
 void deinit(){
@@ -454,7 +477,7 @@ int main(int argc, char * argv[], char * env[]){
           {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "vh?da:pf:r",
+        c = getopt_long(argc, argv, "vh?dua:pf:r",
                         long_options, &option_index);
         if (c == -1)
             break;
@@ -501,6 +524,10 @@ int main(int argc, char * argv[], char * env[]){
 
             case 'd':
                 Options.Verbosity++;
+                break;
+
+            case 'u':
+                Options.ShowUpdates = true;
                 break;
 
             case 'p':

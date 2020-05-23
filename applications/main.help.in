@@ -3,6 +3,8 @@ R"=====(Usage:
 	 midipatcher (-l|--ports)
 	 midipatcher (--pc|--port-classes)
 
+	 midipatcher [-u] ...
+
 	 midipatcher [--cp|--control-port] [--cp-in <control-in-port-descriptor>] [--cp-out <control-out-port-descriptor>] ...
 	 midipatcher [-f|patch-file <patch-file>] ...
 	 midipatcher ... [<in-port-descriptor1> <out-port-descriptor1> ... ]
@@ -16,6 +18,7 @@ Options:
 					 Set regular rescanning of ports with given interval in millisec (default 1000; 0 = off).
 	 -p|--ports 			 List known/detected ports (descriptors).
 	 --pc|--port-classes 		 List registered port classes.
+	 -u			Show Updates.
 
 	 -f|--patch-file <patch-file> 	 Use <patch-file> for patching configuration
 

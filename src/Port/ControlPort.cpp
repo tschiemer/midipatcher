@@ -20,7 +20,7 @@ namespace MidiPatcher {
 
       PortRegistryRef = portRegistry;
 
-      PortRegistryRef->subscribePortUpdateReveicer( this );
+      PortRegistryRef->subscribePortRegistryUpdateReveicer( this );
     }
 
     uint8_t ControlPort::packMidiMessage(unsigned char * midi, unsigned char * data, uint8_t dataLen){
@@ -616,9 +616,11 @@ namespace MidiPatcher {
     }
 
 
-    void ControlPort::deviceDiscovered(AbstractPort * port){
-      send("sis", "+ports", port->getId(), port->getKey().c_str());
-    }
+    // void ControlPort::deviceDiscovered(AbstractPort * port){
+    //   // PortDescriptor * desc = port->getPortDescriptor();
+    //   // send("sis", "+ports", port->getId(), desc->toString().c_str());
+    //   // delete desc;
+    // }
 
     void ControlPort::deviceStateChanged(AbstractPort * port, DeviceState_t newState){
       int connected = newState == DeviceStateConnected ? 1 : 0;
@@ -627,6 +629,19 @@ namespace MidiPatcher {
       } else {
         send("ssi", "+devstate", port->getKey().c_str(), connected);
       }
+    }
+
+
+    void ControlPort::portRegistered( AbstractPort * port ){
+        PortDescriptor * desc = port->getPortDescriptor();
+        send("sis", "+ports", port->getId(), desc->toString().c_str());
+        delete desc;
+    }
+
+    void ControlPort::portUnregistered( AbstractPort * port ){
+        PortDescriptor * desc = port->getPortDescriptor();
+        send("sis", "-ports", port->getId(), desc->toString().c_str());
+        delete desc;
     }
 
   }

@@ -100,7 +100,7 @@ namespace MidiPatcher {
               //   portRegistry->register(mi);
               // }
 
-              mi->publishDeviceDiscovered();
+              // mi->publishDeviceDiscovered();
 
               // std::cout << "disco " << name << std::endl;
             }
