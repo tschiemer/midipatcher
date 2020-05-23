@@ -16,10 +16,7 @@ namespace MidiPatcher {
 
         static const constexpr char * PortClass = "MidiIn";
 
-        static AbstractPort* factory(PortDescriptor * portDescriptor){
-          assert( portDescriptor->PortClass == PortClass );
-          return new MidiIn(portDescriptor->Name);
-        }
+        static AbstractPort* factory(PortDescriptor * portDescriptor);
 
         static void init(){
           if (KnownPorts == NULL){
@@ -38,6 +35,13 @@ namespace MidiPatcher {
           return PortClass;
         }
 
+        // std::string getKey(){
+        //   if (Api == RtMidi::UNSPECIFIED){
+        //     return getPortClass() + ":" + Name;
+        //   }
+        //   return getPortClass() + ":" + Name + ":" + std::to_string(static_cast<int>(Api));
+        // }
+
         PortDescriptor * getPortDescriptor() {
             return new PortDescriptor(PortClass, Name);
         };
@@ -53,6 +57,8 @@ namespace MidiPatcher {
 
         static std::map<std::string, MidiIn*> * KnownPorts;
 
+        RtMidi::Api Api = RtMidi::UNSPECIFIED;
+
         unsigned int PortNumber = 0;
         RtMidiIn * MidiPort = NULL;
 
@@ -62,7 +68,7 @@ namespace MidiPatcher {
 
         // MidiIn(std::string)
 
-        MidiIn(std::string portName, unsigned int portNumber = 0);
+        MidiIn(std::string portName, RtMidi::Api api = RtMidi::UNSPECIFIED, unsigned int portNumber = 0);
 
         ~MidiIn();
 

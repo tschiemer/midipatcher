@@ -34,6 +34,8 @@ namespace MidiPatcher {
       void init();
       void deinit();
 
+      void runloop();
+
       std::vector<AbstractPort::PortClassRegistryInfo*> * getPortClassRegistryInfoList();
 
       bool portClassExists( std::string portClass ){

@@ -2,10 +2,16 @@
 
 #include <Port/AbstractPort.hpp>
 
+#include <log.hpp>
+
 #include <cassert>
 #include <utility>
 
 #include <iostream>
+
+#ifdef __APPLE__
+#include <CoreServices/CoreServices.h>
+#endif
 
 
 namespace MidiPatcher {
@@ -63,6 +69,12 @@ namespace MidiPatcher {
       }
     }
 
+  }
+
+  void PortRegistry::runloop(){
+    #ifdef __APPLE__
+    CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, false);
+    #endif
   }
 
   std::vector<AbstractPort::PortClassRegistryInfo*> * PortRegistry::getPortClassRegistryInfoList(){
@@ -141,6 +153,8 @@ namespace MidiPatcher {
     Ports[key] = port;
 
     // std::cout << "YES " << Ports.size() <<  std::endl;
+
+    Log::print(1, "registerPort( " + port->getKey() + " )");
 
     port->subscribePortUpdateReveicer( this );
   }

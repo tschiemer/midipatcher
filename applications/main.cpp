@@ -15,6 +15,7 @@ MidiPatcher::PortRegistry * portRegistry = NULL;
 volatile bool Running = false;
 
 struct {
+    int Verbosity;
     int AutoscanInterval;
     struct {
       bool Using;
@@ -32,6 +33,7 @@ struct {
       bool StayConnected;
     } RemoteControl;
 } Options = {
+  .Verbosity = 0,
   .AutoscanInterval = 1000,
   .PatchFile = {
     .Using = false,
@@ -54,11 +56,21 @@ struct {
 //
 // } RemoteControl;
 
+class NotificationHandler : public virtual MidiPatcher::AbstractPort::PortUpdateReceiver {
+
+    void deviceDiscovered(MidiPatcher::AbstractPort * port){
+        std::cout << "DISCOVERED " << port->getKey() << std::endl;
+    }
+
+    void deviceStateChanged(MidiPatcher::AbstractPort * port, MidiPatcher::AbstractPort::DeviceState_t newState){
+      std::cout << "DEVSTATE " << port->getKey() << " " << newState << std::endl;
+    }
+};
 
 /***************************/
 
-void printVersion( void );
-void printHelp( void );
+void printVersion();
+void printHelp();
 void listPorts();
 void listPortClasses();
 
@@ -100,11 +112,11 @@ static inline std::string & trim(std::string &s) {
 
 
 
-void printVersion( void ){
+void printVersion(){
     std::cout << MidiPatcher::VERSION << std::endl;
 }
 
-void printHelp( void ) {
+void printHelp() {
 
     // https://stackoverflow.com/a/25021520/1982142
 
@@ -142,6 +154,8 @@ void printHelp( void ) {
 
 void listPorts(){
 
+  init();
+
   portRegistry->rescan();
 
   std::vector<MidiPatcher::AbstractPort*> * ports = portRegistry->getAllPorts();
@@ -158,6 +172,9 @@ void listPorts(){
 }
 
 void listPortClasses(){
+
+  init();
+
   std::vector<MidiPatcher::AbstractPort::PortClassRegistryInfo*> * list = portRegistry->getPortClassRegistryInfoList();
 
   std::cout << list->size() << std::endl;
@@ -367,6 +384,8 @@ void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::Inj
 
 void init(){
 
+  MidiPatcher::Log::setLevel(Options.Verbosity);
+
   std::vector<MidiPatcher::AbstractPort::PortClassRegistryInfo*> pcriList;
 
   assert( sizeof(PortClassRegistryInfoConfig) > 0 );
@@ -380,6 +399,8 @@ void init(){
   portRegistry->init();
 
   std::atexit(deinit);
+
+  portRegistry->subscribePortUpdateReveicer(new NotificationHandler());
 }
 
 void deinit(){
@@ -389,12 +410,13 @@ void deinit(){
   delete portRegistry;
 }
 
+void runloop(){
+  portRegistry->runloop();
+}
+
 int main(int argc, char * argv[], char * env[]){
 
-  init();
-
   int c;
-  int digit_optind = 0;
 
   if (argc <= 1){
       printHelp();
@@ -432,7 +454,7 @@ int main(int argc, char * argv[], char * env[]){
           {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "vh?a:pf:r",
+        c = getopt_long(argc, argv, "vh?da:pf:r",
                         long_options, &option_index);
         if (c == -1)
             break;
@@ -477,6 +499,10 @@ int main(int argc, char * argv[], char * env[]){
                 printHelp();
                 return EXIT_SUCCESS;
 
+            case 'd':
+                Options.Verbosity++;
+                break;
+
             case 'p':
                 listPorts();
                 return EXIT_SUCCESS;
@@ -504,6 +530,8 @@ int main(int argc, char * argv[], char * env[]){
 
     }
 
+
+    init();
 
     int argC = argc - optind;
     char ** argV = &argv[optind];
@@ -561,7 +589,7 @@ int main(int argc, char * argv[], char * env[]){
     // std::cout << "Processing... quit by pressing CTRL-C twice." << std::endl;
     Running = true;
     while(Running){
-      // wait...
+      runloop();
     }
 
     return EXIT_SUCCESS;

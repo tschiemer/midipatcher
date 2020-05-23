@@ -16,6 +16,27 @@ namespace MidiPatcher {
 
     std::map<std::string, MidiIn*> * MidiIn::KnownPorts = NULL;
 
+    AbstractPort* MidiIn::factory(PortDescriptor * portDescriptor){
+      assert( portDescriptor->PortClass == PortClass );
+
+      RtMidi::Api api = portDescriptor->Options.count("api") ? static_cast<RtMidi::Api>(std::stoi(portDescriptor->Options["api"])) : RtMidi::UNSPECIFIED;
+
+      std::string name = portDescriptor->Name;
+      
+      //
+      //
+      // size_t pos = name.find(":");
+      //
+      // if (pos == std::string::npos){
+      //   api = RtMidi::UNSPECIFIED;
+      // } else {
+      //   api = static_cast<RtMidi::Api>(std::stoi(name.substr(0,pos).c_str()));
+      //   name.erase(0,pos+1);
+      // }
+
+      return new MidiIn(name, api);
+    }
+
     std::vector<AbstractPort*> * MidiIn::scan(PortRegistry * portRegistry){
 
       // set dirty (seen)
@@ -27,50 +48,72 @@ namespace MidiPatcher {
         previousState[pair.first] = pair.second->getDeviceState();
       });
 
-      static RtMidiIn *midiin = NULL;
+      RtMidiIn *midiin = NULL;
 
       std::vector< AbstractPort * > * result = new std::vector< AbstractPort* >();
 
-      try {
+      // static int counter = 0;
 
-        midiin = new RtMidiIn();
+      std::vector<RtMidi::Api> apis;
+      RtMidi::getCompiledApi( apis );
 
-        // Check inputs.
-        unsigned int nPorts = midiin->getPortCount();
+      for(int a = 0; a < apis.size(); a++){
 
-        for ( unsigned i=0; i<nPorts; i++ ) {
+        try {
 
-          MidiIn * mi;
-          std::string name = midiin->getPortName(i);
+          // std::cout << "SCAN " << counter++ << std::endl;
 
-          // catch RtMidi Error case :/
-          if (name == ""){
-            continue;
+          midiin = new RtMidiIn(apis[a]);
+
+          // Check inputs.
+          unsigned int nPorts = midiin->getPortCount();
+
+          // std::cout << "n = " << nPorts << std::endl;
+
+          for ( unsigned i=0; i<nPorts; i++ ) {
+
+            MidiIn * mi;
+            std::string name = midiin->getPortName(i);
+
+            // std::cout << i << " " << name << std::endl;
+
+            // catch RtMidi Error case :/
+            if (name == ""){
+              continue;
+            }
+
+            if (KnownPorts->count(name)){
+              mi = KnownPorts->at(name);
+              mi->PortNumber = i;
+
+              seen[name] = true;
+
+              // std::cout << "recon " << name << std::endl;
+            } else {
+              mi = new MidiIn(name, midiin->getCurrentApi(), i);
+
+              // if (portRegistry != nullptr){
+              //   portRegistry->register(mi);
+              // }
+
+              mi->publishDeviceDiscovered();
+
+              // std::cout << "disco " << name << std::endl;
+            }
+
+            // this may trigger device connected notifications
+            mi->setDeviceState(DeviceStateConnected);
+
+            result->push_back(mi);
           }
 
-          if (KnownPorts->count(name)){
-            mi = KnownPorts->at(name);
-            mi->PortNumber = i;
-
-            seen[name] = true;
-          } else {
-            mi = new MidiIn(name, i);
-
-            mi->publishDeviceDiscovered();
-          }
-
-          // this may trigger device connected notifications
-          mi->setDeviceState(DeviceStateConnected);
-
-          result->push_back(mi);
+        } catch ( RtMidiError &error ) {
+          // std::cout << "ERROR " << error.what() << std::endl;
+          error.printMessage();
         }
 
-      } catch ( RtMidiError &error ) {
-        // std::cerr << "ERROR foooo" << std::endl;
-        error.printMessage();
+        delete midiin;
       }
-
-      delete midiin;
 
       //detect devices gone offline
       std::for_each(seen.begin(), seen.end(), [](std::pair<std::string,bool> pair){
@@ -83,12 +126,11 @@ namespace MidiPatcher {
     }
 
 
-    MidiIn::MidiIn(std::string portName, unsigned int portNumber) : AbstractInputPort(portName) {
+    MidiIn::MidiIn(std::string portName, RtMidi::Api api, unsigned int portNumber) : AbstractInputPort(portName) {
+      Api = api;
       PortNumber = portNumber;
 
       (*KnownPorts)[portName] = this;
-
-      // portRegistry->registerPort( this );
     }
 
     MidiIn::~MidiIn(){
@@ -138,7 +180,7 @@ namespace MidiPatcher {
 
       // std::cout << "MidiIn:" << Name << " start (PortNumber = " << PortNumber << ")" << std::endl;
 
-      MidiPort = new RtMidiIn();
+      MidiPort = new RtMidiIn(Api);
 
       MidiPort->setCallback( rtMidiCallback, this );
       // Don't ignore sysex, timing, or active sensing messages.

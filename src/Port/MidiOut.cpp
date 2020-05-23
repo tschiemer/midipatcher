@@ -11,6 +11,27 @@ namespace MidiPatcher {
 
     std::map<std::string, MidiOut*> * MidiOut::KnownPorts = new std::map<std::string, MidiOut*>();
 
+    AbstractPort* MidiOut::factory(PortDescriptor * portDescriptor){
+      assert( portDescriptor->PortClass == PortClass );
+
+      RtMidi::Api api = portDescriptor->Options.count("api") ? static_cast<RtMidi::Api>(std::stoi(portDescriptor->Options["api"])) : RtMidi::UNSPECIFIED;
+
+      std::string name = portDescriptor->Name;
+
+      //
+      //
+      // size_t pos = name.find(":");
+      //
+      // if (pos == std::string::npos){
+      //   api = RtMidi::UNSPECIFIED;
+      // } else {
+      //   api = static_cast<RtMidi::Api>(std::stoi(name.substr(0,pos).c_str()));
+      //   name.erase(0,pos+1);
+      // }
+
+      return new MidiOut(name, api);
+    }
+
     std::vector<AbstractPort*> * MidiOut::scan(PortRegistry * portRegistry){
 
       // set dirty (seen)
@@ -22,49 +43,54 @@ namespace MidiPatcher {
         previousState[pair.first] = pair.second->getDeviceState();
       });
 
-      static RtMidiOut *midiout = NULL;
+      RtMidiOut *midiout = NULL;
 
       std::vector< AbstractPort * > * result = new std::vector< AbstractPort* >();
 
-      try {
+      std::vector<RtMidi::Api> apis;
+      RtMidi::getCompiledApi( apis );
 
-        midiout = new RtMidiOut();
+      for(int a = 0; a < apis.size(); a++){
+        try {
 
-        // Check inputs.
-        unsigned int nPorts = midiout->getPortCount();
+          midiout = new RtMidiOut(apis[a]);
 
-        for ( unsigned i=0; i<nPorts; i++ ) {
+          // Check inputs.
+          unsigned int nPorts = midiout->getPortCount();
 
-          MidiOut * mi;
-          std::string name = midiout->getPortName(i);
+          for ( unsigned i=0; i<nPorts; i++ ) {
 
-          // catch RtMidi Error case :/
-          if (name == ""){
-            continue;
+            MidiOut * mi;
+            std::string name = midiout->getPortName(i);
+
+            // catch RtMidi Error case :/
+            if (name == ""){
+              continue;
+            }
+
+            if (KnownPorts->count(name)){
+              mi = KnownPorts->at(name);
+              mi->PortNumber = i;
+
+              seen[name] = true;
+            } else {
+              mi = new MidiOut(name, midiout->getCurrentApi(), i);
+
+              mi->publishDeviceDiscovered();
+            }
+
+            // this may trigger device connected notifications
+            mi->setDeviceState(DeviceStateConnected);
+
+            result->push_back(mi);
           }
 
-          if (KnownPorts->count(name)){
-            mi = KnownPorts->at(name);
-            mi->PortNumber = i;
-
-            seen[name] = true;
-          } else {
-            mi = new MidiOut(name, i);
-
-            mi->publishDeviceDiscovered();
-          }
-
-          // this may trigger device connected notifications
-          mi->setDeviceState(DeviceStateConnected);
-
-          result->push_back(mi);
+        } catch ( RtMidiError &error ) {
+          error.printMessage();
         }
 
-      } catch ( RtMidiError &error ) {
-        error.printMessage();
+        delete midiout;
       }
-
-      delete midiout;
 
       //detect devices gone offline
       std::for_each(seen.begin(), seen.end(), [](std::pair<std::string,bool> pair){
@@ -76,7 +102,8 @@ namespace MidiPatcher {
       return result;
     }
 
-    MidiOut::MidiOut(std::string portName, unsigned int portNumber) : AbstractOutputPort(portName) {
+    MidiOut::MidiOut(std::string portName, RtMidi::Api api, unsigned int portNumber) : AbstractOutputPort(portName) {
+      Api = api;
       PortNumber = portNumber;
 
       (*KnownPorts)[portName] = this;

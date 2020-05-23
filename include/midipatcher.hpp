@@ -1,7 +1,9 @@
+#include "midipatcher/log.hpp"
+
 #include "midipatcher/version.h"
 
 #include "midipatcher/PortRegistry.hpp"
-
+#include "midipatcher/PortDescriptor.hpp"
 
 #include "midipatcher/Port/MidiIn.hpp"
 #include "midipatcher/Port/MidiOut.hpp"

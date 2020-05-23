@@ -44,6 +44,7 @@ namespace MidiPatcher {
 
       protected:
 
+        volatile bool OpenThreadRunning = false;
         std::thread OpenThread;
 
         int FD = -1;
