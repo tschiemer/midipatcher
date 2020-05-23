@@ -1,6 +1,8 @@
 #include <PortRegistry.hpp>
 
 #include <Port/AbstractPort.hpp>
+#include <Port/AbstractInputPort.hpp>
+#include <Port/AbstractOutputPort.hpp>
 
 #include <log.hpp>
 
@@ -24,29 +26,53 @@ namespace MidiPatcher {
   }
 
   PortRegistry::~PortRegistry(){
-    // disableAutoscan();
+    disableAutoscan();
 
-    // properly delete all ports
-    std::for_each(Ports.begin(), Ports.end(), [](std::pair<std::string,AbstractPort *> p){
+    // unregister all subscribers
+    PortRegistryUpdateReceiverList.clear();
+    // while(PortRegistryUpdateReceiverList.size() > 0){
+    //   PortRegistryUpdateReceiverList
+    // }
 
-      AbstractPort * port = p.second;
+    // properly delete all connections
+    std::for_each(Ports.begin(), Ports.end(), [this](std::pair<std::string,AbstractPort *> p){
 
-      std::vector<AbstractPort *> * connections = port->getConnections();
+      AbstractInputPort * inport;
 
-      std::for_each(connections->begin(), connections->end(), [port](AbstractPort*other){
-        // removeConnection(port, other);
-        port->removeConnection(other);
-        other->removeConnection(port);
+      // port = p.second;
+
+      inport = dynamic_cast<AbstractInputPort*>(p.second);
+      if ( inport == nullptr ){
+        return;
+      }
+
+      std::vector<AbstractPort *> * connections = inport->getConnections();
+
+      std::for_each(connections->begin(), connections->end(), [this,inport](AbstractPort* other){
+
+        AbstractOutputPort * outport = dynamic_cast<AbstractOutputPort*>(other);
+        if (outport == nullptr){
+          return;
+        }
+
+        disconnectPorts(dynamic_cast<AbstractPort*>(inport), dynamic_cast<AbstractPort*>(outport));
+
       });
 
       delete connections;
-      delete port;
     });
 
+
+    std::for_each(Ports.begin(), Ports.end(), [this](std::pair<std::string,AbstractPort *> p){
+      delete p.second;
+    });
+    Ports.clear();
 
     std::for_each(PortClassRegistryInfoMap.begin(),PortClassRegistryInfoMap.end(), [](std::pair<std::string,AbstractPort::PortClassRegistryInfo *> pair){
       delete pair.second;
     });
+
+
   }
 
 
@@ -282,7 +308,7 @@ namespace MidiPatcher {
 
   void PortRegistry::deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
 
-    Log::print(0, "deviceStateChanged( " + port->getKey() + " " + std::to_string(newState) + ")");
+    Log::print(0, "deviceStateChanged( " + port->getKey() + " " + std::to_string(newState) + " )");
 
     publishDeviceStateChanged(port, newState);
   }

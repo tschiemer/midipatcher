@@ -104,6 +104,8 @@ class NotificationHandler : public virtual MidiPatcher::PortRegistry::PortRegist
     }
 };
 
+NotificationHandler * notificationHandler;
+
 /***************************/
 
 void printVersion();
@@ -148,6 +150,27 @@ static inline std::string & trim(std::string &s) {
 }
 
 
+void SignalHandler(int signal)
+{
+  // if (SIG)
+
+  if (Running){
+    // Attempt to gracefully stop process.
+    Running = false;
+    // std::cerr << "Press CTRL-C again to quit." << std::endl;
+    return;
+  }
+
+  // Force quit if necessary
+  std::exit(EXIT_FAILURE);
+}
+
+void setupSignalHandler(){
+  // sigintTicks = 0;
+  std::signal(SIGINT, SignalHandler);
+}
+
+
 
 void printVersion(){
     std::cout << MidiPatcher::VERSION << std::endl;
@@ -163,30 +186,6 @@ void printHelp() {
 
     printf("midipatcher %s, MIT license, https://github.com/tschiemer/midipatcher\n", MidiPatcher::VERSION.c_str());
 }
-
-// void SignalHandler(int signal)
-// {
-//   // if (SIG)
-//   sigintTicks++;
-//
-//   if (sigintTicks == 1){
-//     std::cerr << "Press CTRL-C again to quit." << std::endl;
-//     return;
-//   }
-//
-//   // Attempt to gracefully stop process.
-//   Running = false;
-//
-//   // Force quit if necessary
-//   if (sigintTicks > 2){
-//     exit(EXIT_FAILURE);
-//   }
-// }
-//
-// void setupSignalHandler(){
-//   sigintTicks = 0;
-//   std::signal(SIGINT, SignalHandler);
-// }
 
 
 void listPorts(){
@@ -390,6 +389,8 @@ void remoteControl(int argc, char * argv[]){
     ip->send( midi, len );
   }
 
+  setupSignalHandler();
+
   Running = true;
   while(Running){
     // wait
@@ -437,12 +438,15 @@ void init(){
 
   std::atexit(deinit);
 
-  portRegistry->subscribePortRegistryUpdateReveicer(new NotificationHandler());
+  notificationHandler = new NotificationHandler();
+  portRegistry->subscribePortRegistryUpdateReveicer(notificationHandler);
 }
 
 void deinit(){
 
-  portRegistry->deinit();
+  portRegistry->unsubscribePortRegistryUpdateReveicer(notificationHandler);
+
+  // portRegistry->deinit();
 
   delete portRegistry;
 }
@@ -626,6 +630,7 @@ int main(int argc, char * argv[], char * env[]){
       portRegistry->enableAutoscan(Options.AutoscanInterval);
     }
 
+    setupSignalHandler();
 
     // std::cout << "Processing... quit by pressing CTRL-C twice." << std::endl;
     Running = true;

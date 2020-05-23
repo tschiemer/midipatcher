@@ -29,9 +29,13 @@ namespace MidiPatcher {
         } else {
 
           OpenThread = std::thread([this,portName](){
+            OpenThreadRunning = true;
+
             this->FD = open(portName.c_str(), O_RDONLY);
 
             this->setDeviceState(DeviceStateConnected);
+
+            OpenThreadRunning = false;
           });
           // OpenThread.detach();
 
@@ -42,7 +46,9 @@ namespace MidiPatcher {
 
       FileIn::~FileIn(){
 
-        // OpenThread.join();
+        // if (OpenThreadRunning){
+        //   OpenThread.join();
+        // }
 
         stop();
 
