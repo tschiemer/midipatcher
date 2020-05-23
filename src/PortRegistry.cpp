@@ -281,6 +281,9 @@ namespace MidiPatcher {
   // }
 
   void PortRegistry::deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
+
+    Log::print(0, "deviceStateChanged( " + port->getKey() + " " + std::to_string(newState) + ")");
+
     publishDeviceStateChanged(port, newState);
   }
 
