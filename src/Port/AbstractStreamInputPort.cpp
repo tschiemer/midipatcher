@@ -18,6 +18,7 @@ namespace MidiPatcher {
   }
 
   AbstractStreamInputPort::~AbstractStreamInputPort(){
+    // std::cout << "~AbstractStreamInputPort" << std::endl;
     free(ParserBuffer);
     free(MsgBuffer);
   }

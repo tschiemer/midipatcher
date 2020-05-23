@@ -55,7 +55,12 @@ namespace MidiPatcher {
 
         void setNonBlocking();
 
-        volatile bool Running = false;
+        enum State_t{
+          StateStopped, StateWillStart, StateStarted, StateWillStop
+        } ;
+
+        volatile State_t State = StateStopped;
+        
         std::thread ReaderThread;
 
         void start();

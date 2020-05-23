@@ -64,6 +64,7 @@ namespace MidiPatcher {
 
 
     std::for_each(Ports.begin(), Ports.end(), [this](std::pair<std::string,AbstractPort *> p){
+      unregisterPort(p.second);
       delete p.second;
     });
     Ports.clear();
@@ -71,7 +72,6 @@ namespace MidiPatcher {
     std::for_each(PortClassRegistryInfoMap.begin(),PortClassRegistryInfoMap.end(), [](std::pair<std::string,AbstractPort::PortClassRegistryInfo *> pair){
       delete pair.second;
     });
-
 
   }
 

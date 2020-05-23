@@ -1,10 +1,10 @@
 #include <Port/FileIn.hpp>
 
-// #include <Port/AbstractOutputPort.hpp>
-
 #include <PortRegistry.hpp>
 
 #include <midimessage.h>
+
+#include <log.hpp>
 
 #include <cassert>
 #include <cstdio>
@@ -22,6 +22,8 @@ namespace MidiPatcher {
 
         if (portName == FILE_STDIN){
 
+          Log::print(1, "FileIn using STDIN");
+
           FD = 0;
 
           setDeviceState(DeviceStateConnected);
@@ -31,7 +33,9 @@ namespace MidiPatcher {
           OpenThread = std::thread([this,portName](){
             OpenThreadRunning = true;
 
-            this->FD = open(portName.c_str(), O_RDONLY);
+            Log::print(1, "FileIn opening " + portName);
+            this->FD = open(portName.c_str(), O_RDONLY | O_NONBLOCK);
+            Log::print(1, "FileIn opened " + portName+ " (FD = " + std::to_string(FD) + ")");
 
             this->setDeviceState(DeviceStateConnected);
 
@@ -45,20 +49,20 @@ namespace MidiPatcher {
       }
 
       FileIn::~FileIn(){
+        
+        if (OpenThreadRunning){
+          Log::print(2, "FileIn[" + Name + "] OpenThread still running..");
 
-        // if (OpenThreadRunning){
-        //   OpenThread.join();
-        // }
+        }
+
+        OpenThread.join();
 
         stop();
-
-        // setDeviceState(DeviceStateNotConnected);
 
 
         if (Name == FILE_STDIN){
           // do nothing
         } else {
-            // fclose(FD);
             close(FD);
         }
       }
@@ -76,17 +80,22 @@ namespace MidiPatcher {
       }
 
       void FileIn::start(){
-        if (Running){
+        if (State != StateStopped){
           return;
         }
+        State = StateWillStart;
+
+        Log::print(2, "FileIn[" + Name + "] starting");
 
         this->setNonBlocking();
 
 
         ReaderThread = std::thread([this](){
-          this->Running = true;
+          State = StateStarted;
 
-          while(this->getDeviceState() == DeviceStateConnected){
+          Log::print(2, "FileIn[" + Name + "] started");
+
+          while(State == StateStarted && this->getDeviceState() == DeviceStateConnected){
             unsigned char buffer[128];
             size_t count = 0;
 
@@ -100,11 +109,12 @@ namespace MidiPatcher {
               // std::cout << "nothing to read" << std::endl;
             }
             else if (count > 0){
-              std::cout << "FileIn[" << Name << "] read (" << count << ") ";
-              for(int i = 0; i < count; i++){
-                std::cout << std::hex << (int)buffer[i] << " ";
-              }
-              std::cout << std::endl;
+              Log::print(3, "FileIn[" + Name + "] read (" + std::to_string(count) + ") ");
+              // std::cout << "FileIn[" << Name << "] read (" << count << ") ";
+              // for(int i = 0; i < count; i++){
+              //   std::cout << std::hex << (int)buffer[i] << " ";
+              // }
+              // std::cout << std::endl;
 
 
               // this->send(buffer,count);
@@ -115,19 +125,29 @@ namespace MidiPatcher {
 
           }
 
-          this->Running = false;
+          // this->Running = false;
           // close(this->FD);
+          State = StateStopped;
         });
         // ReaderThread.detach();
 
       }
 
       void FileIn::stop(){
-        if (Running == false){
+        if (State != StateStarted){
           return;
         }
-        // Running = false;
-        // ReaderThread.join();
+        State = StateWillStop;
+
+        setDeviceState(DeviceStateNotConnected);
+
+        Log::print(2, "FileIn[" + Name + "] stopping");
+
+        ReaderThread.join();
+
+        Log::print(2, "FileIn[" + Name + "] stopped");
+
+        State = StateStopped;
       }
 
   }

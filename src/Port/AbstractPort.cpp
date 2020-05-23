@@ -21,9 +21,10 @@ namespace MidiPatcher {
     // yea base destructor is called last - whereas it should be called first here really.
     // but this assertion will fail either way if destruction was handled wrong (assuming
     // no other error related to this occurring first....)
-    assert( Connections.size() == 0);
+    // assert( Connections.size() == 0);
 
     stop();
+    // std::cout << "~AbstractPort" << std::endl;
   };
 
 
