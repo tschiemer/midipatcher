@@ -88,6 +88,20 @@ class NotificationHandler : public virtual MidiPatcher::PortRegistry::PortRegist
       }
       std::cout << "DEVSTATE " << port->getKey() << " " << newState << std::endl;
     }
+
+    void portsConnected( MidiPatcher::AbstractPort * inport, MidiPatcher::AbstractPort * outport ){
+      if (Options.ShowUpdates == false){
+        return;
+      }
+      std::cout << "CONNECTED " << inport->getKey() << " " << outport->getKey() << std::endl;
+    }
+
+    void portsDisconnected( MidiPatcher::AbstractPort * inport, MidiPatcher::AbstractPort * outport ){
+      if (Options.ShowUpdates == false){
+        return;
+      }
+      std::cout << "DISCONNECTED " << inport->getKey() << " " << outport->getKey() << std::endl;
+    }
 };
 
 /***************************/

@@ -2,6 +2,8 @@
 
 #include <PortRegistry.hpp>
 
+#include <log.hpp>
+
 namespace MidiPatcher {
 
 
@@ -23,6 +25,23 @@ namespace MidiPatcher {
 
     stop();
   };
+
+
+  void AbstractPort::setDeviceState(DeviceState_t newState){
+    if (DeviceState == newState){
+      return;
+    }
+
+    DeviceState = newState;
+
+    if (DeviceState == DeviceStateConnected){
+      onDeviceConnected();
+    } else {
+      onDeviceDisconnected();
+    }
+
+    publishDeviceStateChanged();
+  }
 
   void AbstractPort::addConnection(AbstractPort * port){
     // std::cout << Name << ".addConnection " << port->Name << std::endl;

@@ -168,6 +168,8 @@ namespace MidiPatcher {
       return;
     }
 
+    Log::print(0, "unregisterPort( " + port->getKey() + " )");
+
     port->unsubscribePortUpdateReveicer( this );
 
     std::vector<AbstractPort *> * connections = port->getConnections();
@@ -212,10 +214,14 @@ namespace MidiPatcher {
     assert(input != NULL);
     assert(output != NULL);
 
+    Log::print(0, "connectPort( " + input->getKey() + ", " + output->getKey() + " )");
+
     // std::cout << "Connecting [" << input->Name << "] -> [" << output->Name << "]" << std::endl;
 
     output->addConnection(input);
     input->addConnection(output);
+
+    publishPortsConnected(input,output);
   }
 
   void PortRegistry::connectPortsByKey(std::string inputKey, std::string outputKey){
@@ -229,8 +235,12 @@ namespace MidiPatcher {
     assert(input != NULL);
     assert(output != NULL);
 
+    Log::print(0, "disconnectPorts( " + input->getKey() + ", " + output->getKey() + " )");
+
     output->removeConnection(input);
     input->removeConnection(output);
+
+    publishPortsDisconnected(input,output);
   }
 
   void PortRegistry::disconnectPortsByKey(std::string inputKey, std::string outputKey){
@@ -296,6 +306,18 @@ namespace MidiPatcher {
   void PortRegistry::publishDeviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
     std::for_each(PortRegistryUpdateReceiverList.begin(), PortRegistryUpdateReceiverList.end(), [port, newState](PortRegistryUpdateReceiver* receiver){
       receiver->deviceStateChanged( port, newState );
+    });
+  }
+
+  void PortRegistry::publishPortsConnected(  AbstractPort * inport, AbstractPort * outport ){
+    std::for_each(PortRegistryUpdateReceiverList.begin(), PortRegistryUpdateReceiverList.end(), [inport,outport](PortRegistryUpdateReceiver* receiver){
+      receiver->portsConnected( inport, outport );
+    });
+  }
+
+  void PortRegistry::publishPortsDisconnected(  AbstractPort * inport, AbstractPort * outport ){
+    std::for_each(PortRegistryUpdateReceiverList.begin(), PortRegistryUpdateReceiverList.end(), [inport,outport](PortRegistryUpdateReceiver* receiver){
+      receiver->portsDisconnected( inport, outport );
     });
   }
 

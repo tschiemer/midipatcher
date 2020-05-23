@@ -572,6 +572,10 @@ namespace MidiPatcher {
     }
 
     void ControlPort::send(std::vector<std::string> &argv){
+      if (getDeviceState() == DeviceStateNotConnected){
+        return;
+      }
+
       unsigned char midi[128];
 
       int len = MidiPatcher::Port::ControlPort::packMessage( midi, argv );
@@ -633,15 +637,31 @@ namespace MidiPatcher {
 
 
     void ControlPort::portRegistered( AbstractPort * port ){
-        PortDescriptor * desc = port->getPortDescriptor();
-        send("sis", "+ports", port->getId(), desc->toString().c_str());
-        delete desc;
+      PortDescriptor * desc = port->getPortDescriptor();
+      send("sis", "+ports", port->getId(), desc->toString().c_str());
+      delete desc;
     }
 
     void ControlPort::portUnregistered( AbstractPort * port ){
-        PortDescriptor * desc = port->getPortDescriptor();
-        send("sis", "-ports", port->getId(), desc->toString().c_str());
-        delete desc;
+      PortDescriptor * desc = port->getPortDescriptor();
+      send("sis", "-ports", port->getId(), desc->toString().c_str());
+      delete desc;
+    }
+
+    void ControlPort::portsConnected( AbstractPort * inport, AbstractPort * outport ){
+      if (OptReturnIds){
+        send("siii","+constate",inport->getId(), outport->getId(), 1);
+      } else {
+        send("sssi","+constate",inport->getKey().c_str(), outport->getKey().c_str(), 1);
+      }
+    }
+
+    void ControlPort::portsDisconnected( AbstractPort * inport, AbstractPort * outport ){
+      if (OptReturnIds){
+        send("siii","+constate",inport->getId(), outport->getId(), 0);
+      } else {
+        send("sssi","+constate",inport->getKey().c_str(), outport->getKey().c_str(), 0);
+      }
     }
 
   }

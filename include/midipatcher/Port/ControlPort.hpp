@@ -78,6 +78,8 @@ namespace MidiPatcher {
         void deviceStateChanged(AbstractPort * port, DeviceState_t newState);
         void portRegistered( AbstractPort * port );
         void portUnregistered( AbstractPort * port );
+        void portsConnected( AbstractPort * inport, AbstractPort * outport );
+        void portsDisconnected( AbstractPort * inport, AbstractPort * outport );
     };
 
   }

@@ -120,21 +120,7 @@ namespace MidiPatcher {
 
     protected:
 
-      void setDeviceState(DeviceState_t newState){
-        if (DeviceState == newState){
-          return;
-        }
-
-        DeviceState = newState;
-
-        if (DeviceState == DeviceStateConnected){
-          onDeviceConnected();
-        } else {
-          onDeviceDisconnected();
-        }
-
-        publishDeviceStateChanged();
-      }
+      void setDeviceState(DeviceState_t newState);
 
     public:
 
