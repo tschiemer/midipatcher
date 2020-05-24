@@ -38,7 +38,6 @@ namespace MidiPatcher {
           ReceivedMessageHandlerRef(message, len, this, UserData);
         }
 
-
       public:
 
         void send( unsigned char * message, size_t len){

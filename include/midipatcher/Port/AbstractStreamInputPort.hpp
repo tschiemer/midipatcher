@@ -26,14 +26,12 @@ namespace MidiPatcher {
 
       public:
 
-        bool getRunningStatusEnabled(){
+        inline bool getRunningStatusEnabled(){
           return Parser.RunningStatusEnabled;
         }
 
-        void setRunningStatusEnabled(bool enabled){
+        inline void setRunningStatusEnabled(bool enabled){
           Parser.RunningStatusEnabled = enabled;
-
-          // MidiMessage::parser_reset( &Parser );
         }
 
   };

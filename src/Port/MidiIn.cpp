@@ -3,6 +3,8 @@
 #include <PortRegistry.hpp>
 #include <Port/AbstractOutputPort.hpp>
 
+#include <Log.hpp>
+
 #include <cstdlib>
 #include <ctime>
 
@@ -112,8 +114,7 @@ namespace MidiPatcher {
           }
 
         } catch ( RtMidiError &error ) {
-          // std::cout << "ERROR " << error.what() << std::endl;
-          error.printMessage();
+          Log::error(error);
         }
 
         delete midiin;
@@ -158,6 +159,8 @@ namespace MidiPatcher {
         return;
       }
 
+      Log::debug(midiIn->getKey(), "received " + std::to_string(message->size()));
+
       // if (message->size() != 7){
       //
       //   std::cout << "rx [" << midiIn->Name << "](" << message->size() << ") to (" << midiIn->Connections.size() << ") ";
@@ -173,26 +176,29 @@ namespace MidiPatcher {
     }
 
     void MidiIn::start(){
-      //
-      // if (getDeviceState() == DeviceStateNotConnected){
-      //   return;
-      // }
 
       if (MidiPort != NULL){
         return;
       }
 
-      // std::cout << "MidiIn:" << Name << " start (PortNumber = " << PortNumber << ")" << std::endl;
+      Log::debug(getKey(), "starting");
 
-      MidiPort = new RtMidiIn(Api);
+      try {
 
-      MidiPort->setCallback( rtMidiCallback, this );
-      // Don't ignore sysex, timing, or active sensing messages.
-      MidiPort->ignoreTypes( false, false, false );
+        MidiPort = new RtMidiIn(Api);
 
-      MidiPort->openPort(PortNumber);
+        MidiPort->setCallback( rtMidiCallback, this );
+        // Don't ignore sysex, timing, or active sensing messages.
+        MidiPort->ignoreTypes( false, false, false );
 
-      assert(MidiPort->isPortOpen());
+        MidiPort->openPort(PortNumber);
+
+      } catch( RtMidiError &e ){
+
+        Log::error(e);
+
+        stop();
+      }
     }
 
     void MidiIn::stop(){
@@ -200,6 +206,8 @@ namespace MidiPatcher {
       if (MidiPort == NULL){
         return;
       }
+
+      Log::debug(getKey(), "stopping");
 
       MidiPort->closePort();
 

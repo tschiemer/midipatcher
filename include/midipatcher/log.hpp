@@ -65,6 +65,10 @@ namespace MidiPatcher {
         log(WARNING, context + ": " + message);
       }
 
+      static inline void warning( std::exception &e ){
+        log(WARNING, e.what());
+      }
+
       static inline void error( std::string message ){
         log(ERROR, message);
       }

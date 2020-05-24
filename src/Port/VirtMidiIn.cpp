@@ -2,8 +2,7 @@
 
 #include <PortRegistry.hpp>
 #include <Port/AbstractOutputPort.hpp>
-
-#include <iostream>
+#include <Log.hpp>
 
 namespace MidiPatcher {
   namespace Port {
@@ -21,7 +20,9 @@ namespace MidiPatcher {
         MidiPort->openVirtualPort( Name );
 
       } catch ( RtMidiError &error ) {
-        error.printMessage();
+        Log::error(error);
+
+        throw;
       }
 
       // publishDeviceDiscovered();

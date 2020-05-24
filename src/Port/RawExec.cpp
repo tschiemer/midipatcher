@@ -2,11 +2,15 @@
 
 #include <PortRegistry.hpp>
 
+#include <Log.hpp>
+#include <Error.hpp>
+
 #include <cassert>
 #include <cstdlib>
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 namespace MidiPatcher {
   namespace Port {
@@ -33,6 +37,15 @@ namespace MidiPatcher {
 
 
       // validate exec
+      struct stat st;
+
+      if (stat(name.c_str(), &st)){
+        throw Error(getKey(), "failed stat: " + std::to_string(errno));
+      }
+      if ((st.st_mode & S_IEXEC) == 0){
+        throw Error(getKey(), "not executable");
+      }
+
       Argv = argv;
 
       setDeviceState( DeviceStateConnected );
@@ -109,10 +122,12 @@ namespace MidiPatcher {
 
       setNonBlocking(FromExecFDs[0]);
 
+      Log::info(getKey(), "start");
+
       ReaderThread = std::thread([this](){
         State = StateStarted;
 
-        std::cout << "started reader" << std::endl;
+        Log::info(getKey(), "started");
 
         while(State == StateStarted){
           unsigned char buffer[128];
@@ -128,11 +143,11 @@ namespace MidiPatcher {
             // std::cout << "nothing to read" << std::endl;
           }
           else if (count > 0){
-            std::cout << "RawExec[" << Name << "] read (" << count << ") ";
-            for(int i = 0; i < count; i++){
-              std::cout << std::hex << (int)buffer[i];
-            }
-            std::cout << std::endl;
+            // std::cout << "RawExec[" << Name << "] read (" << count << ") ";
+            // for(int i = 0; i < count; i++){
+            //   std::cout << std::hex << (int)buffer[i];
+            // }
+            // std::cout << std::endl;
 
 
             receivedMessage(buffer,count);
@@ -156,6 +171,8 @@ namespace MidiPatcher {
 
       State = StateWillStop;
 
+      Log::info(getKey(), "stopping");
+
       // close the program's stdin/out hoping it will quit by itself
       close(ToExecFDs[1]);
       close(FromExecFDs[0]);
@@ -167,6 +184,8 @@ namespace MidiPatcher {
       int r = waitpid(PID, &status, 0);
 
       State = StateStopped;
+
+      Log::info(getKey(), "stopped");
 
     }
 

@@ -21,6 +21,10 @@ namespace MidiPatcher {
         Message = context + ": " + message;
       }
 
+      const char* what() const noexcept {
+        return Message.c_str();
+      }
+
   };
 
 }

@@ -16,7 +16,7 @@ namespace MidiPatcher {
 
         if (portName == FILE_STDOUT){
 
-          Log::info(getKey() + "  using STDOUT");
+          Log::info(getKey(), "using STDOUT");
 
           FD = 1;
 
@@ -24,7 +24,7 @@ namespace MidiPatcher {
 
         } else if (portName == FILE_STDERR){
 
-          Log::info(getKey() + " using STDERR");
+          Log::info(getKey(), "using STDERR");
 
           FD = 2;
 
@@ -32,40 +32,24 @@ namespace MidiPatcher {
 
         } else {
 
-          // OpenThread = std::thread([this,portName](){
-          //   OpenThreadRunning = true;
+          int flags = O_WRONLY | O_CREAT | O_APPEND | O_NONBLOCK;
 
-            int flags = O_WRONLY | O_CREAT | O_APPEND | O_NONBLOCK;
+          // Log::info(getKey() + " opening " + portName);
+          this->FD = open(portName.c_str(), flags);
+          if (this->FD == -1){
+            throw Error(getKey(), " failed to open: " + std::to_string(errno));
+          }
+          Log::info(getKey(), "opened with FD = " + std::to_string(FD));
 
-            Log::info(getKey() + " opening " + portName);
-            this->FD = open(portName.c_str(), flags);
-            if (this->FD == -1){
-              throw Error(getKey(), " failed to open: " + std::to_string(errno));
-            }
-            Log::info(getKey() + "opened " + portName + " (FD = " + std::to_string(FD) + ")");
-
-
-            this->setDeviceState(DeviceStateConnected);
-
-          //   OpenThreadRunning = false;
-          // });
+          this->setDeviceState(DeviceStateConnected);
 
         }
 
     }
 
     FileOut::~FileOut(){
-      // if (OpenThreadRunning){
-      //
-      //   Log::debug(getKey() + "  OpenThread still running..");
-      //
-      //   // OpenThread.~thread();
-      //   OpenThread.join();
-      //
-      // } else {
-        stop();
-      // }
 
+      stop();
 
       if (FD > 2){
         close(FD);
@@ -79,7 +63,6 @@ namespace MidiPatcher {
     }
 
     void FileOut::writeToStream(unsigned char *data, size_t len){
-// std::cout << "writeToStream (" << len << ")" << std::endl;
 
       if (getDeviceState() != DeviceStateConnected){
         return;

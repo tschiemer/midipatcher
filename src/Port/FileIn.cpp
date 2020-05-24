@@ -33,36 +33,21 @@ namespace MidiPatcher {
 
         } else {
 
-          // OpenThread = std::thread([this,portName](){
-          //   OpenThreadRunning = true;
+          // Log::info(getKey(), "opening " + portName);
 
-            Log::info(getKey(), "opening " + portName);
+          this->FD = open(portName.c_str(), O_RDONLY | O_NONBLOCK);
+          if (this->FD == -1){
+            throw Error(getKey(), "failed to open: " + std::to_string(errno));
+          }
+          Log::info(getKey(), "opened " + portName + " (FD = " + std::to_string(FD) + ")");
 
-            this->FD = open(portName.c_str(), O_RDONLY | O_NONBLOCK);
-            if (this->FD == -1){
-              throw Error(getKey(), "failed to open: " + std::to_string(errno));
-            }
-            Log::info(getKey(), "opened " + portName + " (FD = " + std::to_string(FD) + ")");
-
-            this->setDeviceState(DeviceStateConnected);
-
-          //   OpenThreadRunning = false;
-          // });
-          // OpenThread.detach();
-
+          this->setDeviceState(DeviceStateConnected);
         }
 
 
       }
 
       FileIn::~FileIn(){
-
-        // if (OpenThreadRunning){
-        //   Log::debug("FileIn[" + Name + "] OpenThread still running..");
-        //
-        // }
-        //
-        // OpenThread.join();
 
         stop();
 
@@ -126,11 +111,8 @@ namespace MidiPatcher {
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
           }
 
-          // this->Running = false;
-          // close(this->FD);
           State = StateStopped;
         });
         // ReaderThread.detach();

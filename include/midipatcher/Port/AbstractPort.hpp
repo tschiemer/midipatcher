@@ -124,7 +124,7 @@ namespace MidiPatcher {
 
     public:
 
-      DeviceState_t getDeviceState(){
+      inline DeviceState_t getDeviceState(){
         return DeviceState;
       }
 
@@ -134,21 +134,13 @@ namespace MidiPatcher {
 
     public:
 
-      std::vector<AbstractPort *> * getConnections(){
-        std::vector<AbstractPort *> * connections = new std::vector<AbstractPort*>();
+      std::vector<AbstractPort *> * getConnections();
 
-        for(std::map<std::string,AbstractPort*>::iterator it = Connections.begin(); it != Connections.end(); it++){
-          connections->push_back( it->second );
-        }
-
-        return connections;
-      }
-
-      bool isConnectedTo(std::string portKey){
+      inline bool isConnectedTo(std::string portKey){
         return Connections.count(portKey) > 0;
       }
 
-      bool isConnectedTo(AbstractPort * port){
+      inline bool isConnectedTo(AbstractPort * port){
         return isConnectedTo(port->getKey());
       }
 

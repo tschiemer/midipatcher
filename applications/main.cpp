@@ -266,13 +266,20 @@ int setupPortsFromArgs(int argc, char * argv[]){
     MidiPatcher::PortDescriptor * desc;
     MidiPatcher::AbstractPort * port;
 
-    desc = MidiPatcher::PortDescriptor::fromString(argv[i]);
-    port = portRegistry->registerPortFromDescriptor(desc);
-    inports.push_back(port);
+    try {
 
-    desc = MidiPatcher::PortDescriptor::fromString(argv[j]);
-    port = portRegistry->registerPortFromDescriptor(desc);
-    outports.push_back(port);
+      desc = MidiPatcher::PortDescriptor::fromString(argv[i]);
+      port = portRegistry->registerPortFromDescriptor(desc);
+      inports.push_back(port);
+
+      desc = MidiPatcher::PortDescriptor::fromString(argv[j]);
+      port = portRegistry->registerPortFromDescriptor(desc);
+      outports.push_back(port);
+
+    } catch (std::exception &e){
+      std::cerr << "ERROR " << e.what() << std::endl;
+      exit(EXIT_FAILURE);
+    }
   }
 
   assert( inports.size() == outports.size() );
@@ -328,17 +335,23 @@ int setupPortsFromFile(std::string file){
 
     // std::cout << "[" << in << "] [" << out << "]" << std::endl;
 
+    try {
+      
+      MidiPatcher::PortDescriptor * desc;
+      MidiPatcher::AbstractPort * port;
 
-    MidiPatcher::PortDescriptor * desc;
-    MidiPatcher::AbstractPort * port;
+      desc = MidiPatcher::PortDescriptor::fromString(in);
+      port = portRegistry->registerPortFromDescriptor(desc);
+      inports.push_back(port);
 
-    desc = MidiPatcher::PortDescriptor::fromString(in);
-    port = portRegistry->registerPortFromDescriptor(desc);
-    inports.push_back(port);
+      desc = MidiPatcher::PortDescriptor::fromString(out);
+      port = portRegistry->registerPortFromDescriptor(desc);
+      outports.push_back(port);
 
-    desc = MidiPatcher::PortDescriptor::fromString(out);
-    port = portRegistry->registerPortFromDescriptor(desc);
-    outports.push_back(port);
+    } catch (std::exception &e){
+      std::cerr << "ERROR " << e.what() << std::endl;
+      exit(EXIT_FAILURE);
+    }
   }
 
 

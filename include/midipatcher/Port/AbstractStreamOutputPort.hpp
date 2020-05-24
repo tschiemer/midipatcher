@@ -18,7 +18,7 @@ namespace MidiPatcher {
 
     public :
 
-      bool getRunningStatusEnabled(){
+      inline bool getRunningStatusEnabled(){
         return RunningStatusEnabled;
       }
 

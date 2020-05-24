@@ -12,8 +12,6 @@ namespace MidiPatcher {
     Type = type;
     Name = name;
 
-    // portRegistry->registerPort( this );
-
   };
 
   AbstractPort::~AbstractPort(){
@@ -23,12 +21,13 @@ namespace MidiPatcher {
     // no other error related to this occurring first....)
     // assert( Connections.size() == 0);
 
-    stop();
+    // stop();
     // std::cout << "~AbstractPort" << std::endl;
   };
 
 
   void AbstractPort::setDeviceState(DeviceState_t newState){
+
     if (DeviceState == newState){
       return;
     }
@@ -44,16 +43,22 @@ namespace MidiPatcher {
     publishDeviceStateChanged();
   }
 
+
+  std::vector<AbstractPort *> * AbstractPort::getConnections(){
+    std::vector<AbstractPort *> * connections = new std::vector<AbstractPort*>();
+
+    for(std::map<std::string,AbstractPort*>::iterator it = Connections.begin(); it != Connections.end(); it++){
+      connections->push_back( it->second );
+    }
+
+    return connections;
+  }
+
   void AbstractPort::addConnection(AbstractPort * port){
-    // std::cout << Name << ".addConnection " << port->Name << std::endl;
+
+    Connections[port->getKey()] = port;
 
     addConnectionImpl(port);
-
-    // using a map to make sure that connection is set only once.
-    Connections[port->getKey()] = port;
-    // Connections.push_back(port);
-
-    // std::cout << "#con = " << Connections.size() << std::endl;
 
     if (getDeviceState() == DeviceStateConnected){
       start();
@@ -61,30 +66,25 @@ namespace MidiPatcher {
   }
 
   void AbstractPort::removeConnection(AbstractPort * port){
-    // std::cout << Name << ".removeConnection " << port->Name << std::endl;
 
-    removeConnectionImpl(port);
-    // Connections.erase(std::remove(Connections.begin(), Connections.end(), port));
     Connections.erase(port->getKey());
 
-    // std::cout << "#con = " << Connections.size() << std::endl;
+    removeConnectionImpl(port);
 
     if (Connections.size() == 0){
       stop();
     }
+
   }
 
   void AbstractPort::onDeviceConnected(){
-    // std::cout << "onDeviceConnected " << Connections.size() << std::endl;
     if (Connections.size() > 0){
       start();
     }
   }
 
   void AbstractPort::onDeviceDisconnected(){
-    // if (Connections.size() == 0){
-      stop();
-    // }
+    stop();
   }
 
 
@@ -95,9 +95,11 @@ namespace MidiPatcher {
   // }
 
   void AbstractPort::publishDeviceStateChanged(){
+
     std::for_each(PortUpdateReceiverList.begin(), PortUpdateReceiverList.end(), [this](PortUpdateReceiver* receiver){
       receiver->deviceStateChanged( this, this->getDeviceState() );
     });
+
   }
 
   void AbstractPort::subscribePortUpdateReveicer(PortUpdateReceiver *receiver){

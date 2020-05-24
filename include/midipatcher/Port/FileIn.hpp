@@ -57,7 +57,7 @@ namespace MidiPatcher {
 
         enum State_t{
           StateStopped, StateWillStart, StateStarted, StateWillStop
-        } ;
+        };
 
         volatile State_t State = StateStopped;
 
