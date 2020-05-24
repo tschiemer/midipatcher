@@ -24,7 +24,9 @@ namespace MidiPatcher {
 
       void setRunningStatusEnabled(bool enabled);
 
-      void sendMessage(unsigned char * message, size_t len);
+    protected:
+
+      void sendMessageImpl(unsigned char * message, size_t len);
   };
 
 }

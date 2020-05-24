@@ -167,17 +167,14 @@ namespace MidiPatcher {
       MidiPort = NULL;
     }
 
-    void MidiOut::sendMessage(unsigned char * message, size_t len){
-
-
-      if (getDeviceState() == DeviceStateNotConnected){
-        return;
-      }
+    void MidiOut::sendMessageImpl(unsigned char * message, size_t len){
 
       if (MidiPort == NULL){
+        Log::error(getKey(), "not started, but trying to send!");
         return;
       }
       if (MidiPort->isPortOpen() == false){
+        Log::error(getKey(), "not open, but trying to send!");
         return;
       }
 

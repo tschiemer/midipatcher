@@ -14,11 +14,11 @@ namespace MidiPatcher {
         Name = name;
       };
 
-      // virtual void sendMessageImpl(unsigned char * message, size_t len) = 0;
+      virtual void sendMessageImpl(unsigned char * message, size_t len) = 0;
 
     public:
 
-      virtual void sendMessage(unsigned char * message, size_t len) = 0;
+      virtual void sendMessage(unsigned char * message, size_t len);
   };
 }
 

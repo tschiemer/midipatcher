@@ -38,7 +38,7 @@ namespace MidiPatcher {
       }
 
       static inline void notice( std::string context, std::string message ){
-        log(NOTICE, context + ": " + message);
+        log(NOTICE, context + " " + message);
       }
 
       static inline void info( std::string message ){
@@ -46,7 +46,7 @@ namespace MidiPatcher {
       }
 
       static inline void info( std::string context, std::string message ){
-        log(NOTICE, context + ": " + message);
+        log(NOTICE, context + " " + message);
       }
 
       static inline void debug( std::string message ){
@@ -54,7 +54,7 @@ namespace MidiPatcher {
       }
 
       static inline void debug( std::string context, std::string message ){
-        log(DEBUG, context + ": " + message);
+        log(DEBUG, context + " " + message);
       }
 
       static inline void warning( std::string message ){
@@ -62,7 +62,7 @@ namespace MidiPatcher {
       }
 
       static inline void warning( std::string context, std::string message ){
-        log(WARNING, context + ": " + message);
+        log(WARNING, context + " " + message);
       }
 
       static inline void warning( std::exception &e ){
@@ -74,7 +74,7 @@ namespace MidiPatcher {
       }
 
       static inline void error( std::string context, std::string message ){
-        log(ERROR, context + ": " + message);
+        log(ERROR, context + " " + message);
       }
 
       static inline void error( std::exception &e ){

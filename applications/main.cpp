@@ -278,7 +278,7 @@ int setupPortsFromArgs(int argc, char * argv[]){
 
     } catch (std::exception &e){
       std::cerr << "ERROR " << e.what() << std::endl;
-      exit(EXIT_FAILURE);
+      std::exit(EXIT_FAILURE);
     }
   }
 
@@ -336,7 +336,7 @@ int setupPortsFromFile(std::string file){
     // std::cout << "[" << in << "] [" << out << "]" << std::endl;
 
     try {
-      
+
       MidiPatcher::PortDescriptor * desc;
       MidiPatcher::AbstractPort * port;
 

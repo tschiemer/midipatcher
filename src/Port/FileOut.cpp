@@ -11,7 +11,6 @@
 namespace MidiPatcher {
   namespace Port {
 
-
     FileOut::FileOut(std::string portName) : AbstractOutputPort(portName){
 
         if (portName == FILE_STDOUT){
@@ -54,7 +53,6 @@ namespace MidiPatcher {
       if (FD > 2){
         close(FD);
       }
-
     }
 
 
@@ -63,11 +61,6 @@ namespace MidiPatcher {
     }
 
     void FileOut::writeToStream(unsigned char *data, size_t len){
-
-      if (getDeviceState() != DeviceStateConnected){
-        return;
-      }
-
       write( FD, data, len );
     }
 

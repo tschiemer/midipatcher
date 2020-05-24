@@ -36,12 +36,11 @@ namespace MidiPatcher {
 
       void registerPort(PortRegistry &portRegistry);
 
-      void sendMessage(unsigned char * message, size_t len);
-
       protected:
 
         RtMidiOut * MidiPort = NULL;
 
+        void sendMessageImpl(unsigned char * message, size_t len);
     };
 
   }

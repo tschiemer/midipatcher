@@ -37,8 +37,6 @@ namespace MidiPatcher {
 
         void registerPort(PortRegistry &portRegistry);
 
-        void sendMessage(unsigned char * message, size_t len);
-
       protected:
 
         // std::string ExecPath;
@@ -63,6 +61,8 @@ namespace MidiPatcher {
         void stop();
 
         void setNonBlocking(int fd);
+
+        void sendMessageImpl(unsigned char * message, size_t len);
     };
 
   }

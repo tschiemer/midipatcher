@@ -34,7 +34,7 @@ namespace MidiPatcher {
         void * UserData = NULL;
         ReceivedMessageHandler ReceivedMessageHandlerRef;
 
-        void sendMessage(unsigned char * message, size_t len){
+        void sendMessageImpl(unsigned char * message, size_t len){
           ReceivedMessageHandlerRef(message, len, this, UserData);
         }
 

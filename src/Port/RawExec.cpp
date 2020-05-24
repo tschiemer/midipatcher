@@ -52,7 +52,6 @@ namespace MidiPatcher {
     }
 
     RawExec::~RawExec(){
-
     }
 
     void RawExec::registerPort(PortRegistry &portRegistry){
@@ -64,6 +63,8 @@ namespace MidiPatcher {
         return;
       }
       State = StateWillStart;
+
+      Log::info(getKey(), "staring");
 
       int r;
 
@@ -121,8 +122,6 @@ namespace MidiPatcher {
     void RawExec::startReader(){
 
       setNonBlocking(FromExecFDs[0]);
-
-      Log::info(getKey(), "start");
 
       ReaderThread = std::thread([this](){
         State = StateStarted;
@@ -203,13 +202,7 @@ namespace MidiPatcher {
         fcntl(fd, F_SETFL, flags | O_NONBLOCK);
     }
 
-    void RawExec::sendMessage(unsigned char * message, size_t len){
-      // std::cout << "sendMessage 1 " << len << std::endl;
-      if (getDeviceState() != DeviceStateConnected){
-        return;
-      }
-      // std::cout << "sendMessage 2" << std::endl;
-
+    void RawExec::sendMessageImpl(unsigned char * message, size_t len){
       write(ToExecFDs[1], message, len);
     }
   }

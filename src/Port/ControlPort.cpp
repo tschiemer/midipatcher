@@ -2,6 +2,8 @@
 
 #include <PortRegistry.hpp>
 #include <version.h>
+#include <Log.hpp>
+#include <Error.hpp>
 
 #include <cassert>
 #include <future>
@@ -155,6 +157,10 @@ namespace MidiPatcher {
         int len = unpackMidiMessage(tmp, midi, midiLen);
 
         unpackArguments(argv, tmp, len);
+    }
+
+    void ControlPort::sendMessageImpl(unsigned char * message, size_t len){
+      Log::warning(getKey(), "called sendMessageImpl but standard caller (sendMessage) overriden");
     }
 
     void ControlPort::sendMessage(unsigned char * message, size_t len){

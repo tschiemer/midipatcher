@@ -19,7 +19,7 @@ namespace MidiPatcher {
     }
   }
 
-  void AbstractStreamOutputPort::sendMessage(unsigned char * message, size_t len){
+  void AbstractStreamOutputPort::sendMessageImpl(unsigned char * message, size_t len){
 
     // std::cout << "sendMessage (" << len << ")" << std::endl;
 

@@ -221,15 +221,14 @@ namespace MidiPatcher {
 
   AbstractPort* PortRegistry::registerPortFromDescriptor(PortDescriptor * portDescriptor){
     assert( portDescriptor != NULL );
+
     if ( portClassExists(portDescriptor->PortClass) == false ){
       throw "PortClass " + portDescriptor->PortClass + " does not exist";
     }
 
     if (Ports.count(portDescriptor->getKey()) > 0){
-      // std::cout << "exists! " << portDescriptor->getKey() << std::endl;
       return Ports[portDescriptor->getKey()];
     }
-    // std::cout << "doesn't exist! " << portDescriptor->getKey() << std::endl;
 
     AbstractPort * port = PortClassRegistryInfoMap[portDescriptor->PortClass]->Factory(portDescriptor);
 
@@ -243,7 +242,7 @@ namespace MidiPatcher {
     assert(input != NULL);
     assert(output != NULL);
 
-    Log::notice("connectPort( " + input->getKey() + ", " + output->getKey() + " )");
+    Log::notice("connectPorts " + input->getKey() + " " + output->getKey());
 
     // std::cout << "Connecting [" << input->Name << "] -> [" << output->Name << "]" << std::endl;
 
@@ -264,7 +263,7 @@ namespace MidiPatcher {
     assert(input != NULL);
     assert(output != NULL);
 
-    Log::notice("disconnectPorts( " + input->getKey() + ", " + output->getKey() + " )");
+    Log::notice("disconnectPorts " + input->getKey() + " " + output->getKey());
 
     output->removeConnection(input);
     input->removeConnection(output);

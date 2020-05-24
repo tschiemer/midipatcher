@@ -42,6 +42,8 @@ namespace MidiPatcher {
 
         bool OptReturnIds = false;
 
+        void sendMessageImpl(unsigned char * message, size_t len);
+
       public:
 
         // header (sysex experimental and marker bytes)
