@@ -17,29 +17,39 @@ namespace MidiPatcher {
 
     AbstractPort* RawExec::factory(PortDescriptor * portDescriptor){
 
+      std::string baseDir = "";
       std::vector<std::string> argv;
 
-      std::for_each(portDescriptor->Options.begin(), portDescriptor->Options.end(), [&argv](std::pair<std::string, std::string> pair){
+      std::for_each(portDescriptor->Options.begin(), portDescriptor->Options.end(), [&argv, &baseDir](std::pair<std::string, std::string> pair){
 
         std::string arg = pair.first;
 
-        if (pair.second.size() > 0){
-          arg += "=" + pair.second;
+        if (arg == "basedir" && pair.second.size() > 0){
+            baseDir = pair.second;
+        } else {
+            if (pair.second.size() > 0){
+              arg += "=" + pair.second;
+            }
+            argv.push_back(arg);
         }
 
-        argv.push_back(arg);
       });
 
-      return new RawExec( portDescriptor->Name, argv );
+      return new RawExec( portDescriptor->Name, argv, baseDir );
     }
 
-    RawExec::RawExec(std::string name, std::vector<std::string> argv) : AbstractInputOutputPort(name) {
+    RawExec::RawExec(std::string name, std::vector<std::string> argv, std::string baseDir) : AbstractInputOutputPort(name) {
 
+      BaseDir = baseDir;
 
       // validate exec
       struct stat st;
 
-      if (stat(name.c_str(), &st)){
+      // std::string file = execpath();
+      Log::debug(getKey(), execpath());
+      // std::cout << "ep = " << execpath() << std::endl;
+
+      if (stat(execpath().c_str(), &st)){
         throw Error(getKey(), "failed stat: " + std::to_string(errno));
       }
       if ((st.st_mode & S_IEXEC) == 0){
@@ -52,6 +62,7 @@ namespace MidiPatcher {
     }
 
     RawExec::~RawExec(){
+      stop();
     }
 
     void RawExec::registerPort(PortRegistry &portRegistry){
@@ -64,101 +75,54 @@ namespace MidiPatcher {
       }
       State = StateWillStart;
 
-      Log::info(getKey(), "staring");
+      Log::info(getKey(), "starting");
 
       int r;
 
       r = pipe(ToExecFDs);
-      assert( r >= 0 );
+      if( r < 0 ){
+        throw Error(getKey(), "failed to create to pipe");
+      }
 
       r = pipe(FromExecFDs);
-      assert( r >= 0 );
-
+      if( r < 0 ){
+        throw Error(getKey(), "failed to create from pipe");
+      }
 
 
       int pid = fork();
 
-      assert( pid >= 0 );
+      if( pid < 0 ){
+        throw Error(getKey(), "failed to fork");
+      }
 
       // char ** argv = nullptr;
 
-      // parent
-      if (pid > 0){
-        PID = pid;
+      // child
+      if (pid == 0){
 
-        close(ToExecFDs[0]);
-        close(FromExecFDs[1]);
+        close(ToExecFDs[1]);
+        close(FromExecFDs[0]);
 
-        // wait for child to finish starting (or failing for that matter..)
-        // while (State == StateWillStart){}
+        // adjust file descriptors
+        dup2(ToExecFDs[0], STDIN_FILENO);
+        dup2(FromExecFDs[1], STDOUT_FILENO);
 
-        // std::cout << "foobar" << std::endl;
-        // while(1);
+        char * argv[1] = {NULL};
 
-        // if (argv != nullptr){
-        //   std::free(argv);
-        // }
+        int exec_result = execvp( execpath().c_str(), argv );
 
-        startReader();
-
-        return;
+        throw Error(getKey(), "failed to exec");
       }
 
+      PID = pid;
 
-      close(ToExecFDs[1]);
-      close(FromExecFDs[0]);
+      close(ToExecFDs[0]);
+      close(FromExecFDs[1]);
 
-      // adjust file descriptors
-      dup2(ToExecFDs[0], STDIN_FILENO);
-      dup2(FromExecFDs[1], STDOUT_FILENO);
+      startFileReader(FromExecFDs[0]);
 
-      char * argv[1] = {NULL};
-
-      int exec_result = execvp( Name.c_str(), argv );
-
-      assert( exec_result != -1 );
-    }
-
-    void RawExec::startReader(){
-
-      setNonBlocking(FromExecFDs[0]);
-
-      ReaderThread = std::thread([this](){
-        State = StateStarted;
-
-        Log::info(getKey(), "started");
-
-        while(State == StateStarted){
-          unsigned char buffer[128];
-          size_t count = 0;
-
-          // std::cout << Name << ".fread" << std::endl;
-          // count = fread( buffer, 1, sizeof(buffer), this->FD);
-          count = read(FromExecFDs[0], buffer, sizeof(buffer));
-          if (count == -1){
-            // std::cout << "ERROR" << std::endl;
-          }
-          else if (count == 0){
-            // std::cout << "nothing to read" << std::endl;
-          }
-          else if (count > 0){
-            // std::cout << "RawExec[" << Name << "] read (" << count << ") ";
-            // for(int i = 0; i < count; i++){
-            //   std::cout << std::hex << (int)buffer[i];
-            // }
-            // std::cout << std::endl;
-
-
-            receivedMessage(buffer,count);
-            // readFromStream(buffer, count);
-          }
-
-          std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-        }
-
-        this->State = StateStopped;
-      });
+      Log::info(getKey(), "started");
     }
 
     void RawExec::stop(){
@@ -171,6 +135,9 @@ namespace MidiPatcher {
       State = StateWillStop;
 
       Log::info(getKey(), "stopping");
+
+      // stop file reader
+      stopFileReader();
 
       // close the program's stdin/out hoping it will quit by itself
       close(ToExecFDs[1]);
@@ -188,22 +155,12 @@ namespace MidiPatcher {
 
     }
 
-    void RawExec::stopReader(){
-
-    }
-
-    void RawExec::setNonBlocking(int fd){
-
-        // set non-blocking
-        int flags;
-        // flags = fcntl(FDs[0], F_GETFL, 0);
-        // fcntl(FDs[0], F_SETFL, flags | O_NONBLOCK);
-        flags = fcntl(fd, F_GETFL, 0);
-        fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-    }
-
     void RawExec::sendMessageImpl(unsigned char * message, size_t len){
       write(ToExecFDs[1], message, len);
+    }
+
+    void RawExec::readFromFile(unsigned char * buffer, size_t len ){
+      readFromStream(buffer, len);
     }
   }
 }

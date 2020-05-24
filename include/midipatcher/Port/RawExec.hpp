@@ -2,6 +2,8 @@
 #define PORT_RAW_EXEC_H
 
 #include "AbstractInputOutputPort.hpp"
+#include "AbstractStreamInputPort.hpp"
+#include "AbstractFileReader.hpp"
 
 #include <vector>
 #include <thread>
@@ -12,7 +14,7 @@ namespace MidiPatcher {
 
   namespace Port {
 
-    class RawExec : public virtual AbstractInputOutputPort {
+    class RawExec : public virtual AbstractInputOutputPort, public virtual AbstractStreamInputPort, public virtual AbstractFileReader {
 
       public:
 
@@ -32,15 +34,22 @@ namespace MidiPatcher {
           return new PortDescriptor(PortClass, Name);
         }
 
-        RawExec(std::string portName, std::vector<std::string> argv);
+        RawExec(std::string portName, std::vector<std::string> argv, std::string baseDir = "");
         ~RawExec();
 
         void registerPort(PortRegistry &portRegistry);
 
       protected:
 
-        // std::string ExecPath;
+        std::string BaseDir;
         std::vector<std::string> Argv;
+
+        std::string execpath(){
+          if (BaseDir.size() == 0){
+            return Name;
+          }
+          return BaseDir + Name;
+        }
 
         int PID;
         int ToExecFDs[2];
@@ -52,17 +61,12 @@ namespace MidiPatcher {
 
         volatile State_t State = StateStopped;
 
-        std::thread ReaderThread;
-
-        void startReader();
-        void stopReader();
-
         void start();
         void stop();
 
-        void setNonBlocking(int fd);
-
         void sendMessageImpl(unsigned char * message, size_t len);
+
+        void readFromFile(unsigned char * buffer, size_t len );
     };
 
   }

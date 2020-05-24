@@ -49,6 +49,7 @@ namespace MidiPatcher {
 
       FileIn::~FileIn(){
 
+        // stopFileReader();
         stop();
 
         if (FD > 0){
@@ -61,12 +62,12 @@ namespace MidiPatcher {
         portRegistry.registerPort(this);
       }
 
-      void FileIn::setNonBlocking(){
-
-          // set non-blocking
-          int flags = fcntl(FD, F_GETFL, 0);
-          fcntl(FD, F_SETFL, flags | O_NONBLOCK);
-      }
+      // void FileIn::setNonBlocking(){
+      //
+      //     // set non-blocking
+      //     int flags = fcntl(FD, F_GETFL, 0);
+      //     fcntl(FD, F_SETFL, flags | O_NONBLOCK);
+      // }
 
       void FileIn::start(){
         if (State != StateStopped){
@@ -76,47 +77,9 @@ namespace MidiPatcher {
 
         Log::debug(getKey(), "starting");
 
-        this->setNonBlocking();
+        startFileReader(FD);
 
-
-        ReaderThread = std::thread([this](){
-          State = StateStarted;
-
-          Log::debug(getKey(), "started");
-
-          while(State == StateStarted && this->getDeviceState() == DeviceStateConnected){
-            unsigned char buffer[128];
-            size_t count = 0;
-
-            // std::cout << Name << ".fread" << std::endl;
-            // count = fread( buffer, 1, sizeof(buffer), this->FD);
-            count = read(this->FD, buffer, sizeof(buffer));
-            if (count == -1){
-              // std::cout << "ERROR" << std::endl;
-            }
-            else if (count == 0){
-              // std::cout << "nothing to read" << std::endl;
-            }
-            else if (count > 0){
-              Log::debug(getKey(), "read " + std::to_string(count) + " bytes");
-              // std::cout << "FileIn[" << Name << "] read (" << count << ") ";
-              // for(int i = 0; i < count; i++){
-              //   std::cout << std::hex << (int)buffer[i] << " ";
-              // }
-              // std::cout << std::endl;
-
-
-              // this->send(buffer,count);
-              readFromStream(buffer, count);
-            }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-          }
-
-          State = StateStopped;
-        });
-        // ReaderThread.detach();
-
+        Log::debug(getKey(), "started");
       }
 
       void FileIn::stop(){
@@ -125,15 +88,19 @@ namespace MidiPatcher {
         }
         State = StateWillStop;
 
-        setDeviceState(DeviceStateNotConnected);
-
         Log::debug(getKey(), "stopping");
 
-        ReaderThread.join();
+        setDeviceState(DeviceStateNotConnected);
+
+        stopFileReader();
 
         Log::debug(getKey(), "stopped");
 
         State = StateStopped;
+      }
+
+      void FileIn::readFromFile(unsigned char * buffer, size_t len ){
+        readFromStream(buffer, len);
       }
 
   }

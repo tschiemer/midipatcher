@@ -67,7 +67,10 @@ namespace MidiPatcher {
 
 
     std::for_each(Ports.begin(), Ports.end(), [this](std::pair<std::string,AbstractPort *> p){
+      // std::cerr << "unreg"
       unregisterPort(p.second);
+      // p.second->stop();
+
       delete p.second;
     });
     Ports.clear();

@@ -3,6 +3,7 @@
 
 
 #include "AbstractStreamInputPort.hpp"
+#include "AbstractFileReader.hpp"
 
 #include <midimessage/parser.h>
 
@@ -14,7 +15,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-    class FileIn : AbstractStreamInputPort {
+    class FileIn : public virtual AbstractStreamInputPort, public virtual AbstractFileReader {
 
       public:
 
@@ -48,12 +49,7 @@ namespace MidiPatcher {
 
       protected:
 
-        // volatile bool OpenThreadRunning = false;
-        // std::thread OpenThread;
-
         int FD = -1;
-
-        void setNonBlocking();
 
         enum State_t{
           StateStopped, StateWillStart, StateStarted, StateWillStop
@@ -61,10 +57,10 @@ namespace MidiPatcher {
 
         volatile State_t State = StateStopped;
 
-        std::thread ReaderThread;
-
         void start();
         void stop();
+
+        void readFromFile(unsigned char * buffer, size_t len );
 
     };
 
