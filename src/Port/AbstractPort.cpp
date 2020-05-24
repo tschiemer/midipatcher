@@ -2,7 +2,7 @@
 
 #include <PortRegistry.hpp>
 
-#include <log.hpp>
+#include <Log.hpp>
 
 namespace MidiPatcher {
 

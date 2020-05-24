@@ -53,10 +53,6 @@ struct {
     .StayConnected = false
   }
 };
-//
-// struct {
-//
-// } RemoteControl;
 
 class NotificationHandler : public virtual MidiPatcher::PortRegistry::PortRegistryUpdateReceiver {
 
@@ -108,15 +104,20 @@ NotificationHandler * notificationHandler;
 
 /***************************/
 
-void printVersion();
-void printHelp();
-void listPorts();
-void listPortClasses();
+void SignalHandler(int signal);
+void setupSignalHandler( void );
+
+void logger(MidiPatcher::Log::Level_t level, std::string message);
+
+void printVersion( void );
+void printHelp( void );
+void listPorts( void );
+void listPortClasses( void );
 
 int setupPortsFromArgs(int argc, char * argv[]);
 int setupPortsFromFile(std::string file);
 
-void setupControlPort();
+void setupControlPort( void );
 
 void remoteControl(int argc, char * argv[]);
 void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData);
@@ -170,7 +171,39 @@ void setupSignalHandler(){
   std::signal(SIGINT, SignalHandler);
 }
 
+void logger(MidiPatcher::Log::Level_t level, std::string message){
+  switch(level){
+    case MidiPatcher::Log::NOTICE:
+      if (Options.Verbosity >= 1){
+        std::cerr << "NOTICE " << message << std::endl;
+      }
+      break;
 
+    case MidiPatcher::Log::INFO:
+      if (Options.Verbosity >= 2){
+        std::cerr << "INFO " << message << std::endl;
+      }
+      break;
+
+    case MidiPatcher::Log::DEBUG:
+      if (Options.Verbosity >= 3){
+        std::cerr << "DEBUG " << message << std::endl;
+      }
+      break;
+
+    case MidiPatcher::Log::WARNING:
+      std::cerr << "WARNING " << message << std::endl;
+      break;
+
+    case MidiPatcher::Log::ERROR:
+      std::cerr << "ERROR " << message << std::endl;
+      break;
+
+    default:
+      std::cerr << "LOG (" << std::to_string(level) << ") " << message << std::endl;
+
+  }
+}
 
 void printVersion(){
     std::cout << MidiPatcher::VERSION << std::endl;
@@ -422,7 +455,7 @@ void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::Inj
 
 void init(){
 
-  MidiPatcher::Log::setLevel(Options.Verbosity);
+  MidiPatcher::Log::registerLogger(logger);
 
   std::vector<MidiPatcher::AbstractPort::PortClassRegistryInfo*> pcriList;
 
@@ -446,7 +479,7 @@ void deinit(){
 
   portRegistry->unsubscribePortRegistryUpdateReveicer(notificationHandler);
 
-  // portRegistry->deinit();
+  portRegistry->deinit();
 
   delete portRegistry;
 }

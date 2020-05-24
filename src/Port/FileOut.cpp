@@ -1,7 +1,8 @@
 #include <Port/FileOut.hpp>
 #include <PortRegistry.hpp>
 
-#include <log.hpp>
+#include <Log.hpp>
+#include <Error.hpp>
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -15,7 +16,7 @@ namespace MidiPatcher {
 
         if (portName == FILE_STDOUT){
 
-          Log::print(1, "FileOut using STDOUT");
+          Log::info(getKey() + "  using STDOUT");
 
           FD = 1;
 
@@ -23,7 +24,7 @@ namespace MidiPatcher {
 
         } else if (portName == FILE_STDERR){
 
-          Log::print(1, "FileOut using STDERR");
+          Log::info(getKey() + " using STDERR");
 
           FD = 2;
 
@@ -31,36 +32,45 @@ namespace MidiPatcher {
 
         } else {
 
-          OpenThread = std::thread([this,portName](){
-            OpenThreadRunning = true;
+          // OpenThread = std::thread([this,portName](){
+          //   OpenThreadRunning = true;
 
             int flags = O_WRONLY | O_CREAT | O_APPEND | O_NONBLOCK;
 
-            Log::print(1, "FileOut opening " + portName);
+            Log::info(getKey() + " opening " + portName);
             this->FD = open(portName.c_str(), flags);
-            Log::print(1, "FileOut opened " + portName + " (FD = " + std::to_string(FD) + ")");
+            if (this->FD == -1){
+              throw Error(getKey(), " failed to open: " + std::to_string(errno));
+            }
+            Log::info(getKey() + "opened " + portName + " (FD = " + std::to_string(FD) + ")");
 
 
             this->setDeviceState(DeviceStateConnected);
 
-            OpenThreadRunning = false;
-          });
+          //   OpenThreadRunning = false;
+          // });
 
         }
 
     }
 
     FileOut::~FileOut(){
-      if (OpenThreadRunning){
-
-        Log::print(2, "FileIn[" + Name + "] OpenThread still running..");
-
-        // OpenThread.~thread();
-        OpenThread.join();
-
-      } else {
+      // if (OpenThreadRunning){
+      //
+      //   Log::debug(getKey() + "  OpenThread still running..");
+      //
+      //   // OpenThread.~thread();
+      //   OpenThread.join();
+      //
+      // } else {
         stop();
+      // }
+
+
+      if (FD > 2){
+        close(FD);
       }
+
     }
 
 

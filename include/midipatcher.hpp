@@ -1,4 +1,4 @@
-#include "midipatcher/log.hpp"
+#include "midipatcher/Log.hpp"
 
 #include "midipatcher/version.h"
 

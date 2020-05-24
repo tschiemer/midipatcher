@@ -1,32 +1,19 @@
-#include <log.hpp>
+#include <Log.hpp>
 
-#include <iostream>
+// #include <iostream>
 
 namespace MidiPatcher {
-  namespace Log {
 
-    static int Level = 0;
-    static std::ostream &Out = std::cerr;
+  std::vector<Log::Logger> Log::LoggerList;
 
-    int getLevel(){
-      return Level;
-    }
-
-    void setLevel( int level ){
-      Level = level;
-    }
-
-    void setOutstream( std::ostream &out ){
-      // Out = out;
-    }
-
-    void print( int level, std::string str ){
-      if (level >= Level){
-        return;
-      }
-
-      Out << str << std::endl;
-    }
-
+  void Log::registerLogger(Logger logger){
+    LoggerList.push_back(logger);
   }
+
+  void Log::log( Level_t level, std::string message ){
+    for(std::vector<Logger>::iterator it = LoggerList.begin(); it != LoggerList.end(); it++){
+      (*it)(level, message);
+    }
+  }
+
 }

@@ -4,7 +4,8 @@
 #include <Port/AbstractInputPort.hpp>
 #include <Port/AbstractOutputPort.hpp>
 
-#include <log.hpp>
+#include <Log.hpp>
+#include <Error.hpp>
 
 #include <cassert>
 #include <utility>
@@ -22,6 +23,8 @@ namespace MidiPatcher {
 
       for (int i = 0; i < pcriList.size(); i++){
          PortClassRegistryInfoMap[pcriList[i]->Key] = pcriList[i];
+
+         Log::debug("registering PortClass " + pcriList[i]->Key);
       }
   }
 
@@ -180,7 +183,7 @@ namespace MidiPatcher {
 
     // std::cout << "YES " << Ports.size() <<  std::endl;
 
-    Log::print(0, "registerPort( " + port->getKey() + " )");
+    Log::notice("registerPort( " + port->getKey() + " )");
 
     publishPortRegistered( port );
 
@@ -194,7 +197,7 @@ namespace MidiPatcher {
       return;
     }
 
-    Log::print(0, "unregisterPort( " + port->getKey() + " )");
+    Log::notice("unregisterPort( " + port->getKey() + " )");
 
     port->unsubscribePortUpdateReveicer( this );
 
@@ -240,7 +243,7 @@ namespace MidiPatcher {
     assert(input != NULL);
     assert(output != NULL);
 
-    Log::print(0, "connectPort( " + input->getKey() + ", " + output->getKey() + " )");
+    Log::notice("connectPort( " + input->getKey() + ", " + output->getKey() + " )");
 
     // std::cout << "Connecting [" << input->Name << "] -> [" << output->Name << "]" << std::endl;
 
@@ -261,7 +264,7 @@ namespace MidiPatcher {
     assert(input != NULL);
     assert(output != NULL);
 
-    Log::print(0, "disconnectPorts( " + input->getKey() + ", " + output->getKey() + " )");
+    Log::notice("disconnectPorts( " + input->getKey() + ", " + output->getKey() + " )");
 
     output->removeConnection(input);
     input->removeConnection(output);
@@ -296,6 +299,9 @@ namespace MidiPatcher {
   }
 
   void PortRegistry::disableAutoscan(){
+    if (AutoscanEnabled == false){
+      return;
+    }
     AutoscanEnabled = false;
     AutoscanThread.join();
   }
@@ -308,7 +314,7 @@ namespace MidiPatcher {
 
   void PortRegistry::deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
 
-    Log::print(0, "deviceStateChanged( " + port->getKey() + " " + std::to_string(newState) + " )");
+    Log::notice("deviceStateChanged( " + port->getKey() + " " + std::to_string(newState) + " )");
 
     publishDeviceStateChanged(port, newState);
   }

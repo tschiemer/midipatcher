@@ -48,8 +48,8 @@ namespace MidiPatcher {
 
       protected:
 
-        volatile bool OpenThreadRunning = false;
-        std::thread OpenThread;
+        // volatile bool OpenThreadRunning = false;
+        // std::thread OpenThread;
 
         int FD = -1;
 
@@ -60,7 +60,7 @@ namespace MidiPatcher {
         } ;
 
         volatile State_t State = StateStopped;
-        
+
         std::thread ReaderThread;
 
         void start();
