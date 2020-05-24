@@ -3,6 +3,7 @@
 
 #include "AbstractInputOutputPort.hpp"
 #include "AbstractStreamInputPort.hpp"
+#include "AbstractStreamOutputPort.hpp"
 #include "AbstractFileReader.hpp"
 
 #include <vector>
@@ -14,7 +15,7 @@ namespace MidiPatcher {
 
   namespace Port {
 
-    class RawExec : public virtual AbstractInputOutputPort, public virtual AbstractStreamInputPort, public virtual AbstractFileReader {
+    class RawExec : public virtual AbstractInputOutputPort, public virtual AbstractStreamInputPort, public virtual AbstractStreamOutputPort, public virtual AbstractFileReader {
 
       public:
 
@@ -64,7 +65,7 @@ namespace MidiPatcher {
         void start();
         void stop();
 
-        virtual void sendMessageImpl(unsigned char * message, size_t len);
+        void writeToStream(unsigned char * data, size_t len);
 
         virtual void readFromFile(unsigned char * buffer, size_t len );
     };

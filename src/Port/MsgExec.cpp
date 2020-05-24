@@ -82,11 +82,11 @@ namespace MidiPatcher {
 
     void MsgExec::writeStringMessage(unsigned char * stringMessage, size_t len){
       stringMessage[len++] = '\n';
-      stringMessage[len] = '\0';
+      // stringMessage[len] = '\0';
 
       // std::cerr << "writing: " << stringMessage << std::endl;
 
-      write(ToExecFDs[1], stringMessage, len);
+      writeToStream(stringMessage, len);
       // flush(ToExecFDs[1]);
     }
 

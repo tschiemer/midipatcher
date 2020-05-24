@@ -254,7 +254,7 @@ namespace MidiPatcher {
 
     }
 
-    void RawExec::sendMessageImpl(unsigned char * message, size_t len){
+    void RawExec::writeToStream(unsigned char * message, size_t len){
       write(ToExecFDs[1], message, len);
     }
 
