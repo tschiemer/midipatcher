@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <iostream>
+
 namespace MidiPatcher {
   namespace Port {
 
@@ -43,11 +45,12 @@ namespace MidiPatcher {
             // std::cout << "nothing to read" << std::endl;
           }
           else if (count > 0){
+            Log::debug("AbstractFileReader", "read " + std::to_string(count) );
             // std::cout << "RawExec[" << Name << "] read (" << count << ") ";
             // for(int i = 0; i < count; i++){
-            //   std::cout << std::hex << (int)buffer[i];
+            //   std::cerr << buffer[i];
             // }
-            // std::cout << std::endl;
+            // std::cerr << std::endl;
 
 
             readFromFile(buffer,count);

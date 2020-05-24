@@ -7,6 +7,9 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <string>
+#include <map>
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -16,24 +19,106 @@ namespace MidiPatcher {
   namespace Port {
 
     AbstractPort* RawExec::factory(PortDescriptor * portDescriptor){
-
       std::string baseDir = "";
       std::vector<std::string> argv;
 
-      std::for_each(portDescriptor->Options.begin(), portDescriptor->Options.end(), [&argv, &baseDir](std::pair<std::string, std::string> pair){
+      if (portDescriptor->Options.count("basedir") > 0){
+        baseDir = portDescriptor->Options["basedir"];
+      }
+      if (portDescriptor->Options.count("argv") > 0){
+        std::string argvStr = portDescriptor->Options["argv"];
+        std::cerr << argvStr << std::endl;
 
-        std::string arg = pair.first;
+        // std::exit(0);
+        while (argvStr.size() > 0) {
+            size_t pos = argvStr.find(" ");
 
-        if (arg == "basedir" && pair.second.size() > 0){
-            baseDir = pair.second;
-        } else {
-            if (pair.second.size() > 0){
-              arg += "=" + pair.second;
+            if (pos == 0){
+              argvStr.erase(0,1);
+              continue;
+            }
+
+            std::string arg;
+            if (pos == std::string::npos){
+              arg = argvStr;
+            } else {
+              arg = argvStr.substr(0,pos);
             }
             argv.push_back(arg);
-        }
 
-      });
+            // std::cerr << "#" << argv.size() << arg << std::endl;
+
+            argvStr.erase(0,arg.size()+1);
+
+        }
+      }
+//       std::string baseDir = "";
+//       std::vector<std::string> argv;
+//
+//       if (portDescriptor->Options.count("basedir") > 0){
+//         baseDir = portDescriptor->Options["basedir"];
+//       }
+//       if (portDescriptor->Options.count("argv") > 0){
+//         std::string argvStr = portDescriptor->Options["argv"];
+//         std::cerr << argvStr << std::endl;
+//
+//         std::exit(0);
+//         // while (argvStr.size() > 0) {
+//         //     size_t pos = argvStr.find(" ");
+//         //
+//         //     if (pos == 0){
+//         //       argvStr.erase(0,1);
+//         //       continue;
+//         //     }
+//         //
+//         //     std::string arg = argvStr.substr(0,pos);
+//         //     argv.push_back(arg);
+//         //
+//         //     std::cerr << "#" << argv.size() << arg << std::endl;
+//         //
+//         //     argvStr.erase(0,pos+1);
+//         //
+//         // }
+//       }
+//
+//
+//
+//       std::for_each(portDescriptor->Options.begin(), portDescriptor->Options.end(), [&argv, &baseDir](std::pair<std::string, std::string> pair){
+//
+// // std::cerr << "Option[" << pair.first << "] = " << pair.second << std::endl;
+//       //
+//       //   std::string arg = pair.first;
+//
+//         // if (arg == "basedir" && pair.second.size() > 0){
+//         //     baseDir = pair.second;
+//         // }
+//         //
+//         //   if (arg.substr(0,3) == "argv"){
+//         //     argv.push_back(arg);
+//         //   }
+//         //   else {
+//         //       if (pair.second.size() > 0){
+//         //         arg += "=" + pair.second;
+//         //       }
+//         //       argv.push_back(arg);
+//         //   }
+//
+//         // }
+//
+//         // else if (arg.substr(0,3) == "argv"){
+//         //   argv.push_back(pair.second);
+//         // }
+//         // else {
+//         //     if (pair.second.size() > 0){
+//         //       arg += "=" + pair.second;
+//         //     }
+//         //     argv.push_back(arg);
+//         // }
+// std::cerr << "Option[" << pair.first << "] = " << pair.second << std::endl;
+//       });
+//
+//       std::exit(0);
+
 
       return new RawExec( portDescriptor->Name, argv, baseDir );
     }
@@ -108,7 +193,21 @@ namespace MidiPatcher {
         dup2(ToExecFDs[0], STDIN_FILENO);
         dup2(FromExecFDs[1], STDOUT_FILENO);
 
-        char * argv[1] = {NULL};
+        char * argv[12];
+
+        int a = 0;
+
+        argv[a++] = (char*)Name.c_str();
+
+        for( int b = 0; b < Argv.size(); b++, a++){
+          argv[a] = (char*)Argv[b].c_str();
+        }
+        argv[a] = NULL;
+
+        // for (int b = 0; b < a; b++){
+        //   std::cerr << "arg[" << b << "] = [" << argv[b] << "]" << std::endl;
+        // }
+        // std::cerr << "arg[" << a << "] = [NULL]" << std::endl;
 
         int exec_result = execvp( execpath().c_str(), argv );
 

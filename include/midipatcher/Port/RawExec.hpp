@@ -64,9 +64,9 @@ namespace MidiPatcher {
         void start();
         void stop();
 
-        void sendMessageImpl(unsigned char * message, size_t len);
+        virtual void sendMessageImpl(unsigned char * message, size_t len);
 
-        void readFromFile(unsigned char * buffer, size_t len );
+        virtual void readFromFile(unsigned char * buffer, size_t len );
     };
 
   }

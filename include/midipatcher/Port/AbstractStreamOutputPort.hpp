@@ -26,7 +26,7 @@ namespace MidiPatcher {
 
     protected:
 
-      void sendMessageImpl(unsigned char * message, size_t len);
+      virtual void sendMessageImpl(unsigned char * message, size_t len);
   };
 
 }

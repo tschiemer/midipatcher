@@ -14,5 +14,6 @@
 #include "midipatcher/Port/UdpIn.hpp"
 #include "midipatcher/Port/UdpOut.hpp"
 #include "midipatcher/Port/RawExec.hpp"
+#include "midipatcher/Port/MsgExec.hpp"
 #include "midipatcher/Port/ControlPort.hpp"
 #include "midipatcher/Port/InjectorPort.hpp"
