@@ -1,39 +1,33 @@
 #include <Port/AbstractMessageInputPort.hpp>
 
-#include <midimessage.h>
+#include <Log.hpp>
+
 #include <midimessage/stringifier.h>
+
 
 namespace MidiPatcher {
   namespace Port {
 
     void AbstractMessageInputPort::readLine(unsigned char * line, size_t len){
 
-      uint8_t bytes[128];
-
-      assert( len < sizeof(bytes) );
-
-      std::memcpy(bytes, line, len);
-
-      uint8_t msgBuffer[128];
-      MidiMessage::Message_t msg = {
-        .Data = {
-          .SysEx = {
-            .ByteData = msgBuffer
-          }
-        }
-      };
-
-
-      if (MidiMessage::StringifierResultOk != MidiMessage::MessagefromString(&msg, len, bytes)){
+      if (len > InMsgBufferSize){
+        Log::warning(getKey(), "discarding! line " + std::to_string(len) + " exceeds buffer "+std::to_string(InMsgBufferSize));
         return;
       }
 
-      int midiLen = MidiMessage::pack( bytes, &msg );
+      // copy to owned buffer because MessageFromString alters the given memory
+      std::memcpy(InMsgTmpBuffer, line, len);
+
+      if (MidiMessage::StringifierResultOk != MidiMessage::MessagefromString(&InMsg, len, InMsgTmpBuffer)){
+        return;
+      }
+
+      int midiLen = MidiMessage::pack( InMsgTmpBuffer, &InMsg );
       if (midiLen <= 0){
         return;
       }
 
-      receivedMessage(bytes, midiLen);
+      receivedMessage(InMsgTmpBuffer, midiLen);
     }
 
   }

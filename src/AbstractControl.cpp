@@ -396,27 +396,6 @@ namespace MidiPatcher {
     respond(argv);
   }
 
-  // void AbstractControl::send(std::vector<std::string> &argv){
-  //   if (getDeviceState() == AbstractPort::DeviceStateNotConnected){
-  //     return;
-  //   }
-  //
-  //   unsigned char midi[128];
-  //
-  //   int len = MidiPatcher::Port::AbstractControl::packMessage( midi, argv );
-  //
-  //   assert( len > 0 );
-  //
-  //   // std::cout << "cp.send (" << len << ") ";
-  //   //
-  //   // for(int i = 0; i < len; i++){
-  //   //   std::cout << std::hex << (int)midi[i] << " ";
-  //   // }
-  //   // std::cout << std::endl;
-  //
-  //   receivedMessage( midi, len );
-  // }
-
   void AbstractControl::respond(const char * fmt, ...){
     assert( fmt != nullptr );
 

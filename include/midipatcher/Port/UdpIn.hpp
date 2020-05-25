@@ -42,6 +42,9 @@ namespace MidiPatcher {
         volatile bool Running = false;
         std::thread ReaderThread;
 
+        size_t InUdpBufferSize;
+        unsigned char * InUdpBuffer;
+
         void start();
         void stop();
 

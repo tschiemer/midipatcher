@@ -1,6 +1,7 @@
 #include <Port/AbstractMessageOutputPort.hpp>
 
-#include <midimessage.h>
+#include <Log.hpp>
+
 #include <midimessage/stringifier.h>
 
 namespace MidiPatcher {
@@ -8,21 +9,16 @@ namespace MidiPatcher {
 
     void AbstractMessageOutputPort::sendMessageImpl(unsigned char * message, size_t len){
 
-      uint8_t msgBuffer[128];
-      MidiMessage::Message_t msg = {
-        .Data = {
-          .SysEx = {
-            .ByteData = msgBuffer
-          }
-        }
-      };
-
-      if (MidiMessage::unpack(message, len, &msg) == false){
+      if (len > OutMsgBufferSize){
+        Log::warning(getKey(), "discarding! message " + std::to_string(len) + " already exceeds buffer "+std::to_string(OutMsgBufferSize));
         return;
       }
 
-      unsigned char outBuffer[128];
-      int outLen = MidiMessage::MessagetoString(outBuffer, &msg);
+      if (MidiMessage::unpack(message, len, &OutMsg) == false){
+        return;
+      }
+
+      int outLen = MidiMessage::MessagetoString(OutMsgTmpBuffer, &OutMsg);
 
       if (outLen <= 0){
         return;
@@ -30,7 +26,7 @@ namespace MidiPatcher {
 
       // outBuffer[outLen++] = '\n';
 
-      writeStringMessage(outBuffer, outLen);
+      writeStringMessage(OutMsgTmpBuffer, outLen);
     }
 
   }

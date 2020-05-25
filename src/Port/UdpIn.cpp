@@ -39,7 +39,8 @@ namespace MidiPatcher {
       {
 
       // try {
-
+      InUdpBufferSize = 128;
+      InUdpBuffer = (unsigned char *)malloc(InUdpBufferSize);
 
 
         if (multicastAddress == ""){
@@ -100,6 +101,7 @@ namespace MidiPatcher {
 
     UdpIn::~UdpIn(){
       Socket.close();
+      free(InUdpBuffer);
     }
 
     void UdpIn::registerPort(PortRegistry &portRegistry){
@@ -123,14 +125,13 @@ namespace MidiPatcher {
         while(this->getDeviceState() == DeviceStateConnected){
 
           // std::cout << "recv" << std::endl;
-          unsigned char buffer[128];
           size_t count = 0;
 
           asio::ip::udp::endpoint senderEndpoint;
-          count = Socket.receive_from(asio::buffer(buffer, sizeof(buffer)), senderEndpoint);
+          count = Socket.receive_from(asio::buffer(InUdpBuffer, InUdpBufferSize), senderEndpoint);
 
           if (count > 0){
-            readFromStream(buffer, count);
+            readFromStream(InUdpBuffer, count);
           }
 
           // std::this_thread::sleep_for(std::chrono::milliseconds(50));

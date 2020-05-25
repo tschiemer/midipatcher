@@ -15,8 +15,17 @@ namespace MidiPatcher {
 
       protected:
 
+          size_t FileReaderBufferSize;
+          unsigned char * FileReaderBuffer;
+
+          AbstractFileReader(size_t bufferSize = 128){
+            FileReaderBufferSize = bufferSize;
+            FileReaderBuffer = (unsigned char *)malloc(bufferSize);
+          }
+
           ~AbstractFileReader(){
             stopFileReader();
+            free(FileReaderBuffer);
           }
 
           enum FileReaderState_t {

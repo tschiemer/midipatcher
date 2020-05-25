@@ -34,10 +34,9 @@ namespace MidiPatcher {
         Log::debug("FileReader (fd = " + std::to_string(FileReaderFD) + ")", "started");
 
         while(FileReaderState == FileReaderStateStarted){
-          unsigned char buffer[128];
           size_t len = 0;
 
-          len = read(FileReaderFD, buffer, sizeof(buffer));
+          len = read(FileReaderFD, FileReaderBuffer, FileReaderBufferSize);
           if (len == -1){
             // std::cout << "ERROR" << std::endl;
           }
@@ -45,14 +44,14 @@ namespace MidiPatcher {
             // std::cout << "nothing to read" << std::endl;
           }
           else if (len > 0){
-            Log::debug("FileReader (fd = " + std::to_string(FileReaderFD) + ")", "read", buffer, len );
+            Log::debug("FileReader (fd = " + std::to_string(FileReaderFD) + ")", "read", FileReaderBuffer, len );
 
-            if (len == sizeof(buffer)){
-              Log::warning("FileReader (fd = " + std::to_string(FileReaderFD) + ")", "filled buffer " + std::to_string(len) + "" );
+            if (len == FileReaderBufferSize){
+              Log::warning("FileReader (fd = " + std::to_string(FileReaderFD) + ")", "filled buffer! " + std::to_string(len) );
             }
 
 
-            readFromFile(buffer,len);
+            readFromFile(FileReaderBuffer,len);
           }
 
           std::this_thread::sleep_for(std::chrono::milliseconds(50));
