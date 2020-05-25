@@ -11,6 +11,8 @@ Usage:
 	 midipatcher (-l|--ports)
 	 midipatcher (--pc|--port-classes)
 
+	 midipatcher [-u] ...
+
 	 midipatcher [--cp|--control-port] [--cp-in <control-in-port-descriptor>] [--cp-out <control-out-port-descriptor>] ...
 	 midipatcher [-f|patch-file <patch-file>] ...
 	 midipatcher ... [<in-port-descriptor1> <out-port-descriptor1> ... ]
@@ -24,6 +26,7 @@ Options:
 					 Set regular rescanning of ports with given interval in millisec (default 1000; 0 = off).
 	 -p|--ports 			 List known/detected ports (descriptors).
 	 --pc|--port-classes 		 List registered port classes.
+	 -u			Show Updates.
 
 	 -f|--patch-file <patch-file> 	 Use <patch-file> for patching configuration
 
@@ -80,23 +83,30 @@ Options:
 
 The <port-key> part of the descriptors acts as unique port identifier.
 
-Examples:
+Basic examples:
 
 midipatcher MidiIn:BCF2000 "MidiOut:Yamaha 01V96 Port1"
 midipatcher "MidiIn:from Max 1" VirtMidiOut:p1 MidiIn:p1 VirtMidiOut:p2 MidiIn:p2 "MidiOut:to Max 1"
 midipatcher "MidiIn:from Max 1" VirtMidiOut:ComboPort "MidiIn:from Max 2" VirtMidiOut:ComboPort
 midipatcher MidiIn:BCF2000 UdpOut:10.0.0.4:3000 UdpIn:3001 MidiOut:BCF2000
 midipatcher UdpIn:3000 "VirtMidiOut:From other computer" "VirtMidiIn:To other computer" UdpOut:10.0.0.2:3001
-midimessage -g | midipatcher FileIn:STDIN RawExec:examples/RawExec/inc-channel RawExec:examples/RawExec/inc-channel FileOut:STDOUT | midimessage -p
+
+(Remote) Control examples:
 midipatcher --cp
 midipatcher -r ping
+midipatcher -r
+
+More, fancy examples:
+midimessage -g | midipatcher FileIn:STDIN RawExec:examples/RawExec/inc-channel RawExec:examples/RawExec/inc-channel FileOut:STDOUT | midimessage -p
+midimessage -g | midipatcher FileIn:STDIN MsgExec:/bin/cat MsgExec:/bin/cat FileOut:STDOUT | midimessage -p
+midimessage -g | midipatcher FileIn:STDIN MsgExec:my-inc,exec=examples/MsgExec/inc-cc-channel.sh MsgExec:my-inc FileOut:STDOUT | midimessage -p
 
 Thanks to:
 
 RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi
 Asio (Networking) C++ Library, https://think-async.com/Asio
 
-midipatcher v0.1.0-19-g1906333, MIT license, https://github.com/tschiemer/midipatcher
+midipatcher v0.1.0-35-gb3e79e7, MIT license, https://github.com/tschiemer/midipatcher
 ```
 
 ## Roadmap / Todos
@@ -110,7 +120,6 @@ midipatcher v0.1.0-19-g1906333, MIT license, https://github.com/tschiemer/midipa
 	- Using Max/MSP and PureData matrices in combination with control port
 - Integrate [rtpmidid](https://github.com/davidmoreno/rtpmidid) as possible transport for linux based systems.
 - Add serial port (using asio)
-- Add more intuitive Exec-type port using [midimessage](https://github.com/tschiemer/midimessage) string format instead of raw byte format (for simplified extensions/filters)
 - Consider Tcp based stream port
 - Add case insensitivity of portclasses (for creation descriptors)
 - Get/set port-specific options after creation (where sensible)
