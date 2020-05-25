@@ -159,7 +159,7 @@ namespace MidiPatcher {
         return;
       }
 
-      Log::debug(midiIn->getKey(), "received " + std::to_string(message->size()));
+      Log::debug(midiIn->getKey(), "received", &message->at(0), message->size());
 
       // if (message->size() != 7){
       //

@@ -1,8 +1,10 @@
 #ifndef CONTROL_PORT_H
 #define CONTROL_PORT_H
 
+#include "../PortRegistry.hpp"
+#include "../AbstractControl.hpp"
 #include "AbstractInputOutputPort.hpp"
-#include "PortRegistry.hpp"
+
 
 #include <cassert>
 #include <vector>
@@ -14,7 +16,7 @@ namespace MidiPatcher {
 
   namespace Port {
 
-    class ControlPort : public virtual AbstractInputOutputPort, public virtual PortRegistry::PortRegistryUpdateReceiver {
+    class ControlPort : public virtual AbstractControl, public virtual AbstractInputOutputPort {
 
       public:
 
@@ -32,15 +34,11 @@ namespace MidiPatcher {
           return new PortDescriptor(PortClass, Name);
         }
 
-        ControlPort(PortRegistry * portRegistry);
+        ControlPort(PortRegistry * portRegistry, std::string portName = "Default");
 
-        void sendMessage(unsigned char * message, size_t len);
+        // void sendMessage(unsigned char * message, size_t len);
 
       protected:
-
-        PortRegistry * PortRegistryRef;
-
-        bool OptReturnIds = false;
 
         void sendMessageImpl(unsigned char * message, size_t len);
 
@@ -63,25 +61,27 @@ namespace MidiPatcher {
 
       protected:
 
-        AbstractPort * getPortByIdOrKey( std::string &idOrKey );
+        void respond(std::vector<std::string> &argv);
 
-        void handleCommand(std::vector<std::string> &argv);
-
-        void send(std::vector<std::string> &argv);
-        void send(const char * fmt, ...);
-
-        void ok();
-
-        void error(std::string msg = "");
-
-      public:
-
-        // void deviceDiscovered(AbstractPort * port);
-        void deviceStateChanged(AbstractPort * port, DeviceState_t newState);
-        void portRegistered( AbstractPort * port );
-        void portUnregistered( AbstractPort * port );
-        void portsConnected( AbstractPort * inport, AbstractPort * outport );
-        void portsDisconnected( AbstractPort * inport, AbstractPort * outport );
+      //   AbstractPort * getPortByIdOrKey( std::string &idOrKey );
+      //
+      //   void handleCommand(std::vector<std::string> &argv);
+      //
+      //   void send(std::vector<std::string> &argv);
+      //   void send(const char * fmt, ...);
+      //
+      //   void ok();
+      //
+      //   void error(std::string msg = "");
+      //
+      // public:
+      //
+      //   // void deviceDiscovered(AbstractPort * port);
+      //   void deviceStateChanged(AbstractPort * port, DeviceState_t newState);
+      //   void portRegistered( AbstractPort * port );
+      //   void portUnregistered( AbstractPort * port );
+      //   void portsConnected( AbstractPort * inport, AbstractPort * outport );
+      //   void portsDisconnected( AbstractPort * inport, AbstractPort * outport );
     };
 
   }

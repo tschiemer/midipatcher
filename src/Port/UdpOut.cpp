@@ -88,8 +88,6 @@ namespace MidiPatcher {
     }
 
     void UdpOut::writeToStream(unsigned char * data, size_t len){
-
-// std::cout << "writeToUdp " << len << std::endl;
       Socket.send_to(asio::buffer(data, len), Endpoint);
     }
 

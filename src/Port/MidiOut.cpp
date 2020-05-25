@@ -178,7 +178,7 @@ namespace MidiPatcher {
         return;
       }
 
-      Log::debug(getKey(), "sending " + std::to_string(len));
+      Log::debug(getKey(), "sending", message, len);
 
       MidiPort->sendMessage(message, len);
     }

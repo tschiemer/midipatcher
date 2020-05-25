@@ -2,6 +2,7 @@
 
 #include <PortRegistry.hpp>
 #include <Log.hpp>
+#include <Error.hpp>
 
 namespace MidiPatcher {
   namespace Port {
@@ -14,9 +15,13 @@ namespace MidiPatcher {
 
         MidiPort->openVirtualPort( Name );
 
-      } catch ( RtMidiError &error ) {
+        if (MidiPort->isPortOpen() == false){
+          new Error("foo");
+        }
 
-        Log::error(error);
+      } catch ( std::exception &e ) {
+
+        Log::error(e);
 
         throw;
       }
@@ -43,13 +48,9 @@ namespace MidiPatcher {
         Log::error(getKey(), "not started, but trying to send!");
         return;
       }
-      if (MidiPort->isPortOpen() == false){
-        Log::error(getKey(), "not open, but trying to send!");
-        return;
-      }
 
-      Log::debug(getKey(), "sending " + std::to_string(len));
-      
+      Log::debug(getKey(), "sending", message, len);
+
       MidiPort->sendMessage(message, len);
     }
 

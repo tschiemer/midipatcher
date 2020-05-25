@@ -49,6 +49,8 @@ namespace MidiPatcher {
         return;
       }
 
+      Log::debug(midiIn->getKey(), "received", &message->at(0), message->size());
+
       midiIn->receivedMessage(&message->at(0), message->size());
     }
 

@@ -218,7 +218,7 @@ void logger(MidiPatcher::Log::Level_t level, std::string message, unsigned char 
     if (len > 0){
       assert( bytes != nullptr );
 
-      std::cerr << ", data (" << len << ") ";
+      std::cerr << ", data (" << std::dec << len << ") ";
       for(size_t i = 0; i < len; i++){
         std::cerr << std::setfill('0') << std::setw(2) << std::hex << (int)bytes[i] << ' ';
       }
