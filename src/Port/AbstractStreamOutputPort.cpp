@@ -1,6 +1,7 @@
 #include <Port/AbstractStreamOutputPort.hpp>
 
 #include <midimessage.h>
+#include <Log.hpp>
 
 namespace MidiPatcher {
 
@@ -21,11 +22,16 @@ namespace MidiPatcher {
 
   void AbstractStreamOutputPort::sendMessageImpl(unsigned char * message, size_t len){
 
-    // std::cout << "sendMessage (" << len << ")" << std::endl;
 
     if (RunningStatusEnabled && MidiMessage::updateRunningStatus( &RunningStatusState, message[0] )){
+
+        Log::debug(getKey(), "writing to stream", &message[1], len-1);
+
         writeToStream( &message[1], len-1);
     } else {
+
+        Log::debug(getKey(), "writing to stream", message, len);
+
         writeToStream(message, len);
     }
   }

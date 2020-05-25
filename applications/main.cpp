@@ -107,7 +107,7 @@ NotificationHandler * notificationHandler;
 void SignalHandler(int signal);
 void setupSignalHandler( void );
 
-void logger(MidiPatcher::Log::Level_t level, std::string message);
+void logger(MidiPatcher::Log::Level_t level, std::string message, unsigned char * bytes = nullptr, size_t len = 0);
 
 void printVersion( void );
 void printHelp( void );
@@ -171,37 +171,60 @@ void setupSignalHandler(){
   std::signal(SIGINT, SignalHandler);
 }
 
-void logger(MidiPatcher::Log::Level_t level, std::string message){
+void logger(MidiPatcher::Log::Level_t level, std::string message, unsigned char * bytes, size_t len){
+
+  bool printed = false;
+
   switch(level){
     case MidiPatcher::Log::NOTICE:
       if (Options.Verbosity >= 1){
-        std::cerr << "NOTICE " << message << std::endl;
+        std::cerr << "NOTICE " << message;
+        printed = true;
       }
       break;
 
     case MidiPatcher::Log::INFO:
       if (Options.Verbosity >= 2){
-        std::cerr << "INFO " << message << std::endl;
+        std::cerr << "INFO " << message;
+        printed = true;
       }
       break;
 
     case MidiPatcher::Log::DEBUG:
       if (Options.Verbosity >= 3){
-        std::cerr << "DEBUG " << message << std::endl;
+        std::cerr << "DEBUG " << message;
+        printed = true;
       }
       break;
 
     case MidiPatcher::Log::WARNING:
-      std::cerr << "WARNING " << message << std::endl;
+      std::cerr << "WARNING " << message;
+      printed = true;
       break;
 
     case MidiPatcher::Log::ERROR:
-      std::cerr << "ERROR " << message << std::endl;
+      std::cerr << "ERROR " << message;
+      printed = true;
       break;
 
     default:
-      std::cerr << "LOG (" << std::to_string(level) << ") " << message << std::endl;
+      std::cerr << "LOG (" << std::to_string(level) << ") " << message;
+      printed = true;
+      break;
+  }
 
+  if (printed){
+
+    if (len > 0){
+      assert( bytes != nullptr );
+
+      std::cerr << ", data (" << len << ") ";
+      for(size_t i = 0; i < len; i++){
+        std::cerr << std::setfill('0') << std::setw(2) << std::hex << (int)bytes[i] << ' ';
+      }
+    }
+
+    std::cerr << std::endl;
   }
 }
 

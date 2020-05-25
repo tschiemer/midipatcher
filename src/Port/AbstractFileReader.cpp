@@ -19,9 +19,9 @@ namespace MidiPatcher {
       }
       FileReaderState = FileReaderStateWillStart;
 
-      Log::debug("AbstractFileReader", "starting");
-
       FileReaderFD = fd;
+
+      Log::debug("AbstractFileReader (fd = " + std::to_string(FileReaderFD) + ")", "starting");
 
       // set non-blocking
       int flags = fcntl(FileReaderFD, F_GETFL, 0);
@@ -31,7 +31,7 @@ namespace MidiPatcher {
 
         FileReaderState = FileReaderStateStarted;
 
-        Log::debug("AbstractFileReader", "started");
+        Log::debug("AbstractFileReader (fd = " + std::to_string(FileReaderFD) + ")", "started");
 
         while(FileReaderState == FileReaderStateStarted){
           unsigned char buffer[128];
@@ -45,7 +45,7 @@ namespace MidiPatcher {
             // std::cout << "nothing to read" << std::endl;
           }
           else if (count > 0){
-            Log::debug("AbstractFileReader", "read " + std::to_string(count) );
+            Log::debug("AbstractFileReader (fd = " + std::to_string(FileReaderFD) + ")", "read", buffer, count );
             // std::cout << "RawExec[" << Name << "] read (" << count << ") ";
             // for(int i = 0; i < count; i++){
             //   std::cerr << buffer[i];
@@ -69,13 +69,13 @@ namespace MidiPatcher {
 
       FileReaderState = FileReaderStateWillStop;
 
-      Log::debug("AbstractFileReader", "stopping");
+      Log::debug("AbstractFileReader (fd = " + std::to_string(FileReaderFD) + ")", "stopping");
 
       FileReaderThread.join();
 
       FileReaderState = FileReaderStateStopped;
 
-      Log::debug("AbstractFileReader", "stopped");
+      Log::debug("AbstractFileReader (fd = " + std::to_string(FileReaderFD) + ")", "stopped");
     }
 
   }

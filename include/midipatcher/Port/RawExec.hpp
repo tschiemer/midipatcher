@@ -1,13 +1,9 @@
 #ifndef PORT_RAW_EXEC_H
 #define PORT_RAW_EXEC_H
 
-#include "AbstractInputOutputPort.hpp"
+#include "AbstractExecPort.hpp"
 #include "AbstractStreamInputPort.hpp"
 #include "AbstractStreamOutputPort.hpp"
-#include "AbstractFileReader.hpp"
-
-#include <vector>
-#include <thread>
 
 namespace MidiPatcher {
 
@@ -15,7 +11,7 @@ namespace MidiPatcher {
 
   namespace Port {
 
-    class RawExec : public virtual AbstractInputOutputPort, public virtual AbstractStreamInputPort, public virtual AbstractStreamOutputPort, public virtual AbstractFileReader {
+    class RawExec : public virtual AbstractExecPort, public virtual AbstractStreamInputPort, public virtual AbstractStreamOutputPort {
 
       public:
 
@@ -35,39 +31,17 @@ namespace MidiPatcher {
           return new PortDescriptor(PortClass, Name);
         }
 
-        RawExec(std::string portName, std::vector<std::string> argv, std::string baseDir = "");
+        RawExec(std::string portName, std::string execpath, std::string argvStr = "");
         ~RawExec();
 
         void registerPort(PortRegistry &portRegistry);
 
       protected:
 
-        std::string BaseDir;
-        std::vector<std::string> Argv;
-
-        std::string execpath(){
-          if (BaseDir.size() == 0){
-            return Name;
-          }
-          return BaseDir + Name;
-        }
-
-        int PID;
-        int ToExecFDs[2];
-        int FromExecFDs[2];
-
-        enum State_t{
-          StateStopped, StateWillStart, StateStarted, StateWillStop
-        } ;
-
-        volatile State_t State = StateStopped;
-
-        void start();
-        void stop();
 
         void writeToStream(unsigned char * data, size_t len);
 
-        virtual void readFromFile(unsigned char * buffer, size_t len );
+        void readFromExec(unsigned char * buffer, size_t len );
     };
 
   }

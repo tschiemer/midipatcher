@@ -1,5 +1,7 @@
 #include <Port/MsgExec.hpp>
 
+#include <PortRegistry.hpp>
+
 #include <unistd.h>
 
 namespace MidiPatcher {
@@ -8,76 +10,35 @@ namespace MidiPatcher {
 
     AbstractPort* MsgExec::factory(PortDescriptor * portDescriptor){
 
+      std::string execpath;
+      std::string argvStr = "";
 
-      std::string baseDir = "";
-      std::vector<std::string> argv;
-
-      if (portDescriptor->Options.count("basedir") > 0){
-        baseDir = portDescriptor->Options["basedir"];
+      // has exec been specifically specified?
+      if (portDescriptor->Options.count("exec") > 0){
+        execpath = portDescriptor->Options["exec"];
+      } else {
+        // otherwise assume the name is the execpath
+        execpath = portDescriptor->Name;
       }
+
       if (portDescriptor->Options.count("argv") > 0){
-        std::string argvStr = portDescriptor->Options["argv"];
-        std::cerr << argvStr << std::endl;
-
-        // std::exit(0);
-        while (argvStr.size() > 0) {
-            size_t pos = argvStr.find(" ");
-
-            if (pos == 0){
-              argvStr.erase(0,1);
-              continue;
-            }
-
-            std::string arg;
-            if (pos == std::string::npos){
-              arg = argvStr;
-            } else {
-              arg = argvStr.substr(0,pos);
-            }
-            argv.push_back(arg);
-
-            // std::cerr << "#" << argv.size() << arg << std::endl;
-
-            argvStr.erase(0,arg.size()+1);
-
-        }
+        argvStr = portDescriptor->Options["argv"];
       }
 
-// std::exit(0);
 
-      // std::string baseDir = "";
-      // std::vector<std::string> argv;
-      //
-      // std::for_each(portDescriptor->Options.begin(), portDescriptor->Options.end(), [&argv, &baseDir](std::pair<std::string, std::string> pair){
-      //
-      //   std::string arg = pair.first;
-      //
-      //   if (arg == "basedir" && pair.second.size() > 0){
-      //       baseDir = pair.second;
-      //   } else {
-      //       if (pair.second.size() > 0){
-      //         arg += "=" + pair.second;
-      //       }
-      //       argv.push_back(arg);
-      //   }
-      //
-      // });
-
-      return new MsgExec( portDescriptor->Name, argv, baseDir );
+      return new MsgExec( portDescriptor->Name, execpath, argvStr );
     }
 
-
-    MsgExec::MsgExec(std::string name, std::vector<std::string> argv, std::string baseDir) : AbstractInputOutputPort(name), RawExec(name, argv, baseDir) {
-
-      // do nothing special
+    MsgExec::MsgExec(std::string portName, std::string execpath, std::string argvStr) : AbstractInputOutputPort(portName), AbstractExecPort(execpath, argvStr) {
+      setDeviceState( DeviceStateConnected );
     }
 
     MsgExec::~MsgExec(){
       // stop();
     }
 
-    void MsgExec::sendMessageImpl(unsigned char * message, size_t len){
-      AbstractMessageOutputPort::sendMessageImpl(message, len);
+    void MsgExec::registerPort(PortRegistry &portRegistry){
+      portRegistry.registerPort(this);
     }
 
     void MsgExec::writeStringMessage(unsigned char * stringMessage, size_t len){
@@ -86,13 +47,13 @@ namespace MidiPatcher {
 
       // std::cerr << "writing: " << stringMessage << std::endl;
 
-      writeToStream(stringMessage, len);
-      // flush(ToExecFDs[1]);
+      writeToExec(stringMessage, len);
     }
 
-    // void MsgExec::readFromFile(unsigned char * buffer, size_t len ){
-    //   readFromStream(buffer, len);
-    // }
+    void MsgExec::readFromExec(unsigned char * buffer, size_t len ){
+      // readFromStream(buffer, len);
+      readLine(buffer, len);
+    }
 
   }
 }

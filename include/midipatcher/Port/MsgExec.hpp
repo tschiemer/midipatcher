@@ -1,13 +1,15 @@
 #ifndef MSG_EXEC_H
 #define MSG_EXEC_H
 
-#include "RawExec.hpp"
+// #include "RawExec.hpp"
+#include "AbstractExecPort.hpp"
+#include "AbstractMessageInputPort.hpp"
 #include "AbstractMessageOutputPort.hpp"
 
 namespace MidiPatcher {
   namespace Port {
 
-    class MsgExec : public virtual RawExec, public virtual AbstractMessageOutputPort {
+    class MsgExec : public virtual AbstractExecPort, public virtual AbstractMessageInputPort, public virtual AbstractMessageOutputPort {
 
         using AbstractMessageOutputPort::sendMessageImpl;
 
@@ -29,17 +31,17 @@ namespace MidiPatcher {
             return new PortDescriptor(PortClass, Name);
           }
 
-          MsgExec(std::string portName, std::vector<std::string> argv, std::string baseDir = "");
+          MsgExec(std::string portName, std::string execpath, std::string argvStr = "");
+
           ~MsgExec();
 
-          // void registerPort(PortRegistry &portRegistry);
+          void registerPort(PortRegistry &portRegistry);
 
         protected:
 
-          void sendMessageImpl(unsigned char * message, size_t len);
           void writeStringMessage(unsigned char * stringMessage, size_t len);
 
-          // void readFromFile(unsigned char * buffer, size_t len );
+          void readFromExec(unsigned char * buffer, size_t len );
     };
 
   }

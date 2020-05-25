@@ -21,7 +21,7 @@ namespace MidiPatcher {
         ERROR
       };
 
-    typedef void (*Logger)(Level_t level, std::string message);
+    typedef void (*Logger)(Level_t level, std::string message, unsigned char * bytes, size_t len);
 
     protected:
 
@@ -31,50 +31,50 @@ namespace MidiPatcher {
 
       static void registerLogger(Logger logger);
 
-      static void log( Level_t level, std::string message );
+      static void log( Level_t level, std::string message, unsigned char * bytes = nullptr, size_t len = 0 );
 
-      static inline void notice( std::string message ){
-        log(NOTICE, message);
+      static inline void notice( std::string message, unsigned char * bytes = nullptr, size_t len = 0  ){
+        log(NOTICE, message, bytes, len);
       }
 
-      static inline void notice( std::string context, std::string message ){
-        log(NOTICE, context + " " + message);
+      static inline void notice( std::string context, std::string message, unsigned char * bytes = nullptr, size_t len = 0  ){
+        log(NOTICE, context + " " + message, bytes, len);
       }
 
-      static inline void info( std::string message ){
-        log(INFO, message);
+      static inline void info( std::string message, unsigned char * bytes = nullptr, size_t len = 0  ){
+        log(INFO, message, bytes, len);
       }
 
-      static inline void info( std::string context, std::string message ){
-        log(NOTICE, context + " " + message);
+      static inline void info( std::string context, std::string message, unsigned char * bytes = nullptr, size_t len = 0  ){
+        log(NOTICE, context + " " + message, bytes, len);
       }
 
-      static inline void debug( std::string message ){
-        log(DEBUG, message);
+      static inline void debug( std::string message, unsigned char * bytes = nullptr, size_t len = 0  ){
+        log(DEBUG, message, bytes, len);
       }
 
-      static inline void debug( std::string context, std::string message ){
-        log(DEBUG, context + " " + message);
+      static inline void debug( std::string context, std::string message, unsigned char * bytes = nullptr, size_t len = 0 ){
+        log(DEBUG, context + " " + message, bytes, len);
       }
 
-      static inline void warning( std::string message ){
-        log(WARNING, message);
+      static inline void warning( std::string message, unsigned char * bytes = nullptr, size_t len = 0  ){
+        log(WARNING, message, bytes, len);
       }
 
-      static inline void warning( std::string context, std::string message ){
-        log(WARNING, context + " " + message);
+      static inline void warning( std::string context, std::string message, unsigned char * bytes = nullptr, size_t len = 0  ){
+        log(WARNING, context + " " + message, bytes, len);
       }
 
       static inline void warning( std::exception &e ){
         log(WARNING, e.what());
       }
 
-      static inline void error( std::string message ){
-        log(ERROR, message);
+      static inline void error( std::string message, unsigned char * bytes = nullptr, size_t len = 0  ){
+        log(ERROR, message, bytes, len);
       }
 
-      static inline void error( std::string context, std::string message ){
-        log(ERROR, context + " " + message);
+      static inline void error( std::string context, std::string message, unsigned char * bytes = nullptr, size_t len = 0  ){
+        log(ERROR, context + " " + message, bytes, len);
       }
 
       static inline void error( std::exception &e ){

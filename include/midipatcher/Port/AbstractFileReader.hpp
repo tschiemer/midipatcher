@@ -1,6 +1,8 @@
 #ifndef ABSTRACT_FILE_READER_H
 #define ABSTRACT_FILE_READER_H
 
+#include "AbstractPort.hpp"
+
 #include <thread>
 
 namespace MidiPatcher {
