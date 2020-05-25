@@ -1,50 +1,43 @@
 #include <Port/AbstractStreamInputPort.hpp>
 
+#include <Log.hpp>
+
 #include <cstdlib>
 #include <cassert>
 
 namespace MidiPatcher {
 
-  AbstractStreamInputPort::AbstractStreamInputPort(bool runningStatusEnabled, int bufferSize){
+  AbstractStreamInputPort::AbstractStreamInputPort(bool runningStatusEnabled, size_t  bufferSize){
 
     assert( 3 <= bufferSize );
 
+    ParserBufferSize = bufferSize;
     ParserBuffer = (uint8_t*)malloc(bufferSize);
-    MsgBuffer = (uint8_t*)malloc(bufferSize);
 
-    MidiMessageMem.Data.SysEx.ByteData = MsgBuffer;
-
-    parser_init(&Parser, runningStatusEnabled, ParserBuffer, bufferSize, &MidiMessageMem, midiMessageHandler, midiMessageDiscardHandler, this);
+    simpleparser_init(&Parser, runningStatusEnabled, ParserBuffer, bufferSize, midiMessageHandler, midiMessageDiscardHandler, this);
   }
 
   AbstractStreamInputPort::~AbstractStreamInputPort(){
-    // std::cout << "~AbstractStreamInputPort" << std::endl;
     free(ParserBuffer);
-    free(MsgBuffer);
   }
 
   void AbstractStreamInputPort::readFromStream(uint8_t * data, size_t len){
-    // std::cout << "readFromStream " << len << std::endl;
-    parser_receivedData(&Parser, data, len);
+    simpleparser_receivedData(&Parser, data, len);
   }
 
-  void AbstractStreamInputPort::midiMessageHandler(MidiMessage::Message_t * message, void * context){
+  void AbstractStreamInputPort::midiMessageHandler(uint8_t * data, uint8_t len, void * context){
     assert(context != NULL);
 
     AbstractStreamInputPort * self = (AbstractStreamInputPort*)context;
 
-    unsigned char bytes[128];
-    size_t len = pack( (uint8_t*)bytes, message );
-
-    self->receivedMessage(bytes, len);
+    self->receivedMessage(data, len);
   }
 
   void AbstractStreamInputPort::midiMessageDiscardHandler(uint8_t *bytes, uint8_t length, void *context){
-    // std::cout << "Discarding ";
-    // for(int i = 0; i < length; i++){
-    //   std::cout << std::hex << (int)bytes[i] << " ";
-    // }
-    // std::cout << std::endl;
+
+    AbstractStreamInputPort * self = (AbstractStreamInputPort*)context;
+
+    Log::notice(self->getKey(), "discarding", bytes, length);
   }
 
 }

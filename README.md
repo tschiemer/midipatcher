@@ -113,8 +113,7 @@ midipatcher v0.1.0-35-gb3e79e7, MIT license, https://github.com/tschiemer/midipa
 
 - Test, bugfix and complete current source base
 	- Introduce consistent error/exception system
-	- Introduce a simple parser / validator for stream based inputs (using midimessage library is too complex)
-		- Use bigger buffer size than merely 128 bytes.. (problem only for long sysex (and control port))
+	- Use bigger buffer size than merely 128 bytes.. (problem only for long sysex (and control port))
 	- Check concurrent model...
 - Add examples
 	- Using Max/MSP and PureData matrices in combination with control port

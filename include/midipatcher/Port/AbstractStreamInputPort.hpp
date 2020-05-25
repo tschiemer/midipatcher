@@ -3,7 +3,7 @@
 
 #include "AbstractInputPort.hpp"
 
-#include <midimessage/parser.h>
+#include <midimessage/simpleparser.h>
 
 namespace MidiPatcher {
 
@@ -11,17 +11,16 @@ namespace MidiPatcher {
 
     protected:
 
-        AbstractStreamInputPort(bool runningStatusEnabled = true, int bufferSize = 128);
+        AbstractStreamInputPort(bool runningStatusEnabled = true, size_t  bufferSize = 128);
         ~AbstractStreamInputPort();
 
+        size_t ParserBufferSize;
         uint8_t * ParserBuffer;
-        uint8_t * MsgBuffer;
-        MidiMessage::Parser_t Parser;
-        MidiMessage::Message_t MidiMessageMem;
+        MidiMessage::SimpleParser_t Parser;
 
         void readFromStream(unsigned char * data, size_t len);
 
-        static void midiMessageHandler(MidiMessage::Message_t * message, void * context);
+        static void midiMessageHandler(uint8_t * data, uint8_t len, void * context);
         static void midiMessageDiscardHandler(uint8_t *bytes, uint8_t length, void *context);
 
       public:
