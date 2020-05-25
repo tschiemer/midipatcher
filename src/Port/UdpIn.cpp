@@ -32,14 +32,14 @@ namespace MidiPatcher {
       return new UdpIn(portDescriptor->Name, listenAddress, port, multicastAddress, runningStatusEnabled);
     }
 
-    UdpIn::UdpIn(std::string portName, std::string listenAddress, short port, std::string multicastAddress, bool runningStatusEnabled)
+    UdpIn::UdpIn(std::string portName, std::string listenAddress, short port, std::string multicastAddress, bool runningStatusEnabled, size_t bufferSize)
       :  AbstractInputPort(portName),
         AbstractStreamInputPort(runningStatusEnabled),
         Socket(IOContext)
       {
 
       // try {
-      InUdpBufferSize = 128;
+      InUdpBufferSize = bufferSize;
       InUdpBuffer = (unsigned char *)malloc(InUdpBufferSize);
 
 

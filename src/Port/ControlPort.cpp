@@ -16,14 +16,18 @@ namespace MidiPatcher {
 
     static const constexpr unsigned char MessageTail[] = {0xF7};
 
+    static const constexpr size_t MaxLen = 128 - (sizeof(MessageHeader) + 2 + sizeof(MessageTail));
+
     ControlPort::ControlPort(PortRegistry * portRegistry, std::string portName) : AbstractControl(portRegistry), AbstractInputOutputPort(portName){
       setDeviceState(DeviceStateConnected);
     }
 
-    uint8_t ControlPort::packMidiMessage(unsigned char * midi, unsigned char * data, uint8_t dataLen){
+    uint8_t ControlPort::packMidiMessage(unsigned char * midi, unsigned char * data, uint8_t dataLen, uint8_t remainingMessages){
       assert( midi != nullptr );
       assert( data != nullptr );
       assert( dataLen <= 0x7F );
+      assert( dataLen <= sizeof(MessageHeader) + sizeof(MessageTail) + 2);
+      assert( remainingMessages <= 0x7F );
 
       uint8_t len = 0;
 
@@ -32,6 +36,7 @@ namespace MidiPatcher {
       len += sizeof(MessageHeader);
 
       midi[len++] = dataLen;
+      midi[len++] = remainingMessages;
 
       for(int i = 0; i < dataLen; i++){
         midi[len++] = (data[i] >> 4) & 0x0F;
@@ -44,23 +49,24 @@ namespace MidiPatcher {
       return len;
     }
 
-    uint8_t ControlPort::unpackMidiMessage(unsigned char * data, unsigned char * midi, uint8_t midiLen){
+    uint8_t ControlPort::unpackMidiMessage(unsigned char * data, unsigned char * midi, uint8_t midiLen, uint8_t &remainingMessages){
       assert( midi != nullptr );
       assert( data != nullptr );
 
       // std::cout << (int)midiLen << " " << sizeof(MessageHeader) << " " << sizeof(MessageTail) << std::endl;
 
       // basic validation
-      if (midiLen < (sizeof(MessageHeader) + sizeof(MessageTail))){
+      if (midiLen < (sizeof(MessageHeader) + 2 + sizeof(MessageTail))){
         // std::cerr << "l0 "  << std::endl;
         return 0;
       }
 
-      uint8_t len = midi[sizeof(MessageHeader)];
+      uint8_t dataLen = midi[sizeof(MessageHeader)];
+      remainingMessages = midi[sizeof(MessageHeader)+1];
 
       // std::cout << (int)len << std::endl;
-
-      if (midiLen != sizeof(MessageHeader) + 1 + 2*len + sizeof(MessageTail) ){
+      // header dataLen(1) remainingMessages(1) data(2*dataLen) tail
+      if (midiLen != sizeof(MessageHeader) + 2 + 2*dataLen + sizeof(MessageTail) ){
         // std::cerr << "l1" << std::endl;
         return 0;
       }
@@ -74,7 +80,7 @@ namespace MidiPatcher {
         return 0;
       }
 
-      for(int d = 0, m = sizeof(MessageHeader) + 1; d < len; d++){
+      for(int d = 0, m = sizeof(MessageHeader) + 2; d < len; d++){
         data[d] = midi[m++] << 4;
         data[d] |= midi[m++] & 0x0F;
         // std::cout << std::hex << (int)data[d] << " ";
@@ -84,75 +90,109 @@ namespace MidiPatcher {
       return len;
     }
 
-    uint8_t ControlPort::packArguments(unsigned char * data, std::vector<std::string> &argv){
-        assert(data != nullptr);
+    void ControlPort::packArguments(std::vector<uint8_t> &data, std::vector<std::string> &argv){
 
-        int len = 0;
+      assert( argv.size() <= 0x7F ); // too many arguments (128??)
 
-        data[len++] = argv.size();
+      int len = 0;
 
-        for(std::vector<std::string>::iterator it = argv.begin(); it != argv.end(); it++){
-          std::memcpy( &data[len], it->c_str(), it->size() );
-          len += it->size();
-          data[len++] = '\0';
-        }
+      data[len++] = argv.size();
 
-        return len;
+      for(std::vector<std::string>::iterator it = argv.begin(); it != argv.end(); it++){
+        data += *it + '\0';
+      }
     }
 
-    void ControlPort::unpackArguments(std::vector<std::string> &argv, unsigned char * data, uint8_t dataLen){
-      assert(data != nullptr);
+    void ControlPort::unpackArguments(std::vector<std::string> &argv, std::vector<uint8_t> &data){
 
       int pos = 0;
 
       int argc = data[pos++];
 
-      for(int i = 0, l = 0; i < argc; i++){
-        char tmp[128];
+      for(int i = 0; i < argc && pos < data.size(); i++, pos++){
 
-        // std::cout << "a(" << i << ") ";
-        for(l = 0; data[pos] != '\0'; l++, pos++){
-          tmp[l] = data[pos];
-          // std::cout << tmp[l] << " ";
+        std::string arg = "";
+
+        for(; data[pos] != '\0' && pos < data.size(); pos++){
+          arg += data[pos];
         }
-        // std::cout << "(len = " << l << ")" << std::endl;
 
-        tmp[l] = '\0';
-        pos++;
-
-        // std::cout << tmp << std::endl;
-
-
-
-        argv.push_back(std::string(tmp));
+        argv.push_back(arg);
       }
     }
 
-    uint8_t ControlPort::packMessage(unsigned char * midi, std::vector<std::string> &argv){
-        assert( midi != nullptr );
+    // uint8_t ControlPort::packMessage(unsigned char * midi, std::vector<std::string> &argv){
+    //     assert( midi != nullptr );
+    //
+    //     unsigned char tmp[128];
+    //
+    //     int len = packArguments( tmp, argv );
+    //
+    //     // std::cout << "data(" << len << ") ";
+    //     // for(int i = 0; i < len; i++){
+    //     //   std::cout << std::hex << (int)tmp[i] << " ";
+    //     // }
+    //     // std::cout << std::endl;
+    //
+    //     return packMidiMessage( midi, tmp, len );
+    // }
+    //
+    // void ControlPort::unpackMessage(std::vector<std::string> &argv, unsigned char * midi, uint8_t midiLen){
+    //     assert( midi != nullptr );
+    //
+    //     unsigned char tmp[128];
+    //
+    //     int len = unpackMidiMessage(tmp, midi, midiLen);
+    //
+    //     unpackArguments(argv, tmp, len);
+    // }
 
-        unsigned char tmp[128];
 
-        int len = packArguments( tmp, argv );
+    void ControlPort::packMessageParts(std::vector<std::string> &parts, std::vector<std::string> &argv){
 
-        // std::cout << "data(" << len << ") ";
-        // for(int i = 0; i < len; i++){
-        //   std::cout << std::hex << (int)tmp[i] << " ";
-        // }
-        // std::cout << std::endl;
+      std::string data;
 
-        return packMidiMessage( midi, tmp, len );
+      packArguments( data, argv );
+
+      while (data.size() > 0){
+        if (data.size() > MaxLen){
+          parts.push_back( data.substr(0, MaxLen) );
+          data.erase(0, MaxLen);
+        } else {
+          parts.push_back(data);
+          data.clear();
+        }
+      }
+
     }
 
-    void ControlPort::unpackMessage(std::vector<std::string> &argv, unsigned char * midi, uint8_t midiLen){
-        assert( midi != nullptr );
+    void ControlPort::unpackMessageParts(std::vector<std::string> &parts, std::vector<std::string> &argv){
 
-        unsigned char tmp[128];
+      std::string data;
 
-        int len = unpackMidiMessage(tmp, midi, midiLen);
-
-        unpackArguments(argv, tmp, len);
+      for(std::vector<std::string>::iterator it = parts.begin(); it != parts.end(); it++){
+        data += *it;
+      }
     }
+    //
+    // uint8_t ControlPort::requiredMessages(std::vector<std::string> &argv){
+    //
+    //   // all arguments are null-terminated
+    //   size_t len = argv.size();
+    //
+    //   for(std::vector<std::string>::iterator it = argv.begin(); it != argv.end(); it++){
+    //     len += it->size();
+    //   }
+    //
+    //   // length change according to transfer format (nibblization!)
+    //   len *= 2;
+    //
+    //   return len / MaxLen;
+    // }
+    //
+    // uint8_t ControlPort::requiredMessage(std::string &packedArgv){
+    //     return packedArgv.size() / MaxLen;
+    // }
 
     void ControlPort::sendMessageImpl(unsigned char * message, size_t len){
     //
@@ -168,11 +208,30 @@ namespace MidiPatcher {
       // std::cout << std::endl;
 
       uint8_t data[128];
-      int dataLen = unpackMidiMessage(data, message, len);
 
-      if (dataLen == 0){
+      if (len > 128){
+        Log::warning(getKey(), "received msg too big", data, len );
         return;
       }
+
+      uint8_t remainingMessages = 0;
+      int dataLen = unpackMidiMessage(data, message, len, &remainingMessages);
+
+      if (dataLen == 0){
+        InBundle.clear();
+        return;
+      }
+
+      std::string msg = "";
+
+      for(int i = 0; i < dataLen; i++){
+        msg[i] = data[i];
+      }
+
+      if (remainingMessages > 0){
+        InBundle
+      }
+
 
       // std::cout << "received control port message (" << dataLen << ") " << std::endl;
 
