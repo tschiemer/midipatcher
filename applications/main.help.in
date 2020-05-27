@@ -97,4 +97,5 @@ Thanks to:
 
 RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi
 Asio (Networking) C++ Library, https://think-async.com/Asio
+midimessage: midimessage library, https://github.com/tschiemer/midimessage
 )====="

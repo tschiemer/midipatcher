@@ -105,8 +105,9 @@ Thanks to:
 
 RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi
 Asio (Networking) C++ Library, https://think-async.com/Asio
+midimessage: midimessage library, https://github.com/tschiemer/midimessage
 
-midipatcher v0.1.0-35-gb3e79e7, MIT license, https://github.com/tschiemer/midipatcher
+midipatcher v0.1.0-43-g2a24644, MIT license, https://github.com/tschiemer/midipatcher
 ```
 
 ## Roadmap / Todos
