@@ -99,7 +99,7 @@ namespace MidiPatcher {
       };
 
       virtual bool operator==(const AbstractPort& rhs){
-        std::cout << "cmp " << Id << " ?== " << rhs.Id << std::endl;
+        // std::cout << "cmp " << Id << " ?== " << rhs.Id << std::endl;
         return Id == rhs.Id;
       }
 

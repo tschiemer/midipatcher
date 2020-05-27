@@ -436,26 +436,10 @@ void remoteControl(int argc, char * argv[]){
   // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   if (argc > 0){
-    std::vector<std::string> command;
 
-    for(int i = 0; i < argc; i++){
-      command.push_back(argv[i]);
-    }
+    MidiPatcher::Port::ControlPort::Message message(argc, argv);
 
-    unsigned char midi[128];
-
-    int len = MidiPatcher::Port::ControlPort::packMessage( midi, command );
-
-    // std::cout << "remote (" << len << ") ";
-
-    // for(int i = 0; i < len; i++){
-    //   std::cout << std::hex << (int)midi[i] << " ";
-    // }
-    // std::cout << std::endl;
-
-    assert( len > 0 );
-
-    ip->send( midi, len );
+    message.sendFrom(ip);
   }
 
   setupSignalHandler();
@@ -469,21 +453,18 @@ void remoteControl(int argc, char * argv[]){
 void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
   // std::cout << "Received (" << len << ")" << std::endl;
 
-  std::vector<std::string> response;
+  static MidiPatcher::Port::ControlPort::Message message;
 
-  MidiPatcher::Port::ControlPort::unpackMessage(response, data, len);
+  message.receivedPart(data, len);
 
-  if (response.size() == 0){
+  if (message.complete() == false){
     return;
   }
 
-  for(int i = 0; i < response.size(); i++){
-    std::cout << response[i] << " ";
-  }
-  std::cout << std::endl;
+  std::cout << message.toString() << std::endl;
 
   if (Options.RemoteControl.StayConnected == false){
-    if (response[0] == "OK" || response[0] == "ERROR"){
+    if (message.getArgv()[0] == "OK" || message.getArgv()[0] == "ERROR"){
       Running = false;
     }
   }

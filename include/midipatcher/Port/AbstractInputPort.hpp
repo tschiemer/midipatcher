@@ -17,6 +17,8 @@ namespace MidiPatcher {
         // std::cout << "~AbstractInputPort" << std::endl;
       }
 
+    public:
+
       virtual void receivedMessage(unsigned char * message, size_t len );
 
   };

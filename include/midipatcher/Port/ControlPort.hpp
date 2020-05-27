@@ -11,38 +11,17 @@
 
 namespace MidiPatcher {
 
-  // class PortRegistry;
-  // class PortRegistry::PortRegistryUpdateReceiver;
-
   namespace Port {
 
     class ControlPort : public virtual AbstractControl, public virtual AbstractInputOutputPort {
 
       public:
 
-        static const constexpr char * PortClass = "ControlPort";
-
-        std::string getPortClass(){
-          return PortClass;
-        }
-
-        // std::string getKey(){
-        //   return PortClass;
-        // }
-
-        PortDescriptor * getPortDescriptor(){
-          return new PortDescriptor(PortClass, Name);
-        }
-
-        ControlPort(PortRegistry * portRegistry, std::string portName = "Default");
-
-        // void sendMessage(unsigned char * message, size_t len);
-
         class Message {
 
           protected:
 
-            uint8_t Missing;
+            uint8_t Missing = 1;
 
             std::vector<uint8_t> Data;
 
@@ -50,86 +29,32 @@ namespace MidiPatcher {
 
           public:
 
-            Message(){
+            Message(){}
 
+            Message(int argc, char * argv[]){
+              Argv.insert(Argv.end(), argv, &argv[argc]);
             }
 
-            Message& fromArgv(std::vector<std::string> &argv){
-              Message * msg = new Message();
-              msg->Argv = argv;
-              return *msg;
+            Message(std::vector<std::string> &argv){
+              Argv = argv;
             }
 
-            std::string toString(){
-              if (Argv.size() == 0){
-                return "\n";
-              }
-              std::string result = Argv[0];
-              for(int i = 1; i < Argv.size(); i++ ){
-                result += ' ' + Argv[i];
-              }
-              return result;
+            uint8_t getMissing(){
+              return Missing;
             }
 
-            void sendTo(AbstractInputPort * port){
-
-              if (Argv.size() == 0){
-                assert(false); // for now
-                return;
-              }
-
-              Data.clear();
-
-              packArguments(Data, Argv);
-
-              uint8_t requiredMessages = 0;
-
-              for(; requiredMessages > 0; requiredMessages--){
-
-                uint8_t * data = &Data[0];
-
-                uint8_t dataLen;
-                if (Data.size() > 123){
-                  dataLen = 123;
-                } else {
-                  dataLen = Data.size();
-                }
-
-                uint8_t midi[128];
-                uint8_t midiLen = packMidiMessage(midi, data, dataLen, requiredMessages - 1);
-
-                port->receivedMessage(midi, midiLen);
-
-                Data.erase(0,dataLen);
-              }
-
+            std::vector<uint8_t> & getData(){
+              return Data;
             }
 
-            bool receivedPart(unsigned char * midi, uint8_t midiLen){
+            std::vector<std::string> & getArgv(){
+              return Argv;
+            }
 
-              if (midiLen > 128){
-                assert(false); // for now...
-              }
+            std::string toString();
 
-              uint8_t remainingMessages = 0;
-              unsigned char data[128];
-              int dataLen = unpackMidiMessage(data, midi,  midiLen,  &remainingMessages);
-
-              if (empty() == false && Missing != remainingMessages + 1){
-                clear();
-              }
-
-              Missing = remainingMessages;
-
-              Data.push_back( data, &data[dataLen] );
-
-              if (Missing > 0){
-                return false;
-              }
-
-              unpackArguments(Argv, Data);
-
-              return true;
+            bool complete(){
+              return !Data.empty() && Missing == 0;
             }
 
             bool empty(){
@@ -139,39 +64,61 @@ namespace MidiPatcher {
             void clear(){
               Data.clear();
               Argv.clear();
+              Missing = 1;
             }
+
+            bool receivedPart(unsigned char * midi, uint8_t midiLen);
+
+          protected:
+
+            void transmit(AbstractPort * port, void (*tx)(AbstractPort * port, unsigned char * message, size_t len));
+
+          public:
+
+            inline void sendFrom(AbstractInputPort * port){
+              assert( port != nullptr );
+
+              transmit(port, [](AbstractPort * port, unsigned char * message, size_t len){
+                dynamic_cast<AbstractInputPort*>(port)->receivedMessage(message, len);
+              });
+            }
+
+            inline void sendTo(AbstractOutputPort * port){
+              assert( port != nullptr );
+
+              transmit(port, [](AbstractPort * port, unsigned char * message, size_t len){
+                dynamic_cast<AbstractOutputPort*>(port)->sendMessage(message, len);
+              });
+            }
+
+            static uint8_t packMidiMessage(unsigned char * midi, unsigned char * data, uint8_t dataLen, uint8_t remainingMessages = 0);
+            static uint8_t unpackMidiMessage(unsigned char * data, unsigned char * midi, uint8_t midiLen, uint8_t &remainingMessages);
+
+            static void packArguments(std::vector<uint8_t> &data, std::vector<std::string> &argv);
+            static void unpackArguments(std::vector<std::string> &argv, std::vector<uint8_t> &data);
 
           };
 
 
+      public:
 
+        static const constexpr char * PortClass = "ControlPort";
 
-        public:
+        std::string getPortClass(){
+          return PortClass;
+        }
 
-          // header (sysex experimental and marker bytes)
-          // static const constexpr unsigned char MessageHeader[] = {0xF0, 0x7D, 0x01, 0x03, 0x03, 0x07};
+        PortDescriptor * getPortDescriptor(){
+          return new PortDescriptor(PortClass, Name);
+        }
 
-          // tail (end of sysex)
-          // static const constexpr char * MessageTail = "\xF7";
+        ControlPort(PortRegistry * portRegistry, std::string portName = "Default");
 
-          static uint8_t packMidiMessage(unsigned char * midi, unsigned char * data, uint8_t dataLen, uint8_t remainingMessages = 0);
-          static uint8_t unpackMidiMessage(unsigned char * data, unsigned char * midi, uint8_t midiLen, uint8_t &remainingMessages);
-
-          static void packArguments(std::vector<uint8_t> &data, std::vector<std::string> &argv);
-          static void unpackArguments(std::vector<std::string> &argv, std::vector<uint8_t> &data);
-
-          // static uint8_t packMessage(unsigned char * midi, std::vector<std::string> &argv);
-          // static void unpackMessage(std::vector<std::string> &argv, unsigned char * midi, uint8_t midiLen);
-
-          static void packMessageParts(std::vector<std::string> &parts, std::vector<std::string> &argv);
-          static void unpackMessageParts(std::vector<std::string> &argv, std::vector<std::string> &parts);
-
-          // static uint8_t requiredMessages(std::vector<std::string> &argv);
-          // static uint8_t requiredMessage(std::string &packedArgv);
+        // void sendMessage(unsigned char * message, size_t len);
 
       protected:
 
-        std::vector<std::string> InBundle;
+        Message InMessage;
 
         void sendMessageImpl(unsigned char * message, size_t len);
 
@@ -179,26 +126,6 @@ namespace MidiPatcher {
 
         void respond(std::vector<std::string> &argv);
 
-
-      //   AbstractPort * getPortByIdOrKey( std::string &idOrKey );
-      //
-      //   void handleCommand(std::vector<std::string> &argv);
-      //
-      //   void send(std::vector<std::string> &argv);
-      //   void send(const char * fmt, ...);
-      //
-      //   void ok();
-      //
-      //   void error(std::string msg = "");
-      //
-      // public:
-      //
-      //   // void deviceDiscovered(AbstractPort * port);
-      //   void deviceStateChanged(AbstractPort * port, DeviceState_t newState);
-      //   void portRegistered( AbstractPort * port );
-      //   void portUnregistered( AbstractPort * port );
-      //   void portsConnected( AbstractPort * inport, AbstractPort * outport );
-      //   void portsDisconnected( AbstractPort * inport, AbstractPort * outport );
     };
 
   }
