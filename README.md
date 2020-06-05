@@ -13,10 +13,9 @@ Usage:
 
 	 midipatcher [-u] ...
 
-	 midipatcher [--cp|--control-port] [--cp-in <control-in-port-descriptor>] [--cp-out <control-out-port-descriptor>] ...
-	 midipatcher [-f|patch-file <patch-file>] ...
-	 midipatcher ... [<in-port-descriptor1> <out-port-descriptor1> ... ]
+	 midipatcher [-i|--interactive] [-f|patch-file <patch-file>] [<in-port-descriptor1> <out-port-descriptor1> ... ]
 
+	 midipatcher [--cp|--control-port] [--cp-in <control-in-port-descriptor>] [--cp-out <control-out-port-descriptor>] [-f|patch-file <patch-file>] [<in-port-descriptor1> <out-port-descriptor1> ... ]
 	 midipatcher (-r|--remote) [--remote-in <remote-control-in-port-descriptor>] [--remote-out <remote-control-out-port-descriptor>] <remote-command...>
 
 Options:
@@ -30,15 +29,8 @@ Options:
 
 	 -f|--patch-file <patch-file> 	 Use <patch-file> for patching configuration
 
-	 --cp|--control-port
-	 --cp-in|--control-in-port <control-in-port-descriptor>
-	 --cp-out|--control-out-port <control-out-port-descriptor>
-					 Use control port with default options: "--cp-in VirtMidiIn:MidiPatcher-Control --cp-out VirtMidiOut:MidiPatcher-Control".
-
-	 -r|--remote ... <remote-command>
-	 --remote-in <remote-control-in-port-descriptor>
-	 --remote-out <remote-control-out-port-descriptor>
-					 Act as remote control with default port options "--remote-in MidiOut:MidiPatcher-Control --remote-out MidiIn:MidiPatcher-Control".
+	 -i|--interactive
+					 Control from CLI
 
 					 Commands:
 
@@ -65,6 +57,17 @@ Options:
 					 		Connect two (registered) ports
 					 disconnect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)
 					 		Disconnect two ports
+
+	 --cp|--control-port
+	 --cp-in|--control-in-port <control-in-port-descriptor>
+	 --cp-out|--control-out-port <control-out-port-descriptor>
+					 Use control port with default options: "--cp-in VirtMidiIn:MidiPatcher-Control --cp-out VirtMidiOut:MidiPatcher-Control".
+
+	 -r|--remote ... <remote-command>
+	 --remote-in <remote-control-in-port-descriptor>
+	 --remote-out <remote-control-out-port-descriptor>
+					 Act as remote control with default port options "--remote-in MidiOut:MidiPatcher-Control --remote-out MidiIn:MidiPatcher-Control".
+					 Same commands as -i|--interactive
 
 
 	 <in-/out-/control-port-descriptor> := <port-key>[<options>]
@@ -107,7 +110,7 @@ RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi
 Asio (Networking) C++ Library, https://think-async.com/Asio
 midimessage: midimessage library, https://github.com/tschiemer/midimessage
 
-midipatcher v0.1.0-43-g2a24644, MIT license, https://github.com/tschiemer/midipatcher
+midipatcher v0.1.0-45-g53ba627, MIT license, https://github.com/tschiemer/midipatcher
 ```
 
 ## Roadmap / Todos
