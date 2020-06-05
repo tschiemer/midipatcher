@@ -14,6 +14,8 @@ namespace MidiPatcher {
       std::istream &In;
       std::ostream &Out;
 
+      void printHelp();
+
     public:
 
      InteractiveControl(PortRegistry * portRegistry);

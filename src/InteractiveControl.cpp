@@ -31,12 +31,18 @@ namespace MidiPatcher {
   InteractiveControl::InteractiveControl(PortRegistry * portRegistry, std::istream &in, std::ostream &out) : AbstractControl(portRegistry), In(in), Out(out) {
   }
 
+  void InteractiveControl::printHelp(){
+    Out <<
+    #include "InteractiveControl.help.in"
+    << std::endl;
+  }
+
   bool InteractiveControl::runloop(){
 
     static bool once = true;
 
     if (once){
-      Out << "Ahoi landlubber!" << std::endl;
+      Out << "Started" << std::endl;
       once = false;
     }
 
@@ -50,9 +56,6 @@ namespace MidiPatcher {
 
     std::getline(In,line);
 
-    // if (getline_async(In,line) == false){
-    //   return;
-    // }
 
     trim(line);
 
@@ -77,9 +80,15 @@ namespace MidiPatcher {
       }
     }
 
-    if (argv.size() == 1 && (argv[0] == "bye" || argv[0] == "quit" || argv[0] == "exit" || argv[0] == "x")){
-      Out << "Good bye!" << std::endl;
-      return false;
+    if (argv.size() == 1){
+      if (argv[0] == "help" || argv[0] == "?" || argv[0] == "h"){
+        printHelp();
+        return true;
+      }
+      if (argv[0] == "bye" || argv[0] == "quit" || argv[0] == "exit" || argv[0] == "x"){
+        Out << "Good bye!" << std::endl;
+        return false;
+      }
     }
 
 

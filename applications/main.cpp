@@ -162,6 +162,9 @@ void SignalHandler(int signal)
   if (Running){
     // Attempt to gracefully stop process.
     Running = false;
+
+    // needed for interactiveControl
+    fclose(stdin);
     // std::cerr << "Press CTRL-C again to quit." << std::endl;
     return;
   }
