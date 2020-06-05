@@ -10,14 +10,16 @@
 
 /***************************/
 
-MidiPatcher::PortRegistry * portRegistry = NULL;
-// int sigintTicks = 0;
+MidiPatcher::PortRegistry * portRegistry = nullptr;
+MidiPatcher::InteractiveControl * interactiveControl = nullptr;
+
 volatile bool Running = false;
 
 struct {
     int Verbosity;
     bool ShowUpdates;
     int AutoscanInterval;
+    bool InteractiveControl;
     struct {
       bool Using;
       std::string Path;
@@ -37,6 +39,7 @@ struct {
   .Verbosity = 0,
   .ShowUpdates = false,
   .AutoscanInterval = 1000,
+  .InteractiveControl = false,
   .PatchFile = {
     .Using = false,
     .Path = ""
@@ -124,6 +127,7 @@ void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::Inj
 
 void init();
 void deinit();
+void runloop();
 
 /***************************/
 
@@ -446,7 +450,7 @@ void remoteControl(int argc, char * argv[]){
 
   Running = true;
   while(Running){
-    // wait
+    runloop();
   }
 }
 
@@ -494,11 +498,17 @@ void init(){
 
 void deinit(){
 
+  if (interactiveControl != nullptr){
+    delete interactiveControl;
+  }
+
   portRegistry->unsubscribePortRegistryUpdateReveicer(notificationHandler);
 
   portRegistry->deinit();
 
   delete portRegistry;
+
+
 }
 
 void runloop(){
@@ -542,10 +552,12 @@ int main(int argc, char * argv[], char * env[]){
           {"remote-in", required_argument, 0, 5},
           {"remote-out", required_argument, 0, 6},
 
+          {"interactive", no_argument, 0, 'i'},
+
           {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "vh?dua:pf:r",
+        c = getopt_long(argc, argv, "vh?dua:pf:ri",
                         long_options, &option_index);
         if (c == -1)
             break;
@@ -619,6 +631,10 @@ int main(int argc, char * argv[], char * env[]){
                 Options.PatchFile.Path = optarg;
                 break;
 
+            case 'i':
+                Options.InteractiveControl = true;
+                break;
+
             default:
                 printf("?? getopt returned character code %o ??\n", c);
         }
@@ -642,6 +658,10 @@ int main(int argc, char * argv[], char * env[]){
       remoteControl(argC, argV);
 
       return EXIT_SUCCESS;
+    }
+
+    if (Options.InteractiveControl){
+      interactiveControl = new MidiPatcher::InteractiveControl(portRegistry);
     }
 
 
@@ -669,8 +689,8 @@ int main(int argc, char * argv[], char * env[]){
     }
 
     // no ports were actually set up and control port was not enabled -> no reason to actually run.
-    if (portCount == 0 && Options.ControlPort.Enabled == false){
-      std::cerr << "ERROR neither have any ports been configured nor are you using a control port to dynamically change the setup" << std::endl;
+    if (portCount == 0 && Options.ControlPort.Enabled == false && Options.InteractiveControl == false){
+      std::cerr << "ERROR neither have any ports been configured nor are you using a control port or interactive control to dynamically change the setup" << std::endl;
       return EXIT_FAILURE;
     }
 
@@ -686,6 +706,12 @@ int main(int argc, char * argv[], char * env[]){
     Running = true;
     while(Running){
       runloop();
+
+      if (Options.InteractiveControl){
+          if (interactiveControl->runloop() == false){
+            Running = false;
+          }
+      }
     }
 
     return EXIT_SUCCESS;

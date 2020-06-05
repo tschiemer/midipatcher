@@ -33,12 +33,11 @@ namespace MidiPatcher {
 
     public:
 
-      // void deviceDiscovered(AbstractPort * port);
-      void deviceStateChanged( MidiPatcher::AbstractPort * port, MidiPatcher::AbstractPort::DeviceState_t newState);
-      void portRegistered( MidiPatcher::AbstractPort * port );
-      void portUnregistered( MidiPatcher::AbstractPort * port );
-      void portsConnected( MidiPatcher::AbstractPort * inport, MidiPatcher::AbstractPort * outport );
-      void portsDisconnected( MidiPatcher::AbstractPort * inport, MidiPatcher::AbstractPort * outport );
+      virtual void deviceStateChanged( MidiPatcher::AbstractPort * port, MidiPatcher::AbstractPort::DeviceState_t newState);
+      virtual void portRegistered( MidiPatcher::AbstractPort * port );
+      virtual void portUnregistered( MidiPatcher::AbstractPort * port );
+      virtual void portsConnected( MidiPatcher::AbstractPort * inport, MidiPatcher::AbstractPort * outport );
+      virtual void portsDisconnected( MidiPatcher::AbstractPort * inport, MidiPatcher::AbstractPort * outport );
 
   };
 

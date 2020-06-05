@@ -17,3 +17,5 @@
 #include "midipatcher/Port/MsgExec.hpp"
 #include "midipatcher/Port/ControlPort.hpp"
 #include "midipatcher/Port/InjectorPort.hpp"
+
+#include "midipatcher/InteractiveControl.hpp"

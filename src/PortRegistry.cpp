@@ -122,6 +122,8 @@ namespace MidiPatcher {
 
   void PortRegistry::rescan(){
 
+    Log::info("PortRegistry", "rescan start");
+
     for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); ++it)
     {
       // std::cout << "Scanning " << it->first << std::endl;
@@ -138,6 +140,8 @@ namespace MidiPatcher {
         delete list;
       }
     }
+
+    Log::info("PortRegistry", "rescan end");
 
   }
 
