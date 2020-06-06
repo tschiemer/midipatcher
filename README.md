@@ -11,11 +11,12 @@ https://github.com/tschiemer/midipatcher
 
 ## Roadmap / Todos
 
+- Introduce alternate argument parsing and port name requirements: no spaces (use sort of urlencode: automatically replace with dashes)
+- Control command to save/load current setup
 - Test, bugfix and complete current source base
 	- Introduce consistent error/exception system
 - Add examples
 	- Using Max/MSP and PureData matrices in combination with TCP control port
-- Introduce alternate argument parsing and port name requirements: no spaces (use sort of urlencode: automatically replace with dashes)
 - Integrate RTPMIDI
 - Add serial port (using asio) - at the moment no test system.
 - Add case insensitivity of portclasses (for creation descriptors) (?)
