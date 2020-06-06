@@ -37,6 +37,8 @@ namespace MidiPatcher {
       static void session(asio::ip::tcp::socket socket);
 
       void respond(std::vector<std::string> &argv);
+
+      void publishNotification(std::vector<std::string> &argv);
   };
 
 }

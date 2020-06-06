@@ -59,7 +59,23 @@ namespace MidiPatcher {
         return ok();
       }
 
+      if (argv[1] == "notifications"){
+        if (argv.size() == 3){
+          OptNotificationsEnabled = std::stoi(argv[2]);
+        }
+        respond("ssi", "option", "notifications", OptNotificationsEnabled ? 1 : 0);
+
+        return ok();
+      }
+
       return error("Unknown option: " + argv[1]);
+    }
+
+    if (argv[0] == "scan"){
+      if (argv.size() != 1){
+        return error("Expected: scan");
+      }
+      PortRegistryRef->rescan();
     }
 
     if (argv[0] == "portclasses"){
@@ -420,6 +436,14 @@ namespace MidiPatcher {
 
     va_end(args);
 
+    if (argv[0][0] == '+'){
+      publishNotification(argv);
+    } else {
+      respond(argv);
+    }
+  }
+
+  void AbstractControl::publishNotification(std::vector<std::string> &argv){
     respond(argv);
   }
 
@@ -431,40 +455,40 @@ namespace MidiPatcher {
   // }
 
   void AbstractControl::deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
-    // int connected = newState == AbstractPort::DeviceStateConnected ? 1 : 0;
-    // if (OptReturnIds){
-    //   respond("sii", "+devstate", port->getId(), connected);
-    // } else {
-    //   respond("ssi", "+devstate", port->getKey().c_str(), connected);
-    // }
+    int connected = newState == AbstractPort::DeviceStateConnected ? 1 : 0;
+    if (OptReturnIds){
+      respond("sii", "+devstate", port->getId(), connected);
+    } else {
+      respond("ssi", "+devstate", port->getKey().c_str(), connected);
+    }
   }
 
 
   void AbstractControl::portRegistered( AbstractPort * port ){
-    // PortDescriptor * desc = port->getPortDescriptor();
-    // respond("sis", "+ports", port->getId(), desc->toString().c_str());
-    // delete desc;
+    PortDescriptor * desc = port->getPortDescriptor();
+    respond("sis", "+ports", port->getId(), desc->toString().c_str());
+    delete desc;
   }
 
   void AbstractControl::portUnregistered( AbstractPort * port ){
-    // PortDescriptor * desc = port->getPortDescriptor();
-    // respond("sis", "-ports", port->getId(), desc->toString().c_str());
-    // delete desc;
+    PortDescriptor * desc = port->getPortDescriptor();
+    respond("sis", "-ports", port->getId(), desc->toString().c_str());
+    delete desc;
   }
 
   void AbstractControl::portsConnected( AbstractPort * inport, AbstractPort * outport ){
-    // if (OptReturnIds){
-    //   respond("siii","+constate",inport->getId(), outport->getId(), 1);
-    // } else {
-    //   respond("sssi","+constate",inport->getKey().c_str(), outport->getKey().c_str(), 1);
-    // }
+    if (OptReturnIds){
+      respond("siii","+constate",inport->getId(), outport->getId(), 1);
+    } else {
+      respond("sssi","+constate",inport->getKey().c_str(), outport->getKey().c_str(), 1);
+    }
   }
 
   void AbstractControl::portsDisconnected( AbstractPort * inport, AbstractPort * outport ){
-    // if (OptReturnIds){
-    //   respond("siii","+constate",inport->getId(), outport->getId(), 0);
-    // } else {
-    //   respond("sssi","+constate",inport->getKey().c_str(), outport->getKey().c_str(), 0);
-    // }
+    if (OptReturnIds){
+      respond("siii","+constate",inport->getId(), outport->getId(), 0);
+    } else {
+      respond("sssi","+constate",inport->getKey().c_str(), outport->getKey().c_str(), 0);
+    }
   }
 }

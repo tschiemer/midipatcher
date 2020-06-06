@@ -17,6 +17,7 @@ namespace MidiPatcher {
       PortRegistry * PortRegistryRef;
 
       bool OptReturnIds = false;
+      bool OptNotificationsEnabled = false;
 
 
       MidiPatcher::AbstractPort * getPortByIdOrKey( std::string &idOrKey );
@@ -24,6 +25,7 @@ namespace MidiPatcher {
       void handleCommand(std::vector<std::string> &argv);
 
       virtual void respond(std::vector<std::string> &argv) = 0;
+      virtual void publishNotification(std::vector<std::string> &argv);
 
       void respond(const char * fmt, ...);
 

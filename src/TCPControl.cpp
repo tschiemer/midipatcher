@@ -58,7 +58,8 @@ namespace MidiPatcher {
     assert( Singleton != nullptr );
 
     asio::ip::tcp::acceptor a(Singleton->IOContext, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), Singleton->Port));
-    for (;;){
+
+    while(Singleton->TerminationRequested == false){
       std::thread(session, a.accept()).detach();
     }
   }
@@ -232,6 +233,8 @@ namespace MidiPatcher {
 
   void TCPControl::respond(std::vector<std::string> &argv){
 
+    assert( socketOfCurrentCommand != nullptr );
+
     if (argv.size() == 0){
       return;
     }
@@ -251,9 +254,36 @@ namespace MidiPatcher {
 
     data[length++] = '\n';
 
-    asio::ip::tcp::socket &socket = *(asio::ip::tcp::socket *)socketOfCurrentCommand;
-    asio::write(socket, asio::buffer(data, length));
 
+    asio::ip::tcp::socket &socket = *(asio::ip::tcp::socket*)socketOfCurrentCommand;
+    asio::write(socket, asio::buffer(data, length));
+  }
+
+  void TCPControl::publishNotification(std::vector<std::string> &argv){
+
+    if (argv.size() == 0){
+      return;
+    }
+
+    char data[1024];
+
+    size_t length = 0;
+
+    std::memcpy(data, argv[0].c_str(), argv[0].size());
+    length += argv[0].size();
+
+    for(int i = 1; i < argv.size(); i++){
+      data[length++] = ' ';
+      std::memcpy(&data[length], argv[i].c_str(), argv[i].size());
+      length += argv[i].size();
+    }
+
+    data[length++] = '\n';
+
+    for(int i = 0; i < Sockets.size(); i++){
+      asio::ip::tcp::socket &socket = *Sockets[i];
+      asio::write(socket, asio::buffer(data, length));
+    }
   }
 
 }

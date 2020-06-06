@@ -745,7 +745,10 @@ int main(int argc, char * argv[], char * env[]){
 
     if (Options.ControlType == ControlTypeTcp){
       MidiPatcher::TCPControl::init(portRegistry, Options.TCPControl.Port, Options.TCPControl.Password);
-      MidiPatcher::TCPControl::start();
+      std::thread([](){
+        MidiPatcher::TCPControl::start();
+      }).detach();
+
     }
 
     int portCount = 0;
@@ -769,7 +772,8 @@ int main(int argc, char * argv[], char * env[]){
     portRegistry->rescan();
 
     if (Options.AutoscanInterval > 0){
-      portRegistry->enableAutoscan(Options.AutoscanInterval);
+      portRegistry->setAutoscanInterval(Options.AutoscanInterval);
+      portRegistry->startAutoscan();
     }
 
     // std::cout << "Processing... quit by pressing CTRL-C twice." << std::endl;

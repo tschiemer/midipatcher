@@ -29,7 +29,7 @@ namespace MidiPatcher {
   }
 
   PortRegistry::~PortRegistry(){
-    disableAutoscan();
+    stopAutoscan();
 
     // unregister all subscribers
     PortRegistryUpdateReceiverList.clear();
@@ -285,12 +285,12 @@ namespace MidiPatcher {
     connectPorts( getPortByKey(inputKey), getPortByKey(outputKey) );
   }
 
-  void PortRegistry::enableAutoscan(unsigned int intervalMsec){
+  void PortRegistry::startAutoscan(){
     if (AutoscanEnabled == true){
       return;
     }
 
-    setAutoscanInterval(intervalMsec);
+    assert( AutoscanIntervalMsec >= 1000 );
 
     AutoscanEnabled = true;
 
@@ -304,7 +304,7 @@ namespace MidiPatcher {
     // AutoscanThread.detach();
   }
 
-  void PortRegistry::disableAutoscan(){
+  void PortRegistry::stopAutoscan(){
     if (AutoscanEnabled == false){
       return;
     }

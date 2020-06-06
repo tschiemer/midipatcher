@@ -77,13 +77,21 @@ namespace MidiPatcher {
 
     public:
 
+
+      bool autoscanEnabled(){
+        return AutoscanEnabled;
+      }
+      unsigned int getAutoscanInterval(){
+        return AutoscanIntervalMsec;
+      }
+
       void setAutoscanInterval(unsigned int intervalMsec){
         assert( intervalMsec >= 1000 );
         AutoscanIntervalMsec = intervalMsec;
       }
 
-      void enableAutoscan(unsigned int intervalMsec = 1000);
-      void disableAutoscan();
+      void startAutoscan();
+      void stopAutoscan();
 
 
       void deviceDiscovered(AbstractPort * port);
