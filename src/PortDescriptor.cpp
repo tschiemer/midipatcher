@@ -1,6 +1,8 @@
 #include <PortDescriptor.hpp>
 
-#include <cassert>
+#include <Error.hpp>
+
+
 #include <algorithm>
 
 namespace MidiPatcher {
@@ -9,7 +11,7 @@ namespace MidiPatcher {
       size_t pos = str.find(":");
 
       if( pos == std::string::npos ){
-        throw "Invalid descriptor format";
+        throw Error("Invalid descriptor format");
       }
 
       PortClass = str.substr(0, pos);

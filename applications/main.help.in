@@ -37,7 +37,15 @@ Options:
 					 		Get midipatcher version
 					 option <option-key> [<option-value>]
 					 		Get/set open
-							<option-key> := return-ids 	return port-id instead of port-key
+							<option-key>
+								return-ids
+										return port-id instead of port-key
+								notifications
+										enable/disable notifications
+								autoscan-enabled
+										enabled/disable autoscan
+								autoscan-interval
+										set autoscan interval
 					 portclasses
 					 		Get list of available port classes
 					 ports [<port-id>|<port-key>]

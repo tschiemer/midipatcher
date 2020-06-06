@@ -71,24 +71,21 @@ namespace MidiPatcher {
 
     protected:
 
-      volatile unsigned int AutoscanIntervalMsec;
+      volatile unsigned int AutoscanIntervalMsec = 1000;
       volatile bool AutoscanEnabled = false;
       std::thread AutoscanThread;
 
     public:
 
 
-      bool autoscanEnabled(){
+      bool isAutoscanEnabled(){
         return AutoscanEnabled;
       }
       unsigned int getAutoscanInterval(){
         return AutoscanIntervalMsec;
       }
 
-      void setAutoscanInterval(unsigned int intervalMsec){
-        assert( intervalMsec >= 1000 );
-        AutoscanIntervalMsec = intervalMsec;
-      }
+      void setAutoscanInterval(unsigned int intervalMsec);
 
       void startAutoscan();
       void stopAutoscan();

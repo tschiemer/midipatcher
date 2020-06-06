@@ -68,6 +68,39 @@ namespace MidiPatcher {
         return ok();
       }
 
+      if (argv[1] == "autoscan-enabled"){
+          if (argv.size() == 3){
+            try {
+              bool enabled = std::stoi(argv[2]);
+              if (enabled){
+                PortRegistryRef->startAutoscan();
+              } else {
+                PortRegistryRef->stopAutoscan();
+              }
+            } catch (Error &e){
+              return error(e.what());
+            }
+          }
+
+          respond("ssi", "option", "autoscan-enabled", PortRegistryRef->isAutoscanEnabled() ? 1 : 0);
+
+          return ok();
+      }
+
+      if (argv[1] == "autoscan-interval"){
+        if (argv.size() == 3){
+          try {
+            PortRegistryRef->setAutoscanInterval(std::stoi(argv[2]));
+          } catch (Error &e){
+            return error(e.what());
+          }
+        }
+
+        respond("ssi", "option", "autoscan-interval", PortRegistryRef->getAutoscanInterval());
+
+        return ok();
+      }
+
       return error("Unknown option: " + argv[1]);
     }
 
@@ -76,6 +109,7 @@ namespace MidiPatcher {
         return error("Expected: scan");
       }
       PortRegistryRef->rescan();
+      return ok();
     }
 
     if (argv[0] == "portclasses"){
@@ -194,8 +228,8 @@ namespace MidiPatcher {
 
       try {
         desc = PortDescriptor::fromString( argv[1] );
-      } catch(const char * e){
-        return error(e);
+      } catch(Error &e){
+        return error(e.what());
       }
 
       AbstractPort * port = PortRegistryRef->getPortByKey( desc->getKey() );
@@ -211,8 +245,7 @@ namespace MidiPatcher {
 
           ok();
 
-        } catch (std::exception &e) {
-
+        } catch (Error &e) {
           error(e.what());
         }
 

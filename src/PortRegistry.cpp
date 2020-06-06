@@ -122,7 +122,7 @@ namespace MidiPatcher {
 
   void PortRegistry::rescan(){
 
-    Log::info("PortRegistry", "rescan start");
+    Log::debug("PortRegistry", "rescan start");
 
     for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); ++it)
     {
@@ -141,7 +141,7 @@ namespace MidiPatcher {
       }
     }
 
-    Log::info("PortRegistry", "rescan end");
+    Log::debug("PortRegistry", "rescan end");
 
   }
 
@@ -285,12 +285,22 @@ namespace MidiPatcher {
     connectPorts( getPortByKey(inputKey), getPortByKey(outputKey) );
   }
 
+
+  void PortRegistry::setAutoscanInterval(unsigned int intervalMSec){
+    if (intervalMSec < 1000){
+      throw Error("Too small autoscan interval, must be at least 1000 millisec");
+    }
+    AutoscanIntervalMsec = intervalMSec;
+  }
+
   void PortRegistry::startAutoscan(){
     if (AutoscanEnabled == true){
       return;
     }
 
-    assert( AutoscanIntervalMsec >= 1000 );
+    if (AutoscanIntervalMsec < 1000){
+      throw Error("Too small autoscan interval, must be at least 1000 millisec");
+    }
 
     AutoscanEnabled = true;
 
