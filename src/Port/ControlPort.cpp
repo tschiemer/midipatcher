@@ -33,6 +33,21 @@ namespace MidiPatcher {
       return result;
     }
 
+
+    bool ControlPort::Message::complete(){
+      return !Data.empty() && Missing == 0;
+    }
+
+    bool ControlPort::Message::empty(){
+      return Data.empty() && Argv.empty();
+    }
+
+    void ControlPort::Message::clear(){
+      Data.clear();
+      Argv.clear();
+      Missing = 1;
+    }
+
     bool ControlPort::Message::receivedPart(unsigned char * midi, uint8_t midiLen){
 
       if (midiLen > 128){

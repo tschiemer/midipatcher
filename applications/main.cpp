@@ -15,22 +15,34 @@ MidiPatcher::InteractiveControl * interactiveControl = nullptr;
 
 volatile bool Running = false;
 
+enum ControlType_t {
+  ControlTypeNone,
+  ControlTypeInteractive,
+  ControlTypeControlPort,
+  ControlTypeRemote,
+  ControlTypeTcp
+};
+
 struct {
     int Verbosity;
     bool ShowUpdates;
     int AutoscanInterval;
-    bool InteractiveControl;
+    ControlType_t ControlType;
     struct {
       bool Using;
       std::string Path;
     } PatchFile;
     struct {
-      bool Enabled;
+      unsigned short Port;
+      std::string Password;
+    } TCPControl;
+    struct {
+      // bool Enabled;
       std::string InDesc;
       std::string OutDesc;
     } ControlPort;
     struct {
-      bool Enabled;
+      // bool Enabled;
       std::string InDesc;
       std::string OutDesc;
       bool StayConnected;
@@ -39,18 +51,23 @@ struct {
   .Verbosity = 0,
   .ShowUpdates = false,
   .AutoscanInterval = 1000,
-  .InteractiveControl = false,
+  .ControlType = ControlTypeNone,
+  // .InteractiveControl = false,
   .PatchFile = {
     .Using = false,
     .Path = ""
   },
+  .TCPControl = {
+    // .Port =
+    .Password = ""
+  },
   .ControlPort = {
-    .Enabled = false,
+    // .Enabled = false,
     .InDesc = "VirtMidiIn:MidiPatcher-Control",
     .OutDesc = "VirtMidiOut:MidiPatcher-Control"
   },
   .RemoteControl = {
-    .Enabled = false,
+    // .Enabled = false,
     .InDesc = "MidiIn:MidiPatcher-Control",
     .OutDesc = "MidiOut:MidiPatcher-Control",
     .StayConnected = false
@@ -107,6 +124,8 @@ NotificationHandler * notificationHandler;
 
 /***************************/
 
+void setOptionControlType(ControlType_t controlType);
+
 void SignalHandler(int signal);
 void setupSignalHandler( void );
 
@@ -154,6 +173,13 @@ static inline std::string & trim(std::string &s) {
     // rtrim(s);
 }
 
+void setOptionControlType(ControlType_t controlType){
+  if (Options.ControlType != ControlTypeNone){
+    std::cerr << "ERROR multiple control types (-i, -r, --tcpc, --cp) defined, only one possible!" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  Options.ControlType = controlType;
+}
 
 void SignalHandler(int signal)
 {
@@ -247,7 +273,7 @@ void printHelp() {
     #include "main.help.in"
     << std::endl;
 
-    printf("midipatcher %s, MIT license, https://github.com/tschiemer/midipatcher\n", MidiPatcher::VERSION.c_str());
+    printf("%s, MIT license, https://github.com/tschiemer/midipatcher\n", MidiPatcher::APPLICATION.c_str());
 }
 
 
@@ -395,6 +421,7 @@ int setupPortsFromFile(std::string file){
 }
 
 void setupControlPort(){
+
   MidiPatcher::PortDescriptor * desc;
   MidiPatcher::AbstractPort * inport, * outport;
 
@@ -428,7 +455,26 @@ void remoteControl(int argc, char * argv[]){
   outport = portRegistry->registerPortFromDescriptor(desc);
   delete desc;
 
-  MidiPatcher::Port::InjectorPort * ip = new MidiPatcher::Port::InjectorPort("RemoteControl", remoteControlReceived);
+  MidiPatcher::Port::InjectorPort * ip = new MidiPatcher::Port::InjectorPort("RemoteControl", [](unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
+    // std::cout << "Received (" << len << ")" << std::endl;
+
+    static MidiPatcher::Port::ControlPort::Message message;
+
+    message.receivedPart(data, len);
+
+    if (message.complete() == false){
+      return;
+    }
+
+    std::cout << message.toString() << std::endl;
+
+    if (Options.RemoteControl.StayConnected == false){
+      if (message.getArgv()[0] == "OK" || message.getArgv()[0] == "ERROR"){
+        Running = false;
+      }
+    }
+  });
+
   //[](unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
 
   // });
@@ -457,25 +503,25 @@ void remoteControl(int argc, char * argv[]){
   }
 }
 
-void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
-  // std::cout << "Received (" << len << ")" << std::endl;
-
-  static MidiPatcher::Port::ControlPort::Message message;
-
-  message.receivedPart(data, len);
-
-  if (message.complete() == false){
-    return;
-  }
-
-  std::cout << message.toString() << std::endl;
-
-  if (Options.RemoteControl.StayConnected == false){
-    if (message.getArgv()[0] == "OK" || message.getArgv()[0] == "ERROR"){
-      Running = false;
-    }
-  }
-}
+// void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
+//   // std::cout << "Received (" << len << ")" << std::endl;
+//
+//   static MidiPatcher::Port::ControlPort::Message message;
+//
+//   message.receivedPart(data, len);
+//
+//   if (message.complete() == false){
+//     return;
+//   }
+//
+//   std::cout << message.toString() << std::endl;
+//
+//   if (Options.RemoteControl.StayConnected == false){
+//     if (message.getArgv()[0] == "OK" || message.getArgv()[0] == "ERROR"){
+//       Running = false;
+//     }
+//   }
+// }
 
 void init(){
 
@@ -501,8 +547,12 @@ void init(){
 
 void deinit(){
 
-  if (interactiveControl != nullptr){
+  if (Options.ControlType == ControlTypeInteractive && interactiveControl != nullptr){
     delete interactiveControl;
+  }
+
+  if (Options.ControlType == ControlTypeTcp){
+    MidiPatcher::TCPControl::stop();
   }
 
   portRegistry->unsubscribePortRegistryUpdateReveicer(notificationHandler);
@@ -544,6 +594,12 @@ int main(int argc, char * argv[], char * env[]){
           // {"pf", required_argument, 0, 'f'},
           {"patch-file", required_argument, 0, 'f'},
 
+          {"interactive", no_argument, 0, 'i'},
+
+          {"tcpc", required_argument, 0, 't'},
+          {"tcp-control", required_argument, 0, 't'},
+          {"tcp-pass", required_argument, 0, 7},
+
           {"cp", no_argument, 0, 2},
           {"control-port", no_argument, 0, 2},
           {"cp-in", required_argument, 0, 3},
@@ -555,12 +611,11 @@ int main(int argc, char * argv[], char * env[]){
           {"remote-in", required_argument, 0, 5},
           {"remote-out", required_argument, 0, 6},
 
-          {"interactive", no_argument, 0, 'i'},
 
           {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "vh?dua:pf:ri",
+        c = getopt_long(argc, argv, "vh?dua:pf:rit:",
                         long_options, &option_index);
         if (c == -1)
             break;
@@ -573,7 +628,7 @@ int main(int argc, char * argv[], char * env[]){
               return EXIT_SUCCESS;
 
             case 2:
-                Options.ControlPort.Enabled = true;
+                setOptionControlType(ControlTypeControlPort);
                 break;
 
             case 3:
@@ -585,7 +640,7 @@ int main(int argc, char * argv[], char * env[]){
                 break;
 
             case 'r':
-                Options.RemoteControl.Enabled = true;
+                setOptionControlType(ControlTypeRemote);
                 break;
 
             case 5:
@@ -635,8 +690,17 @@ int main(int argc, char * argv[], char * env[]){
                 break;
 
             case 'i':
-                Options.InteractiveControl = true;
+                setOptionControlType(ControlTypeInteractive);
                 break;
+
+            case 't':
+              setOptionControlType(ControlTypeTcp);
+              Options.TCPControl.Port = std::atoi(optarg);
+              break;
+
+            case 7:
+              Options.TCPControl.Password = optarg;
+              break;
 
             default:
                 printf("?? getopt returned character code %o ??\n", c);
@@ -650,23 +714,16 @@ int main(int argc, char * argv[], char * env[]){
     int argC = argc - optind;
     char ** argV = &argv[optind];
 
-    if (Options.RemoteControl.Enabled){
+    if (Options.ControlType == ControlTypeRemote){
 
       if (argC <= 0){
         Options.RemoteControl.StayConnected = true;
-      //   std::cerr << "ERROR Missing remote commands" << std::endl;
-      //   return EXIT_FAILURE;
       }
 
       remoteControl(argC, argV);
 
       return EXIT_SUCCESS;
     }
-
-    if (Options.InteractiveControl){
-      interactiveControl = new MidiPatcher::InteractiveControl(portRegistry);
-    }
-
 
     // validate possible argument listing of in-/out-port patching
     if (argC > 0){
@@ -676,9 +733,19 @@ int main(int argc, char * argv[], char * env[]){
       }
     }
 
+    // setup controls before processing patch setup as ControlPort type might be somehow patched..
 
-    if (Options.ControlPort.Enabled){
+    if (Options.ControlType == ControlTypeInteractive){
+      interactiveControl = new MidiPatcher::InteractiveControl(portRegistry);
+    }
+
+    if (Options.ControlType == ControlTypeControlPort){
       setupControlPort();
+    }
+
+    if (Options.ControlType == ControlTypeTcp){
+      MidiPatcher::TCPControl::init(portRegistry, Options.TCPControl.Port, Options.TCPControl.Password);
+      MidiPatcher::TCPControl::start();
     }
 
     int portCount = 0;
@@ -692,10 +759,12 @@ int main(int argc, char * argv[], char * env[]){
     }
 
     // no ports were actually set up and control port was not enabled -> no reason to actually run.
-    if (portCount == 0 && Options.ControlPort.Enabled == false && Options.InteractiveControl == false){
-      std::cerr << "ERROR neither have any ports been configured nor are you using a control port or interactive control to dynamically change the setup" << std::endl;
+    if (portCount == 0 && Options.ControlType == ControlTypeNone){
+      std::cerr << "ERROR neither have any ports been configured nor are you using a method to to dynamically change the setup" << std::endl;
       return EXIT_FAILURE;
     }
+
+    setupSignalHandler();
 
     portRegistry->rescan();
 
@@ -703,17 +772,16 @@ int main(int argc, char * argv[], char * env[]){
       portRegistry->enableAutoscan(Options.AutoscanInterval);
     }
 
-    setupSignalHandler();
-
     // std::cout << "Processing... quit by pressing CTRL-C twice." << std::endl;
     Running = true;
     while(Running){
       runloop();
 
-      if (Options.InteractiveControl){
-          if (interactiveControl->runloop() == false){
-            Running = false;
-          }
+      if (Options.ControlType == ControlTypeInteractive){
+        // explicitly check for false condition (do NOT set Running w/o check as might override previous termination condition)
+        if (interactiveControl->runloop() == false){
+          Running = false;
+        }
       }
     }
 

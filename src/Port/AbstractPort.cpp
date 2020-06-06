@@ -1,4 +1,6 @@
 #include <Port/AbstractPort.hpp>
+#include <Port/AbstractInputPort.hpp>
+#include <Port/AbstractOutputPort.hpp>
 
 #include <PortRegistry.hpp>
 
@@ -6,6 +8,41 @@
 
 namespace MidiPatcher {
 
+  AbstractPort::Message::Message(std::vector<uint8_t> &data) : Data(data){
+
+  }
+
+  bool AbstractPort::Message::empty(){
+    return Data.empty();
+  }
+
+  void AbstractPort::Message::clear(){
+    Data.clear();
+  }
+
+  void AbstractPort::Message::transmit(AbstractPort * port, void (*tx)(AbstractPort * port, unsigned char * message, size_t len)){
+    if (Data.size() == 0){
+      return;
+    }
+
+    tx(port, &Data[0], Data.size());
+  }
+
+  void AbstractPort::Message::sendFrom(AbstractInputPort * port){
+    assert( port != nullptr );
+
+    transmit(port, [](AbstractPort * port, unsigned char * message, size_t len){
+      dynamic_cast<AbstractInputPort*>(port)->receivedMessage(message, len);
+    });
+  }
+
+  void AbstractPort::Message::sendTo(AbstractOutputPort * port){
+    assert( port != nullptr );
+
+    transmit(port, [](AbstractPort * port, unsigned char * message, size_t len){
+      dynamic_cast<AbstractOutputPort*>(port)->sendMessage(message, len);
+    });
+  }
 
   AbstractPort::AbstractPort(Type_t type, std::string name){
 

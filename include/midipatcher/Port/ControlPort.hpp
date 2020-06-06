@@ -17,7 +17,7 @@ namespace MidiPatcher {
 
       public:
 
-        class Message {
+        class Message : public virtual AbstractPort::Message {
 
           protected:
 
@@ -43,29 +43,15 @@ namespace MidiPatcher {
               return Missing;
             }
 
-            std::vector<uint8_t> & getData(){
-              return Data;
-            }
-
             std::vector<std::string> & getArgv(){
               return Argv;
             }
 
             std::string toString();
 
-            bool complete(){
-              return !Data.empty() && Missing == 0;
-            }
-
-            bool empty(){
-              return Data.empty() && Argv.empty();
-            }
-
-            void clear(){
-              Data.clear();
-              Argv.clear();
-              Missing = 1;
-            }
+            bool complete();
+            bool empty();
+            void clear();
 
             bool receivedPart(unsigned char * midi, uint8_t midiLen);
 
@@ -75,21 +61,21 @@ namespace MidiPatcher {
 
           public:
 
-            inline void sendFrom(AbstractInputPort * port){
-              assert( port != nullptr );
-
-              transmit(port, [](AbstractPort * port, unsigned char * message, size_t len){
-                dynamic_cast<AbstractInputPort*>(port)->receivedMessage(message, len);
-              });
-            }
-
-            inline void sendTo(AbstractOutputPort * port){
-              assert( port != nullptr );
-
-              transmit(port, [](AbstractPort * port, unsigned char * message, size_t len){
-                dynamic_cast<AbstractOutputPort*>(port)->sendMessage(message, len);
-              });
-            }
+            // inline void sendFrom(AbstractInputPort * port){
+            //   assert( port != nullptr );
+            //
+            //   transmit(port, [](AbstractPort * port, unsigned char * message, size_t len){
+            //     dynamic_cast<AbstractInputPort*>(port)->receivedMessage(message, len);
+            //   });
+            // }
+            //
+            // inline void sendTo(AbstractOutputPort * port){
+            //   assert( port != nullptr );
+            //
+            //   transmit(port, [](AbstractPort * port, unsigned char * message, size_t len){
+            //     dynamic_cast<AbstractOutputPort*>(port)->sendMessage(message, len);
+            //   });
+            // }
 
             static uint8_t packMidiMessage(unsigned char * midi, unsigned char * data, uint8_t dataLen, uint8_t remainingMessages = 0);
             static uint8_t unpackMidiMessage(unsigned char * data, unsigned char * midi, uint8_t midiLen, uint8_t &remainingMessages);

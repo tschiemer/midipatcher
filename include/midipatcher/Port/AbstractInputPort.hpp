@@ -6,6 +6,8 @@
 namespace MidiPatcher {
    class AbstractInputPort : public virtual AbstractPort {
 
+    friend class Message;
+
     protected:
 
       AbstractInputPort(){}
@@ -16,8 +18,6 @@ namespace MidiPatcher {
       ~AbstractInputPort(){
         // std::cout << "~AbstractInputPort" << std::endl;
       }
-
-    public:
 
       virtual void receivedMessage(unsigned char * message, size_t len );
 

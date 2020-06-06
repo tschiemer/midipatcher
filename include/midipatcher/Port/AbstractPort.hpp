@@ -65,6 +65,36 @@ namespace MidiPatcher {
         DeviceStateConnected    = 1
       } DeviceState_t;
 
+      class Message {
+
+        protected:
+
+          std::vector<uint8_t> Data;
+
+        public:
+
+          Message(){}
+
+          Message(std::vector<uint8_t> &data);
+
+          std::vector<uint8_t> & getData(){
+            return Data;
+          }
+
+          virtual bool empty();
+          virtual void clear();
+
+        protected:
+
+          virtual void transmit(AbstractPort * port, void (*tx)(AbstractPort * port, unsigned char * message, size_t len));
+
+        public:
+
+          virtual void sendFrom(AbstractInputPort * port);
+          virtual void sendTo(AbstractOutputPort * port);
+
+      };
+
     protected:
 
       unsigned int Id;

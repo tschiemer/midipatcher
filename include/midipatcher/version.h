@@ -5,6 +5,8 @@
 
 namespace MidiPatcher {
 
+  extern const std::string APPLICATION;
+  extern const std::string APPLICATION_SHORT;
   extern const std::string VERSION;
   extern const std::string VERSION_SHORT;
 

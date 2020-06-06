@@ -5,6 +5,9 @@
 #include "midipatcher/PortRegistry.hpp"
 #include "midipatcher/PortDescriptor.hpp"
 
+#include "midipatcher/InteractiveControl.hpp"
+#include "midipatcher/TCPControl.hpp"
+
 #include "midipatcher/Port/MidiIn.hpp"
 #include "midipatcher/Port/MidiOut.hpp"
 #include "midipatcher/Port/VirtMidiIn.hpp"
@@ -17,5 +20,3 @@
 #include "midipatcher/Port/MsgExec.hpp"
 #include "midipatcher/Port/ControlPort.hpp"
 #include "midipatcher/Port/InjectorPort.hpp"
-
-#include "midipatcher/InteractiveControl.hpp"

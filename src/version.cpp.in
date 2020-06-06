@@ -2,6 +2,8 @@
 
 namespace MidiPatcher {
 
+  const std::string APPLICATION = "midipatcher-@VERSION@";
+  const std::string APPLICATION_SHORT = "midipatcher-@VERSION_SHORT@";
   const std::string VERSION = "@VERSION@";
   const std::string VERSION_SHORT = "@VERSION_SHORT@";
 
