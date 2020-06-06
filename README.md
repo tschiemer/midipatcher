@@ -136,15 +136,12 @@ midipatcher-v0.1.0-48-gc2538fc, MIT license, https://github.com/tschiemer/midipa
 
 - Test, bugfix and complete current source base
 	- Introduce consistent error/exception system
-	- Use bigger buffer size than merely 128 bytes.. (problem only for long sysex (and control port))
-	- Check concurrent model...
 - Add examples
 	- Using Max/MSP and PureData matrices in combination with control port
-- Integrate [rtpmidid](https://github.com/davidmoreno/rtpmidid) as possible transport for linux based systems.
+- Integrate RTPMIDI
 - Add serial port (using asio)
-- Consider Tcp based stream port
-- Add case insensitivity of portclasses (for creation descriptors)
-- Get/set port-specific options after creation (where sensible)
+- Add case insensitivity of portclasses (for creation descriptors) (?)
+- Get/set port-specific options after creation (where sensible) (?)
 
 
 ## Building
