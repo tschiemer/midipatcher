@@ -35,6 +35,8 @@ namespace MidiPatcher {
     // }
     // std::cout << std::endl;
 
+    PortRegistryRef->runloop();
+
 
     if (argv[0] == "ping"){
       respond("s","pong");
@@ -269,11 +271,11 @@ namespace MidiPatcher {
 
       PortRegistryRef->unregisterPort( port );
 
-      if (OptReturnIds){
-        respond("si", "unregister", port->getId());
-      } else {
-        respond("ss", "unregister", port->getKey().c_str());
-      }
+      // if (OptReturnIds){
+      //   respond("si", "unregister", port->getId());
+      // } else {
+      //   respond("ss", "unregister", port->getKey().c_str());
+      // }
 
       delete port;
 
@@ -373,14 +375,14 @@ namespace MidiPatcher {
         return error("Expected: connect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)");
       }
 
-      AbstractPort * inport = getPortByIdOrKey(argv[1]);
-      AbstractPort * outport = getPortByIdOrKey(argv[2]);
+      AbstractInputPort * inport = dynamic_cast<AbstractInputPort*>(getPortByIdOrKey(argv[1]));
+      AbstractOutputPort * outport = dynamic_cast<AbstractOutputPort*>(getPortByIdOrKey(argv[2]));
 
       if (inport == nullptr){
-        return error("No such port: " + argv[1]);
+        return error("No such input-port: " + argv[1]);
       }
       if (outport == nullptr){
-        return error("No such port: " + argv[2]);
+        return error("No such output-port: " + argv[2]);
       }
 
       if (!inport->isConnectedTo(outport)){
@@ -401,14 +403,14 @@ namespace MidiPatcher {
         return error("Expected: disconnect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)");
       }
 
-      AbstractPort * inport = getPortByIdOrKey(argv[1]);
-      AbstractPort * outport = getPortByIdOrKey(argv[2]);
+      AbstractInputPort * inport = dynamic_cast<AbstractInputPort*>(getPortByIdOrKey(argv[1]));
+      AbstractOutputPort * outport = dynamic_cast<AbstractOutputPort*>(getPortByIdOrKey(argv[2]));
 
       if (inport == nullptr){
-        return error("No such port: " + argv[1]);
+        return error("No such input-port: " + argv[1]);
       }
       if (outport == nullptr){
-        return error("No such port: " + argv[2]);
+        return error("No such output-port: " + argv[2]);
       }
 
       if (inport->isConnectedTo(outport)){
@@ -488,6 +490,9 @@ namespace MidiPatcher {
   // }
 
   void AbstractControl::deviceStateChanged(AbstractPort * port, AbstractPort::DeviceState_t newState){
+    if (OptNotificationsEnabled == false){
+      return;
+    }
     int connected = newState == AbstractPort::DeviceStateConnected ? 1 : 0;
     if (OptReturnIds){
       respond("sii", "+devstate", port->getId(), connected);
@@ -498,18 +503,27 @@ namespace MidiPatcher {
 
 
   void AbstractControl::portRegistered( AbstractPort * port ){
+    if (OptNotificationsEnabled == false){
+      return;
+    }
     PortDescriptor * desc = port->getPortDescriptor();
     respond("sis", "+ports", port->getId(), desc->toString().c_str());
     delete desc;
   }
 
   void AbstractControl::portUnregistered( AbstractPort * port ){
+    if (OptNotificationsEnabled == false){
+      return;
+    }
     PortDescriptor * desc = port->getPortDescriptor();
-    respond("sis", "-ports", port->getId(), desc->toString().c_str());
+    respond("ssis", "+ports", "-", port->getId(), desc->toString().c_str());
     delete desc;
   }
 
   void AbstractControl::portsConnected( AbstractPort * inport, AbstractPort * outport ){
+    if (OptNotificationsEnabled == false){
+      return;
+    }
     if (OptReturnIds){
       respond("siii","+constate",inport->getId(), outport->getId(), 1);
     } else {
@@ -518,6 +532,9 @@ namespace MidiPatcher {
   }
 
   void AbstractControl::portsDisconnected( AbstractPort * inport, AbstractPort * outport ){
+    if (OptNotificationsEnabled == false){
+      return;
+    }
     if (OptReturnIds){
       respond("siii","+constate",inport->getId(), outport->getId(), 0);
     } else {

@@ -63,10 +63,10 @@ namespace MidiPatcher {
       AbstractPort * registerPortFromDescriptor(PortDescriptor * portDescriptor);
 
 
-      void connectPorts(AbstractPort *input, AbstractPort *output);
+      void connectPorts(AbstractInputPort *input, AbstractOutputPort *output);
       void connectPortsByKey(std::string inputKey, std::string outputKey);
 
-      void disconnectPorts(AbstractPort *input, AbstractPort *output);
+      void disconnectPorts(AbstractInputPort *input, AbstractOutputPort *output);
       void disconnectPortsByKey(std::string inputKey, std::string outputKey);
 
     protected:

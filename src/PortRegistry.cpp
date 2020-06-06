@@ -38,13 +38,16 @@ namespace MidiPatcher {
     // }
 
     // properly delete all connections
-    std::for_each(Ports.begin(), Ports.end(), [this](std::pair<std::string,AbstractPort *> p){
+
+    std::vector<AbstractPort*> * ports = getAllPorts();
+
+    std::for_each(ports->begin(), ports->end(), [this](AbstractPort * port){
 
       AbstractInputPort * inport;
 
       // port = p.second;
 
-      inport = dynamic_cast<AbstractInputPort*>(p.second);
+      inport = dynamic_cast<AbstractInputPort*>(port);
       if ( inport == nullptr ){
         return;
       }
@@ -58,22 +61,24 @@ namespace MidiPatcher {
           return;
         }
 
-        disconnectPorts(dynamic_cast<AbstractPort*>(inport), dynamic_cast<AbstractPort*>(outport));
+        disconnectPorts(inport, outport);
 
       });
+
+      connections->clear();
 
       delete connections;
     });
 
 
-    std::for_each(Ports.begin(), Ports.end(), [this](std::pair<std::string,AbstractPort *> p){
+    std::for_each(ports->begin(), ports->end(), [this](AbstractPort * port){
       // std::cerr << "unreg"
-      unregisterPort(p.second);
+      unregisterPort(port);
       // p.second->stop();
 
-      delete p.second;
+      delete port;
     });
-    Ports.clear();
+    ports->clear();
 
     std::for_each(PortClassRegistryInfoMap.begin(),PortClassRegistryInfoMap.end(), [](std::pair<std::string,AbstractPort::PortClassRegistryInfo *> pair){
       delete pair.second;
@@ -198,6 +203,7 @@ namespace MidiPatcher {
   }
 
   void PortRegistry::unregisterPort(AbstractPort * port){
+
     std::string key = port->getKey();
 
     if (Ports.count(key) == 0){
@@ -206,7 +212,8 @@ namespace MidiPatcher {
 
     Log::notice("unregisterPort( " + port->getKey() + " )");
 
-    port->unsubscribePortUpdateReveicer( this );
+    // port->stop();
+
 
     std::vector<AbstractPort *> * connections = port->getConnections();
 
@@ -217,13 +224,18 @@ namespace MidiPatcher {
       other->removeConnection(port);
     });
 
+    connections->clear();
+
     delete connections;
+
 
     // should it be deleted? naah.
     // delete port;
 
-    publishPortUnregistered( port );
+    Ports.erase(key);
 
+    port->unsubscribePortUpdateReveicer( this );
+    publishPortUnregistered( port );
   }
 
   AbstractPort* PortRegistry::registerPortFromDescriptor(PortDescriptor * portDescriptor){
@@ -245,9 +257,15 @@ namespace MidiPatcher {
   }
 
 
-  void PortRegistry::connectPorts(AbstractPort *input, AbstractPort *output){
-    assert(input != NULL);
-    assert(output != NULL);
+  void PortRegistry::connectPorts(AbstractInputPort *input, AbstractOutputPort *output){
+
+    if (input == nullptr){
+      throw Error("Trying to connect invalid input port");
+    }
+    if (input == nullptr){
+      throw Error("Trying to connect invalid output port");
+    }
+
 
     Log::notice("connectPorts " + input->getKey() + " " + output->getKey());
 
@@ -260,15 +278,20 @@ namespace MidiPatcher {
   }
 
   void PortRegistry::connectPortsByKey(std::string inputKey, std::string outputKey){
-    assert( getPortByKey(inputKey) != NULL );
-    assert( getPortByKey(outputKey) != NULL );
+    // assert( getPortByKey(inputKey) != NULL );
+    // assert( getPortByKey(outputKey) != NULL );
 
-    connectPorts( getPortByKey(inputKey), getPortByKey(outputKey) );
+    connectPorts( dynamic_cast<AbstractInputPort*>(getPortByKey(inputKey)), dynamic_cast<AbstractOutputPort*>(getPortByKey(outputKey)) );
   }
 
-  void PortRegistry::disconnectPorts(AbstractPort *input, AbstractPort *output){
-    assert(input != NULL);
-    assert(output != NULL);
+  void PortRegistry::disconnectPorts(AbstractInputPort *input, AbstractOutputPort *output){
+
+    if (input == nullptr){
+      throw Error("Trying to disconnect invalid input port");
+    }
+    if (input == nullptr){
+      throw Error("Trying to disconnect invalid output port");
+    }
 
     Log::notice("disconnectPorts " + input->getKey() + " " + output->getKey());
 
@@ -279,10 +302,10 @@ namespace MidiPatcher {
   }
 
   void PortRegistry::disconnectPortsByKey(std::string inputKey, std::string outputKey){
-    assert( getPortByKey(inputKey) != NULL );
-    assert( getPortByKey(outputKey) != NULL );
+    // assert( getPortByKey(inputKey) != NULL );
+    // assert( getPortByKey(outputKey) != NULL );
 
-    connectPorts( getPortByKey(inputKey), getPortByKey(outputKey) );
+    disconnectPorts( dynamic_cast<AbstractInputPort*>(getPortByKey(inputKey)), dynamic_cast<AbstractOutputPort*>(getPortByKey(outputKey)) );
   }
 
 

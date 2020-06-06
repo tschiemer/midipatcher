@@ -341,7 +341,11 @@ int setupPortsFromArgs(int argc, char * argv[]){
   assert( inports.size() == outports.size() );
 
   for( int i = 0; i < inports.size(); i++){
-    portRegistry->connectPorts( inports.at(i), outports.at(i) );
+    try {
+      portRegistry->connectPorts( dynamic_cast<MidiPatcher::AbstractInputPort*>(inports.at(i)), dynamic_cast<MidiPatcher::AbstractOutputPort*>(outports.at(i)) );
+    } catch( MidiPatcher::Error &e){
+      std::cerr << "ERROR " << e.what() << ": " << inports.at(i)->getKey() << " <-> " << outports.at(i)->getKey() << std::endl;
+    }
   }
 
   return inports.size();
@@ -414,7 +418,11 @@ int setupPortsFromFile(std::string file){
   assert( inports.size() == outports.size() );
 
   for( int i = 0; i < inports.size(); i++){
-    portRegistry->connectPorts( inports.at(i), outports.at(i) );
+    try {
+      portRegistry->connectPorts( dynamic_cast<MidiPatcher::AbstractInputPort*>(inports.at(i)), dynamic_cast<MidiPatcher::AbstractOutputPort*>(outports.at(i)) );
+    } catch( MidiPatcher::Error &e){
+      std::cerr << "ERROR " << e.what() << ": " << inports.at(i)->getKey() << " <-> " << outports.at(i)->getKey() << std::endl;
+    }
   }
 
   return inports.size();
@@ -423,14 +431,15 @@ int setupPortsFromFile(std::string file){
 void setupControlPort(){
 
   MidiPatcher::PortDescriptor * desc;
-  MidiPatcher::AbstractPort * inport, * outport;
+  MidiPatcher::AbstractInputPort * inport;
+  MidiPatcher::AbstractOutputPort * outport;
 
   desc = MidiPatcher::PortDescriptor::fromString(Options.ControlPort.InDesc);
-  inport = portRegistry->registerPortFromDescriptor(desc);
+  inport = dynamic_cast<MidiPatcher::AbstractInputPort*>(portRegistry->registerPortFromDescriptor(desc));
   delete desc;
 
   desc = MidiPatcher::PortDescriptor::fromString(Options.ControlPort.OutDesc);
-  outport = portRegistry->registerPortFromDescriptor(desc);
+  outport = dynamic_cast<MidiPatcher::AbstractOutputPort*>(portRegistry->registerPortFromDescriptor(desc));
   delete desc;
 
   MidiPatcher::Port::ControlPort * cp = new MidiPatcher::Port::ControlPort(portRegistry);
@@ -445,14 +454,15 @@ void remoteControl(int argc, char * argv[]){
   portRegistry->rescan();
 
   MidiPatcher::PortDescriptor * desc;
-  MidiPatcher::AbstractPort * inport, * outport;
+  MidiPatcher::AbstractInputPort * inport;
+  MidiPatcher::AbstractOutputPort * outport;
 
   desc = MidiPatcher::PortDescriptor::fromString(Options.RemoteControl.InDesc);
-  inport = portRegistry->registerPortFromDescriptor(desc);
+  inport = dynamic_cast<MidiPatcher::AbstractInputPort*>(portRegistry->registerPortFromDescriptor(desc));
   delete desc;
 
   desc = MidiPatcher::PortDescriptor::fromString(Options.RemoteControl.OutDesc);
-  outport = portRegistry->registerPortFromDescriptor(desc);
+  outport = dynamic_cast<MidiPatcher::AbstractOutputPort*>(portRegistry->registerPortFromDescriptor(desc));
   delete desc;
 
   MidiPatcher::Port::InjectorPort * ip = new MidiPatcher::Port::InjectorPort("RemoteControl", [](unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){

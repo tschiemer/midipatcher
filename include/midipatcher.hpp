@@ -1,4 +1,5 @@
 #include "midipatcher/Log.hpp"
+#include "midipatcher/Error.hpp"
 
 #include "midipatcher/version.h"
 
