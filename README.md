@@ -1,7 +1,25 @@
 # midipatcher
-Platform independent matrix patchbay for MIDI ports with additional connectivity for virtual ports and file, serial(work in progress), network streams, rtpmidi (work in progress).
+Platform independent virtual matrix patchbay for MIDI ports with additional connectivity for virtual ports and file, serial (work in progress, no test system at the moment), network streams, rtpmidi (work in progress).
+
+*midipatcher* is ment to be platform-independent and is aimed at desktop systems (Linux, macOS, Windows) - being developed on macOS and occasionally tested on a RaspberryPi.
+
+Can be run interactively, using a custom MIDI control port, or remotely using a (insecure, although password protected) TCP connection - the command syntax is text-based and generally identical, the MIDI control port uses a carrier SysEx format and splits messages if necessary into several max 128 byte long messages (as recommended by the specs). Due to the text-based format, it's easy to connect to on the console.
+
+Provides virtual passthrough-ports (RawExec, MsgExec) to arbitrary executables that can server as any type of processors or filters communicating passing data to and fro STDIN, STDOUT respectively.
 
 https://github.com/tschiemer/midipatcher
+
+## Roadmap / Todos
+
+- Test, bugfix and complete current source base
+	- Introduce consistent error/exception system
+- Add examples
+	- Using Max/MSP and PureData matrices in combination with TCP control port
+- Introduce alternate argument parsing and port name requirements: no spaces (use sort of urlencode: automatically replace with dashes)
+- Integrate RTPMIDI
+- Add serial port (using asio) - at the moment no test system.
+- Add case insensitivity of portclasses (for creation descriptors) (?)
+
 
 ## Guide to (Mostly) Harmless Command Line Interfacing
 
@@ -29,8 +47,8 @@ Options:
 					 Set regular rescanning of ports with given interval in millisec (default 1000; 0 = off).
 	 -p|--ports 			 List known/detected ports (descriptors).
 	 --pc|--port-classes 		 List registered port classes.
-	 -d			Increase debug level by one.
-	 -u			Show Updates.
+	 -d				Increase debug level by one.
+	 -u				Show Updates.
 
 	 -f|--patch-file <patch-file> 	 Use <patch-file> for patching configuration
 
@@ -45,7 +63,17 @@ Options:
 					 		Get midipatcher version
 					 option <option-key> [<option-value>]
 					 		Get/set open
-							<option-key> := return-ids 	return port-id instead of port-key
+							<option-key>
+								return-ids
+										return port-id instead of port-key
+								notifications
+										enable/disable notifications
+								autoscan-enabled
+										enabled/disable autoscan
+								autoscan-interval
+										set autoscan interval
+					 scan
+					 		Manual request for a device scan (if autoscan turned off).
 					 portclasses
 					 		Get list of available port classes
 					 ports [<port-id>|<port-key>]
@@ -129,7 +157,7 @@ RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi
 Asio (Networking) C++ Library, https://think-async.com/Asio
 midimessage: midimessage library, https://github.com/tschiemer/midimessage
 
-midipatcher-v0.1.0-48-gc2538fc, MIT license, https://github.com/tschiemer/midipatcher
+midipatcher-v0.1.0-55-ge3a2dbd, MIT license, https://github.com/tschiemer/midipatcher
 ```
 
 ## Patchfiles
@@ -154,16 +182,6 @@ ControlPort:Default					MidiOut:to Max 2
 
 
 
-## Roadmap / Todos
-
-- Test, bugfix and complete current source base
-	- Introduce consistent error/exception system
-- Add examples
-	- Using Max/MSP and PureData matrices in combination with control port
-- Integrate RTPMIDI
-- Add serial port (using asio)
-- Add case insensitivity of portclasses (for creation descriptors) (?)
-- Get/set port-specific options after creation (where sensible) (?)
 
 
 ## Building
@@ -176,7 +194,7 @@ make
 
 ```
 
-## Using as library
+## Using as Library and Extending
 
 The project uses cmake, thus simply do something as follows:
 
@@ -193,6 +211,13 @@ target_link_libraries(myProject midipatch)
 
 and use the convenience include header `<midipatcher/midipatcher.hpp>` in any source files.
 
+
+For inspiration on how to use, have a look at `application/main.cpp` which shows different methods on how to populate the core `PortRegistry` and how to use `InjectorPort`s or the Logger, for that matter.
+
+The `InjectorPort` also provides a rather convenient way of creating a passthrough (input-output)-port using a callback mechanism (see the remote control mechanism in `main.cpp`) without the need of creating any child-class.
+
+To see how to use the text-based `midimessage`-syntax parser/generator see `MsgExec`.
+
 ## License
 
 MIT License (also see `LICENSE` file).
@@ -201,4 +226,4 @@ Thanks to (and licensing according to component):
 
 - [RtMidi: realtime MIDI i/o C++ classes](http://www.music.mcgill.ca/~gary/rtmidi)
 - [Asio (Networking) C++ Library](https://think-async.com/Asio)
-- [midimessage: midimessage library](https://github.com/tschiemer/midimessage)
+- [midimessage: a midimessage library](https://github.com/tschiemer/midimessage)

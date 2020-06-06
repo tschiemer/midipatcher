@@ -21,8 +21,8 @@ Options:
 					 Set regular rescanning of ports with given interval in millisec (default 1000; 0 = off).
 	 -p|--ports 			 List known/detected ports (descriptors).
 	 --pc|--port-classes 		 List registered port classes.
-	 -d			Increase debug level by one.
-	 -u			Show Updates.
+	 -d				Increase debug level by one.
+	 -u				Show Updates.
 
 	 -f|--patch-file <patch-file> 	 Use <patch-file> for patching configuration
 
@@ -46,6 +46,8 @@ Options:
 										enabled/disable autoscan
 								autoscan-interval
 										set autoscan interval
+					 scan
+					 		Manual request for a device scan (if autoscan turned off).
 					 portclasses
 					 		Get list of available port classes
 					 ports [<port-id>|<port-key>]
