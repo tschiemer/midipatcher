@@ -132,6 +132,28 @@ midimessage: midimessage library, https://github.com/tschiemer/midimessage
 midipatcher-v0.1.0-48-gc2538fc, MIT license, https://github.com/tschiemer/midipatcher
 ```
 
+## Patchfiles
+
+Parsing rules:
+
+- Anything behind a hashtag (#) is considered a comment and is ignored
+- Empty lines are allowed
+- Any mapping MUST have exactly two port descriptions separated by one or more tabs
+- If a port occurs multiple times you MUST provide the full port description including options in the first occurance; options are not requried in any following occurrances.
+
+Example:
+```
+# This file contains comments
+MidiIn:from Max 1							MidiOut:to Max 1 		# looping back from max 1 to max 1 :|
+MidiIn:from Max 2					MidiOut:to Max 1		# almost the same as above
+
+
+# Patchfiles are loaded after the control port is created, thus, you can consider it in your patchfile
+ControlPort:Default					MidiOut:to Max 2
+```
+
+
+
 ## Roadmap / Todos
 
 - Test, bugfix and complete current source base
