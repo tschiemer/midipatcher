@@ -10,24 +10,17 @@ namespace MidiPatcher {
 
     public:
 
-     // InteractiveControl(PortRegistry * portRegistry, std::string delimiter = " ");
-     // InteractiveControl(PortRegistry * portRegistry, std::istream &in, std::ostream &out, std::string delimiter = " ");
+     InteractiveControl(PortRegistry * portRegistry, std::string delimiter = " ") : InteractiveControl(portRegistry, std::cin, std::cout, delimiter){
+     }
 
-       InteractiveControl(PortRegistry * portRegistry, std::string delimiter = " ") : InteractiveControl(portRegistry, std::cin, std::cout, delimiter){
-       }
-
-       InteractiveControl(PortRegistry * portRegistry, std::istream &in, std::ostream &out, std::string delimiter = " ") : AbstractControl(portRegistry), CLI(in,out,delimiter) {
-       }
-
-     // void sendCommand(std::vector<std::string> &argv);
+     InteractiveControl(PortRegistry * portRegistry, std::istream &in, std::ostream &out, std::string delimiter = " ") : AbstractControl(portRegistry), CLI(in,out,delimiter) {
+     }
 
      void sendCommand(std::vector<std::string> &argv){
        handleCommand(argv);
      }
 
     protected:
-
-      // void respond(std::vector<std::string> &argv);
 
       void respond(std::vector<std::string> &argv){
         receivedResponse(argv);

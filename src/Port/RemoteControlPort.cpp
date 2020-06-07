@@ -1,18 +1,27 @@
 #include <Port/RemoteControlPort.hpp>
 
+#include <Port/ControlPort.hpp>
+
 namespace MidiPatcher {
   namespace Port {
 
-    RemoteControlPort::RemoteControlPort(std::string name, std::string delimiter) : RemoteControlPort(std::cin, std::cout, name, delimiter) {
-
-    }
-
-    RemoteControlPort::RemoteControlPort(std::istream &in, std::ostream &out, std::string name, std::string delimiter) : CLI(in,out,delimiter), AbstractInputOutputPort(name){
-
-    }
 
     void RemoteControlPort::sendCommand(std::vector<std::string> &argv){
+      ControlPort::Message message(argv);
 
+      message.sendFrom(this);
+    }
+
+    void RemoteControlPort::sendMessageImpl(unsigned char * message, size_t len){
+      InMessage.receivedPart(message, len);
+
+      if (InMessage.complete() == false){
+        return;
+      }
+
+      receivedResponse(InMessage.getArgv());
+
+      InMessage.clear();
     }
 
   }

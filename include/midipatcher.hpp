@@ -20,4 +20,5 @@
 #include "midipatcher/Port/RawExec.hpp"
 #include "midipatcher/Port/MsgExec.hpp"
 #include "midipatcher/Port/ControlPort.hpp"
+#include "midipatcher/Port/RemoteControlPort.hpp"
 #include "midipatcher/Port/InjectorPort.hpp"

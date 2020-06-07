@@ -29,11 +29,11 @@ namespace MidiPatcher {
 
   void AbstractControl::handleCommand(std::vector<std::string> &argv){
 
-    std::cout << "(" << argv.size() << ") ";
-    for(int i = 0; i < argv.size(); i++){
-      std::cout << argv[i] << " ";
-    }
-    std::cout << std::endl;
+    // std::cout << "(" << argv.size() << ") ";
+    // for(int i = 0; i < argv.size(); i++){
+    //   std::cout << argv[i] << " ";
+    // }
+    // std::cout << std::endl;
 
     PortRegistryRef->runloop();
 

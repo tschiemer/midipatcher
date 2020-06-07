@@ -11,7 +11,8 @@
 /***************************/
 
 MidiPatcher::PortRegistry * portRegistry = nullptr;
-MidiPatcher::InteractiveControl * interactiveControl = nullptr;
+// MidiPatcher::InteractiveControl * interactiveControl = nullptr;
+MidiPatcher::CLI * cli = nullptr;
 
 volatile bool Running = false;
 
@@ -37,22 +38,18 @@ struct {
       std::string Password;
     } TCPControl;
     struct {
-      // bool Enabled;
       std::string InDesc;
       std::string OutDesc;
     } ControlPort;
     struct {
-      // bool Enabled;
       std::string InDesc;
       std::string OutDesc;
-      bool StayConnected;
     } RemoteControl;
 } Options = {
   .Verbosity = 0,
   .ShowUpdates = false,
   .AutoscanInterval = 1000,
   .ControlType = ControlTypeNone,
-  // .InteractiveControl = false,
   .PatchFile = {
     .Using = false,
     .Path = ""
@@ -62,15 +59,12 @@ struct {
     .Password = ""
   },
   .ControlPort = {
-    // .Enabled = false,
     .InDesc = "VirtMidiIn:MidiPatcher-Control",
     .OutDesc = "VirtMidiOut:MidiPatcher-Control"
   },
   .RemoteControl = {
-    // .Enabled = false,
     .InDesc = "MidiIn:MidiPatcher-Control",
-    .OutDesc = "MidiOut:MidiPatcher-Control",
-    .StayConnected = false
+    .OutDesc = "MidiOut:MidiPatcher-Control"
   }
 };
 
@@ -140,10 +134,10 @@ int setupPortsFromArgs(int argc, char * argv[]);
 int setupPortsFromFile(std::string file);
 
 void setupControlPort( void );
-
 void setupRemoteControlPort( void );
+
 // void remoteControl(int argc, char * argv[]);
-void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData);
+// void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData);
 
 void init();
 void deinit();
@@ -452,11 +446,6 @@ void setupControlPort(){
 
 void setupRemoteControlPort( void ){
 
-    portRegistry->rescan();
-}
-
-void remoteControl(int argc, char * argv[]){
-
   portRegistry->rescan();
 
   MidiPatcher::PortDescriptor * desc;
@@ -471,73 +460,15 @@ void remoteControl(int argc, char * argv[]){
   outport = dynamic_cast<MidiPatcher::AbstractOutputPort*>(portRegistry->registerPortFromDescriptor(desc));
   delete desc;
 
-  MidiPatcher::Port::InjectorPort * ip = new MidiPatcher::Port::InjectorPort("RemoteControl", [](unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
-    // std::cout << "Received (" << len << ")" << std::endl;
+  MidiPatcher::Port::RemoteControlPort * remote = new MidiPatcher::Port::RemoteControlPort();
 
-    static MidiPatcher::Port::ControlPort::Message message;
+  portRegistry->registerPort( remote );
 
-    message.receivedPart(data, len);
+  portRegistry->connectPorts(inport, remote);
+  portRegistry->connectPorts(remote, outport);
 
-    if (message.complete() == false){
-      return;
-    }
-
-    std::cout << message.toString() << std::endl;
-
-    if (Options.RemoteControl.StayConnected == false){
-      if (message.getArgv()[0] == "OK" || message.getArgv()[0] == "ERROR"){
-        Running = false;
-      }
-    }
-  });
-
-  //[](unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
-
-  // });
-
-  portRegistry->registerPort( ip );
-
-  portRegistry->connectPorts(inport, ip);
-  portRegistry->connectPorts(ip, outport);
-
-  // TODO wait for connections..
-
-  // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-  if (argc > 0){
-
-    MidiPatcher::Port::ControlPort::Message message(argc, argv);
-
-    message.sendFrom(ip);
-  }
-
-  setupSignalHandler();
-
-  Running = true;
-  while(Running){
-    runloop();
-  }
+  cli = (MidiPatcher::CLI*)remote;
 }
-
-// void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData){
-//   // std::cout << "Received (" << len << ")" << std::endl;
-//
-//   static MidiPatcher::Port::ControlPort::Message message;
-//
-//   message.receivedPart(data, len);
-//
-//   if (message.complete() == false){
-//     return;
-//   }
-//
-//   std::cout << message.toString() << std::endl;
-//
-//   if (Options.RemoteControl.StayConnected == false){
-//     if (message.getArgv()[0] == "OK" || message.getArgv()[0] == "ERROR"){
-//       Running = false;
-//     }
-//   }
-// }
 
 void init(){
 
@@ -563,9 +494,6 @@ void init(){
 
 void deinit(){
 
-  if (Options.ControlType == ControlTypeInteractive && interactiveControl != nullptr){
-    delete interactiveControl;
-  }
 
   if (Options.ControlType == ControlTypeTcp){
     MidiPatcher::TCPControl::stop();
@@ -577,7 +505,14 @@ void deinit(){
 
   delete portRegistry;
 
-
+  if (cli != nullptr){
+    if (Options.ControlType == ControlTypeInteractive){
+      delete dynamic_cast<MidiPatcher::InteractiveControl*>(cli);
+    }
+    if (Options.ControlType == ControlTypeRemote){
+      // delete dynamic_cast<MidiPatcher::Port::RemoteControlPort*>(cli);
+    }
+  }
 }
 
 void runloop(){
@@ -730,17 +665,6 @@ int main(int argc, char * argv[], char * env[]){
     int argC = argc - optind;
     char ** argV = &argv[optind];
 
-    if (Options.ControlType == ControlTypeRemote){
-
-      if (argC <= 0){
-        Options.RemoteControl.StayConnected = true;
-      }
-
-      remoteControl(argC, argV);
-
-      return EXIT_SUCCESS;
-    }
-
     // validate possible argument listing of in-/out-port patching
     if (argC > 0){
       if (argC % 2 == 1){
@@ -749,14 +673,20 @@ int main(int argc, char * argv[], char * env[]){
       }
     }
 
+
+
     // setup controls before processing patch setup as ControlPort type might be somehow patched..
 
     if (Options.ControlType == ControlTypeInteractive){
-      interactiveControl = new MidiPatcher::InteractiveControl(portRegistry);
+      cli = (MidiPatcher::CLI*)new MidiPatcher::InteractiveControl(portRegistry);
     }
 
     if (Options.ControlType == ControlTypeControlPort){
       setupControlPort();
+    }
+
+    if (Options.ControlType == ControlTypeRemote){
+      setupRemoteControlPort();
     }
 
     if (Options.ControlType == ControlTypeTcp){
@@ -764,7 +694,6 @@ int main(int argc, char * argv[], char * env[]){
       std::thread([](){
         MidiPatcher::TCPControl::start();
       }).detach();
-
     }
 
     int portCount = 0;
@@ -797,9 +726,9 @@ int main(int argc, char * argv[], char * env[]){
     while(Running){
       runloop();
 
-      if (Options.ControlType == ControlTypeInteractive){
+      if (Options.ControlType == ControlTypeInteractive || Options.ControlType == ControlTypeRemote){
         // explicitly check for false condition (do NOT set Running w/o check as might override previous termination condition)
-        if (interactiveControl->runloop() == false){
+        if (cli->runloop() == false){
           Running = false;
         }
       }
