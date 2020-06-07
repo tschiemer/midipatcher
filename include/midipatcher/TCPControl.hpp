@@ -14,20 +14,47 @@ namespace MidiPatcher {
       static TCPControl * Singleton;
 
       std::vector<asio::ip::tcp::socket *> Sockets;
+      std::map<asio::ip::tcp::socket *,std::string> SessionDelimiters;
 
       volatile bool TerminationRequested = false;
 
       unsigned short Port;
       std::string Password;
+      std::string DefaultDelimiter;
 
       asio::io_context IOContext;
       volatile asio::ip::tcp::socket * socketOfCurrentCommand = nullptr;
 
-      TCPControl(PortRegistry * portRegistry, unsigned short port, std::string password = "");
+      TCPControl(PortRegistry * portRegistry, unsigned short port, std::string password, std::string defaultDelimiter);
 
     public:
 
-      static TCPControl &init(PortRegistry * portRegistry, unsigned short port, std::string password = "");
+      static TCPControl &init(PortRegistry * portRegistry, unsigned short port, std::string password = "", std::string defaultDelimiter = " ");
+
+      inline void setPassword(std::string password){
+        Password = password;
+      }
+
+      inline std::string getDefaultArgvDelimiter(){
+        return DefaultDelimiter;
+      }
+
+      inline void setDefaultArgvDelimiter(std::string delimiter){
+        assert( delimiter.size() > 0 );
+        DefaultDelimiter = delimiter;
+      }
+
+
+      inline std::string getSessionArgvDelimiter(asio::ip::tcp::socket * socket){
+        if (SessionDelimiters.count(socket) > 0){
+          return SessionDelimiters[socket];
+        }
+        return DefaultDelimiter;
+      }
+
+      inline void setSessionArgvDelimiter(asio::ip::tcp::socket * socket, std::string delimiter){
+        SessionDelimiters[socket] = delimiter;
+      }
 
       static void start();
       static void stop();

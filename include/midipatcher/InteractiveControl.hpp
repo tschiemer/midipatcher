@@ -13,6 +13,7 @@ namespace MidiPatcher {
 
       std::istream &In;
       std::ostream &Out;
+      std::string Delimiter = " ";
 
       void printHelp();
 
@@ -20,6 +21,15 @@ namespace MidiPatcher {
 
      InteractiveControl(PortRegistry * portRegistry);
      InteractiveControl(PortRegistry * portRegistry, std::istream &in, std::ostream &out);
+
+     inline std::string getArgvDelimiter(){
+       return Delimiter;
+     }
+
+     inline void setArgvDelimiter(std::string delimiter){
+       assert( delimiter.size() > 0 );
+       Delimiter = delimiter;
+     }
 
      bool runloop();
 

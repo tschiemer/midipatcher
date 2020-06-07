@@ -12,9 +12,6 @@ namespace MidiPatcher {
 
       AbstractControl(PortRegistry * portRegistry);
 
-      // static void escapeArgv(std::string &str);
-      // static void unescapeArgv(std::string &str);
-
     protected:
 
       PortRegistry * PortRegistryRef;

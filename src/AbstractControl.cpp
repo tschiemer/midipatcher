@@ -9,16 +9,6 @@
 
 
 namespace MidiPatcher {
-  // 
-  // void AbstractControl::escapeArgv(std::string &str){
-  //   // " -> \"
-  //   // if has SPACE -> "<argument>"
-  //   // std::replace(str.begin(), str.end(), " ", "");
-  // }
-  //
-  // void AbstractControl::unescapeArgv(std::string &str){
-  //   // std::replace(str.begin(), str.end(), "%20", " ");
-  // }
 
   AbstractControl::AbstractControl(PortRegistry  * portRegistry){
     assert(portRegistry != nullptr);
@@ -39,11 +29,11 @@ namespace MidiPatcher {
 
   void AbstractControl::handleCommand(std::vector<std::string> &argv){
 
-    // std::cout << "(" << argv.size() << ") ";
-    // for(int i = 0; i < argv.size(); i++){
-    //   std::cout << argv[i] << " ";
-    // }
-    // std::cout << std::endl;
+    std::cout << "(" << argv.size() << ") ";
+    for(int i = 0; i < argv.size(); i++){
+      std::cout << argv[i] << " ";
+    }
+    std::cout << std::endl;
 
     PortRegistryRef->runloop();
 

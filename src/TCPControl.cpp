@@ -38,18 +38,21 @@ namespace MidiPatcher {
 
   TCPControl * TCPControl::Singleton = nullptr;
 
-  TCPControl::TCPControl(PortRegistry * portRegistry, unsigned short port, std::string password) : AbstractControl(portRegistry){
+  TCPControl::TCPControl(PortRegistry * portRegistry, unsigned short port, std::string password, std::string defaultDelimiter) : AbstractControl(portRegistry){
+    assert(defaultDelimiter.size() > 0);
+
     Port = port;
     Password = password;
+    DefaultDelimiter = defaultDelimiter;
   }
 
-  TCPControl &TCPControl::init(PortRegistry * portRegistry, unsigned short port, std::string password){
+  TCPControl &TCPControl::init(PortRegistry * portRegistry, unsigned short port, std::string password, std::string defaultDelimiter){
 
     if (Singleton == nullptr){
       new Error("Already created TCPControl instance");
     }
 
-    Singleton = new TCPControl(portRegistry, port, password);
+    Singleton = new TCPControl(portRegistry, port, password, defaultDelimiter);
 
     return *Singleton;
   }
@@ -182,6 +185,8 @@ namespace MidiPatcher {
               }
           }
 
+          std::string delimiter = Singleton->getSessionArgvDelimiter(&socket);
+
           // process all lines
           for(int i = 0; i < lines.size(); i++){
 
@@ -191,25 +196,49 @@ namespace MidiPatcher {
             // parse into argument list
             while(line.size() > 0){
 
-              size_t pos;
-
-              do {
-                pos = line.find(" ");
-              } while( pos != std::string::npos && (pos > 0 && line[pos-1] == '\\'));
+              size_t pos = line.find(delimiter);
 
               if (pos == std::string::npos){
                 argv.push_back(line);
                 line.clear();
               } else {
-                argv.push_back(line.substr(0,pos));
-                line.erase(0, pos+1);
+                std::string arg = line.substr(0,pos);
+                argv.push_back(arg);
+                line.erase(0, pos + delimiter.size());
 
                 trim(line);
               }
             }
 
             if (argv.size() > 0){
-              Singleton->handleCommand(argv);
+
+              if (argv[0] == "delim-reset"){
+                // reset if called without arguments
+                if (argv.size() != 1){
+                  Singleton->error("Expected: delim-reset");
+                } else {
+                  if (Singleton->SessionDelimiters.count(&socket) > 0){
+                    Singleton->SessionDelimiters.erase(&socket);
+                  }
+
+                  Singleton->ok();
+                }
+              }
+              else if (argv[0] == "delim"){
+
+                if (argv.size() != 2){
+                  Singleton->error("Expected: delim(<old-delimiter><new-delimiter>)");
+                } else {
+
+                  Singleton->ok();
+
+                  // Log::notice("TCPControl", "delimiter = " + argv[1] + " ("+std::to_string(argv[1].size())+")");
+
+                  Singleton->setSessionArgvDelimiter(&socket, argv[1]);
+                }
+              } else {
+                Singleton->handleCommand(argv);
+              }
             }
           }
 
@@ -223,7 +252,11 @@ namespace MidiPatcher {
       Log::notice("TCPControl", "closing " + socket.remote_endpoint().address().to_string() + ":" + std::to_string(socket.remote_endpoint().port()));
     }
 
+    // remove any references from internal registries
     Singleton->Sockets.erase( std::remove(Singleton->Sockets.begin(), Singleton->Sockets.end(), &socket) );
+    if (Singleton->SessionDelimiters.count(&socket) > 0){
+      Singleton->SessionDelimiters.erase(&socket);
+    }
 
     // make sure to release lock
     if (Singleton->socketOfCurrentCommand == &socket){
@@ -246,14 +279,16 @@ namespace MidiPatcher {
     std::memcpy(data, argv[0].c_str(), argv[0].size());
     length += argv[0].size();
 
+    std::string delimiter = getSessionArgvDelimiter((asio::ip::tcp::socket*)socketOfCurrentCommand);
+
     for(int i = 1; i < argv.size(); i++){
-      data[length++] = ' ';
+      std::memcpy(&data[length], delimiter.c_str(), delimiter.size());
+      length += delimiter.size();
       std::memcpy(&data[length], argv[i].c_str(), argv[i].size());
       length += argv[i].size();
     }
 
     data[length++] = '\n';
-
 
     asio::ip::tcp::socket &socket = *(asio::ip::tcp::socket*)socketOfCurrentCommand;
     asio::write(socket, asio::buffer(data, length));
@@ -267,20 +302,26 @@ namespace MidiPatcher {
 
     char data[1024];
 
-    size_t length = 0;
-
-    std::memcpy(data, argv[0].c_str(), argv[0].size());
-    length += argv[0].size();
-
-    for(int i = 1; i < argv.size(); i++){
-      data[length++] = ' ';
-      std::memcpy(&data[length], argv[i].c_str(), argv[i].size());
-      length += argv[i].size();
-    }
-
-    data[length++] = '\n';
+    // unfortunately every connection can have its own delimiter, thus we just recompute the whole answer for each
 
     for(int i = 0; i < Sockets.size(); i++){
+
+      size_t length = 0;
+
+      std::memcpy(data, argv[0].c_str(), argv[0].size());
+      length += argv[0].size();
+
+      std::string delimiter = getSessionArgvDelimiter(Sockets[i]);
+
+      for(int i = 1; i < argv.size(); i++){
+        std::memcpy(&data[length], delimiter.c_str(), delimiter.size());
+        length += delimiter.size();
+        std::memcpy(&data[length], argv[i].c_str(), argv[i].size());
+        length += argv[i].size();
+      }
+
+      data[length++] = '\n';
+
       asio::ip::tcp::socket &socket = *Sockets[i];
       asio::write(socket, asio::buffer(data, length));
     }

@@ -63,21 +63,22 @@ namespace MidiPatcher {
 
     while(line.size() > 0){
 
-      size_t pos;
-
-      do {
-        pos = line.find(" ");
-      } while( pos != std::string::npos && (pos > 0 && line[pos-1] == '\\'));
+      size_t pos = line.find(Delimiter);
 
       if (pos == std::string::npos){
         argv.push_back(line);
         line.clear();
       } else {
-        argv.push_back(line.substr(0,pos));
-        line.erase(0, pos+1);
+        std::string arg = line.substr(0,pos);
+        argv.push_back(arg);
+        line.erase(0, pos + Delimiter.size());
 
         trim(line);
       }
+    }
+
+    if (argv.size() == 0){
+      return true;
     }
 
     if (argv.size() == 1){
@@ -91,7 +92,30 @@ namespace MidiPatcher {
       }
     }
 
+    if (argv[0] == "delim-reset"){
+      // reset if called without arguments
+      if (argv.size() != 1){
+        error("Expected: delim-reset");
+        return true;
+      }
 
+      setArgvDelimiter(" ");
+
+      ok();
+
+      return true;
+    }
+    if (argv[0] == "delim"){
+      if (argv.size() != 2){
+        error("Expected: delim<delimiter><new-delimiter>");
+        return true;
+      }
+
+      ok();
+      setArgvDelimiter(argv[1]);
+
+      return true;
+    }
 
     handleCommand(argv);
 
@@ -107,7 +131,7 @@ namespace MidiPatcher {
     Out << argv[0];
 
     for(int i = 1; i < argv.size(); i++){
-      Out << " " << argv[i];
+      Out << Delimiter << argv[i];
     }
 
     Out << std::endl;
