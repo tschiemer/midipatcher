@@ -1,4 +1,4 @@
-R"=====(help, h, ? 
+R"=====(help, h, ?
   Print this text
 ping
 	Connection test
@@ -24,5 +24,9 @@ connect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)
 disconnect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)
 	Disconnect two ports
 
+delim <delimiter>
+  Define another argument delimiter instead of the default.
+delim-reset
+  Reset to default argument delimiter.
 bye, x, exit, quit
 )====="

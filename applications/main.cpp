@@ -141,7 +141,8 @@ int setupPortsFromFile(std::string file);
 
 void setupControlPort( void );
 
-void remoteControl(int argc, char * argv[]);
+void setupRemoteControlPort( void );
+// void remoteControl(int argc, char * argv[]);
 void remoteControlReceived(unsigned char * data, int len, MidiPatcher::Port::InjectorPort * injectorPort, void * userData);
 
 void init();
@@ -447,6 +448,11 @@ void setupControlPort(){
 
   portRegistry->connectPorts(inport, cp);
   portRegistry->connectPorts(cp, outport);
+}
+
+void setupRemoteControlPort( void ){
+
+    portRegistry->rescan();
 }
 
 void remoteControl(int argc, char * argv[]){

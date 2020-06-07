@@ -13,7 +13,7 @@ namespace MidiPatcher {
 
         static const constexpr char * PortClass = "InjectorPort";
 
-        std::string getPortClass(){
+        virtual std::string getPortClass(){
           return PortClass;
         }
 
@@ -23,9 +23,9 @@ namespace MidiPatcher {
           return new PortDescriptor(PortClass, Name);
         }
 
-        InjectorPort(std::string name, ReceivedMessageHandler receivedMessageHandler, void * useData = NULL) : AbstractInputOutputPort(name){
+        InjectorPort(std::string name, ReceivedMessageHandler receivedMessageHandler, void * userData = NULL) : AbstractInputOutputPort(name){
           ReceivedMessageHandlerRef = receivedMessageHandler;
-
+          UserData = userData;
           setDeviceState(DeviceStateConnected);
         }
 
