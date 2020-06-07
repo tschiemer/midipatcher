@@ -117,7 +117,6 @@ midipatcher UdpIn:3000 "VirtMidiOut:From other computer" "VirtMidiIn:To other co
 Control examples:
 midipatcher -i
 midipatcher --tcpc 9900 --tcp-pass secure & socat - TCP-CONNECT:localhost:9900
-midipatcher --cp & midipatcher -r ping
 midipatcher --cp & midipatcher -r
 
 More, fancy examples:
