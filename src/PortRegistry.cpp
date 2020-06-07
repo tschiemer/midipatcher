@@ -150,6 +150,10 @@ namespace MidiPatcher {
 
   }
 
+  int PortRegistry::getPortCount(){
+    return Ports.size();
+  }
+
   std::vector<AbstractPort*> * PortRegistry::getAllPorts(){
     std::vector<AbstractPort*> * ports = new std::vector<AbstractPort*>();
 

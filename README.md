@@ -11,7 +11,7 @@ https://github.com/tschiemer/midipatcher
 
 ## Roadmap / Todos
 
-- Introduce alternate argument parsing and port name requirements: no spaces (use sort of urlencode: automatically replace with dashes)
+- Controls have the problem of proper argument parsing, need a good argument delimiter or escape-mechanism for text-based formats, possibly just a user-definable delimiter?
 - Control command to save/load current setup
 - Test, bugfix and complete current source base
 	- Introduce consistent error/exception system

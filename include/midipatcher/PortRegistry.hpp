@@ -52,6 +52,7 @@ namespace MidiPatcher {
 
       void rescan();
 
+      int getPortCount();
       std::vector<AbstractPort*> * getAllPorts();
 
       AbstractPort * getPortById( unsigned int id );

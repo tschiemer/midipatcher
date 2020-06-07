@@ -9,6 +9,16 @@
 
 
 namespace MidiPatcher {
+  // 
+  // void AbstractControl::escapeArgv(std::string &str){
+  //   // " -> \"
+  //   // if has SPACE -> "<argument>"
+  //   // std::replace(str.begin(), str.end(), " ", "");
+  // }
+  //
+  // void AbstractControl::unescapeArgv(std::string &str){
+  //   // std::replace(str.begin(), str.end(), "%20", " ");
+  // }
 
   AbstractControl::AbstractControl(PortRegistry  * portRegistry){
     assert(portRegistry != nullptr);
@@ -138,6 +148,11 @@ namespace MidiPatcher {
       }
       if (argv.size() == 2){
 
+        if (argv[1] == "#"){
+          respond("si", "ports", PortRegistryRef->getPortCount());
+          return ok();
+        }
+
         AbstractPort * port = getPortByIdOrKey(argv[1]);
 
         if (port == nullptr){
@@ -146,7 +161,7 @@ namespace MidiPatcher {
 
         PortDescriptor * desc = port->getPortDescriptor();
 
-        respond("sis", "ports", port->getId(), desc->toString().c_str());
+        respond("siis", "ports", port->getId(), port->getType(), desc->toString().c_str());
 
         delete desc;
 
@@ -161,7 +176,7 @@ namespace MidiPatcher {
         for(int i = 0; i < ports->size(); i++){
           AbstractPort * port = ports->at(i);
           PortDescriptor * desc = port->getPortDescriptor();
-          respond("sis","ports", port->getId(), desc->toString().c_str());
+          respond("siis","ports", port->getId(), port->getType(), desc->toString().c_str());
           delete desc;
         }
 
@@ -507,7 +522,7 @@ namespace MidiPatcher {
       return;
     }
     PortDescriptor * desc = port->getPortDescriptor();
-    respond("sis", "+ports", port->getId(), desc->toString().c_str());
+    respond("siis", "+ports", port->getId(), port->getType(),  desc->toString().c_str());
     delete desc;
   }
 
@@ -516,7 +531,7 @@ namespace MidiPatcher {
       return;
     }
     PortDescriptor * desc = port->getPortDescriptor();
-    respond("ssis", "+ports", "-", port->getId(), desc->toString().c_str());
+    respond("ssiis", "+ports", "-", port->getId(), port->getType(),  desc->toString().c_str());
     delete desc;
   }
 
