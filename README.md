@@ -11,7 +11,6 @@ https://github.com/tschiemer/midipatcher
 
 ## Roadmap / Todos
 
-- Controls have the problem of proper argument parsing, need a good argument delimiter or escape-mechanism for text-based formats, possibly just a user-definable delimiter?
 - Control command to save/load current setup
 - Test, bugfix and complete current source base
 	- Introduce consistent error/exception system
@@ -108,10 +107,10 @@ Options:
 	 --cp-out|--control-out-port <control-out-port-descriptor>
 					 Use control port with default options: "--cp-in VirtMidiIn:MidiPatcher-Control --cp-out VirtMidiOut:MidiPatcher-Control".
 
-	 -r|--remote ... <remote-command>
+	 -r|--remote
 	 --remote-in <remote-control-in-port-descriptor>
 	 --remote-out <remote-control-out-port-descriptor>
-					 Act as remote control with default port options "--remote-in MidiOut:MidiPatcher-Control --remote-out MidiIn:MidiPatcher-Control".
+					 Act as (interactive) remote control with default port options "--remote-in MidiOut:MidiPatcher-Control --remote-out MidiIn:MidiPatcher-Control".
 					 Same commands as -i|--interactive
 
 
@@ -158,7 +157,7 @@ RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi
 Asio (Networking) C++ Library, https://think-async.com/Asio
 midimessage: midimessage library, https://github.com/tschiemer/midimessage
 
-midipatcher-v0.1.0-55-ge3a2dbd, MIT license, https://github.com/tschiemer/midipatcher
+midipatcher-v0.1.0-61-gefee81b, MIT license, https://github.com/tschiemer/midipatcher
 ```
 
 ## Patchfiles

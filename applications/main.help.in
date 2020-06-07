@@ -81,10 +81,10 @@ Options:
 	 --cp-out|--control-out-port <control-out-port-descriptor>
 					 Use control port with default options: "--cp-in VirtMidiIn:MidiPatcher-Control --cp-out VirtMidiOut:MidiPatcher-Control".
 
-	 -r|--remote ... <remote-command>
+	 -r|--remote
 	 --remote-in <remote-control-in-port-descriptor>
 	 --remote-out <remote-control-out-port-descriptor>
-					 Act as remote control with default port options "--remote-in MidiOut:MidiPatcher-Control --remote-out MidiIn:MidiPatcher-Control".
+					 Act as (interactive) remote control with default port options "--remote-in MidiOut:MidiPatcher-Control --remote-out MidiIn:MidiPatcher-Control".
 					 Same commands as -i|--interactive
 
 
