@@ -1,5 +1,5 @@
-#ifndef CONTROL_PORT_H
-#define CONTROL_PORT_H
+#ifndef MIDIPATCHER_PORT_CONTROL_PORT_H
+#define MIDIPATCHER_PORT_CONTROL_PORT_H
 
 #include "../PortRegistry.hpp"
 #include "../AbstractControl.hpp"
@@ -102,4 +102,4 @@ namespace MidiPatcher {
 
 }
 
-#endif /* CONTROL_PORT_H */
+#endif /* MIDIPATCHER_PORT_CONTROL_PORT_H */

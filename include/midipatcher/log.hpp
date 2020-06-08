@@ -1,7 +1,5 @@
-#ifndef MIDIPATCHER_DEBUG_H
-#define MIDIPATCHER_DEBUG_H
-
-// #include <ostream>
+#ifndef MIDIPATCHER_LOG_H
+#define MIDIPATCHER_LOG_H
 
 #include <string>
 #include <vector>
@@ -85,4 +83,4 @@ namespace MidiPatcher {
 
 }
 
-#endif /* MIDIPATCHER_DEBUG_H */
+#endif /* MIDIPATCHER_LOG_H */

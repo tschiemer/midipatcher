@@ -1,5 +1,5 @@
-#ifndef PORT_PIPE_IN
-#define PORT_PIPE_IN
+#ifndef MIDIPATCHER_PORT_FILE_IN_H
+#define MIDIPATCHER_PORT_FILE_IN_H
 
 
 #include "AbstractStreamInputPort.hpp"
@@ -67,4 +67,4 @@ namespace MidiPatcher {
   }
 }
 
-#endif
+#endif /* MIDIPATCHER_PORT_FILE_IN_H */

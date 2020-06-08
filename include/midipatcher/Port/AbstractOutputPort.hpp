@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_OUTPUT_PORT_H
-#define ABSTRACT_OUTPUT_PORT_H
+#ifndef MIDIPATCHER_PORT_ABSTRACT_OUTPUT_PORT_H
+#define MIDIPATCHER_PORT_ABSTRACT_OUTPUT_PORT_H
 
 #include "AbstractPort.hpp"
 
@@ -22,4 +22,4 @@ namespace MidiPatcher {
   };
 }
 
-#endif /* ABSTRACT_OUTPUT_PORT_H */
+#endif /* MIDIPATCHER_PORT_ABSTRACT_OUTPUT_PORT_H */

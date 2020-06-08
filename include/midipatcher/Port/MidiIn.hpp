@@ -1,5 +1,5 @@
-#ifndef PORT_MIDI_IN_H
-#define PORT_MIDI_IN_H
+#ifndef MIDIPATCHER_PORT_MIDI_IN_H
+#define MIDIPATCHER_PORT_MIDI_IN_H
 
 #include "AbstractInputPort.hpp"
 

@@ -1,5 +1,5 @@
-#ifndef PORT_REGISTRY_H
-#define PORT_REGISTRY_H
+#ifndef MIDIPATCHER_PORT_REGISTRY_H
+#define MIDIPATCHER_PORT_REGISTRY_H
 
 #include <string>
 #include <vector>

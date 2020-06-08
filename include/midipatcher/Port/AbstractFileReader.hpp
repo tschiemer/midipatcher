@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_FILE_READER_H
-#define ABSTRACT_FILE_READER_H
+#ifndef MIDIPATCHER_PORT_ABSTRACT_FILE_READER_H
+#define MIDIPATCHER_PORT_ABSTRACT_FILE_READER_H
 
 #include "AbstractPort.hpp"
 
@@ -47,4 +47,4 @@ namespace MidiPatcher {
 
 }
 
-#endif /* ABSTRACT_FILE_READER_H */
+#endif /* MIDIPATCHER_PORT_ABSTRACT_FILE_READER_H */

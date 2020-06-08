@@ -3,7 +3,7 @@
 #include <Error.hpp>
 #include <Log.hpp>
 
-#include <version.h>
+#include <version.hpp>
 
 #include <thread>
 

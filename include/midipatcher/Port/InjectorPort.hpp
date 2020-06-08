@@ -1,5 +1,5 @@
-#ifndef INJECTOR_PORT_H
-#define INJECTOR_PORT_H
+#ifndef MIDIPATCHER_PORT_INJECTOR_PORT_H
+#define MIDIPATCHER_PORT_INJECTOR_PORT_H
 
 #include "AbstractInputOutputPort.hpp"
 
@@ -49,4 +49,4 @@ namespace MidiPatcher {
   }
 }
 
-#endif /* INJECTOR_PORT_H */
+#endif /* MIDIPATCHER_PORT_INJECTOR_PORT_H */

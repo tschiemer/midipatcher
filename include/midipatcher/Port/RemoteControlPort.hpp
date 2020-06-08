@@ -1,5 +1,5 @@
-#ifndef MIDIPATCHER_REMOTE_CONTROL_PORT_H
-#define MIDIPATCHER_REMOTE_CONTROL_PORT_H
+#ifndef MIDIPATCHER_PORT_REMOTE_CONTROL_PORT_H
+#define MIDIPATCHER_PORT_REMOTE_CONTROL_PORT_H
 
 #include "../CLI.hpp"
 #include "AbstractInputOutputPort.hpp"
@@ -50,4 +50,4 @@ namespace MidiPatcher {
   }
 }
 
-#endif /* MIDIPATCHER_REMOTE_CONTROL_PORT_H */
+#endif /* MIDIPATCHER_PORT_REMOTE_CONTROL_PORT_H */

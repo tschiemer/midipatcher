@@ -1,5 +1,5 @@
-#ifndef VIRT_MIDI_IN_H
-#define VIRT_MIDI_IN_H
+#ifndef MIDIPATCHER_PORT_VIRT_MIDI_IN_H
+#define MIDIPATCHER_PORT_VIRT_MIDI_IN_H
 
 #include "AbstractInputPort.hpp"
 
@@ -49,4 +49,4 @@ namespace MidiPatcher {
   }
 }
 
-#endif /* VIRT_MIDI_IN_H */
+#endif /* MIDIPATCHER_PORT_VIRT_MIDI_IN_H */

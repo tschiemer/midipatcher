@@ -5,7 +5,7 @@
 
 // #include <Port/MidiIn.hpp>
 
-#include <version.h>
+#include <version.hpp>
 #include <Log.hpp>
 #include <Error.hpp>
 

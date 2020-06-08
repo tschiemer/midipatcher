@@ -1,5 +1,5 @@
-#ifndef PORT_UDP_OUT_H
-#define PORT_UDP_OUT_H
+#ifndef MIDIPATCHER_PORT_UDP_OUT_H
+#define MIDIPATCHER_PORT_UDP_OUT_H
 
 #include "AbstractStreamOutputPort.hpp"
 
@@ -48,4 +48,4 @@ namespace MidiPatcher {
   }
 }
 
-#endif /* PORT_UDP_OUT_H */
+#endif /* MIDIPATCHER_PORT_UDP_OUT_H */

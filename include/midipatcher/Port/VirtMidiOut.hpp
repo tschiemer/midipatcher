@@ -1,5 +1,5 @@
-#ifndef VIRT_MIDI_OUT_H
-#define VIRT_MIDI_OUT_H
+#ifndef MIDIPATCHER_PORT_VIRT_MIDI_OUT_H
+#define MIDIPATCHER_PORT_VIRT_MIDI_OUT_H
 
 #include "AbstractOutputPort.hpp"
 
@@ -46,4 +46,4 @@ namespace MidiPatcher {
   }
 }
 
-#endif /* VIRT_MIDI_OUT_H */
+#endif /* MIDIPATCHER_PORT_VIRT_MIDI_OUT_H */

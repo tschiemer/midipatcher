@@ -1,5 +1,5 @@
-#ifndef PORT_DESCRIPTOR_H
-#define PORT_DESCRIPTOR_H
+#ifndef MIDIPATCHER_PORT_DESCRIPTOR_H
+#define MIDIPATCHER_PORT_DESCRIPTOR_H
 
 #include <string>
 #include <map>
@@ -33,4 +33,4 @@ namespace MidiPatcher {
 
 }
 
-#endif /* PORT_DESCRIPTOR_H */
+#endif /* MIDIPATCHER_PORT_DESCRIPTOR_H */

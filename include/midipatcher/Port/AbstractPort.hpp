@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_PORT_H
-#define ABSTRACT_PORT_H
+#ifndef MIDIPATCHER_PORT_ABSTRACT_PORT_H
+#define MIDIPATCHER_PORT_ABSTRACT_PORT_H
 
 // #include <utility>
 #include <string>
@@ -238,4 +238,4 @@ namespace MidiPatcher {
 
 }
 
-#endif /* ABSTRACT_PORT_H */
+#endif /* MIDIPATCHER_PORT_ABSTRACT_PORT_H */

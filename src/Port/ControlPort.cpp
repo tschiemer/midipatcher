@@ -1,7 +1,7 @@
 #include <Port/ControlPort.hpp>
 
 #include <PortRegistry.hpp>
-#include <version.h>
+
 #include <Log.hpp>
 #include <Error.hpp>
 

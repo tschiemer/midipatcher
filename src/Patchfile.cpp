@@ -8,7 +8,7 @@
 #include <Log.hpp>
 #include <Error.hpp>
 
-#include <version.h>
+#include <version.hpp>
 
 #include <fstream>
 #include <chrono>

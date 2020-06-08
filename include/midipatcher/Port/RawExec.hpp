@@ -1,5 +1,5 @@
-#ifndef PORT_RAW_EXEC_H
-#define PORT_RAW_EXEC_H
+#ifndef MIDIPATCHER_PORT_RAW_EXEC_H
+#define MIDIPATCHER_PORT_RAW_EXEC_H
 
 #include "AbstractExecPort.hpp"
 #include "AbstractStreamInputPort.hpp"
@@ -47,4 +47,4 @@ namespace MidiPatcher {
   }
 }
 
-#endif /* PORT_RAW_EXEC_H */
+#endif /* MIDIPATCHER_PORT_RAW_EXEC_H */

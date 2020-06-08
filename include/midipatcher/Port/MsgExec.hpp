@@ -1,5 +1,5 @@
-#ifndef MSG_EXEC_H
-#define MSG_EXEC_H
+#ifndef MIDIPATCHER_PORT_MSG_EXEC_H
+#define MIDIPATCHER_PORT_MSG_EXEC_H
 
 // #include "RawExec.hpp"
 #include "AbstractExecPort.hpp"
@@ -47,4 +47,4 @@ namespace MidiPatcher {
   }
 }
 
-#endif /* MSG_EXEC_H */
+#endif /* MIDIPATCHER_PORT_MSG_EXEC_H */

@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_EXEC_PORT_H
-#define ABSTRACT_EXEC_PORT_H
+#ifndef MIDIPATCHER_PORT_ABSTRACT_EXEC_PORT_H
+#define MIDIPATCHER_PORT_ABSTRACT_EXEC_PORT_H
 
 #include "AbstractInputOutputPort.hpp"
 #include "AbstractFileReader.hpp"
@@ -44,4 +44,4 @@ namespace MidiPatcher {
   }
 }
 
-#endif /* ABSTRACT_EXEC_PORT_H */
+#endif /* MIDIPATCHER_PORT_ABSTRACT_EXEC_PORT_H */
