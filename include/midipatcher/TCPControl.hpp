@@ -35,13 +35,15 @@ namespace MidiPatcher {
         Password = password;
       }
 
-      inline std::string getDefaultArgvDelimiter(){
-        return DefaultDelimiter;
+      static inline std::string getDefaultArgvDelimiter(){
+        assert(Singleton != nullptr);
+        return Singleton->DefaultDelimiter;
       }
 
-      inline void setDefaultArgvDelimiter(std::string delimiter){
+      static inline void setDefaultArgvDelimiter(std::string delimiter){
+        assert(Singleton != nullptr);
         assert( delimiter.size() > 0 );
-        DefaultDelimiter = delimiter;
+        Singleton->DefaultDelimiter = delimiter;
       }
 
 

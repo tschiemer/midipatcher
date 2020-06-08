@@ -29,6 +29,7 @@ struct {
     bool ShowUpdates;
     int AutoscanInterval;
     ControlType_t ControlType;
+    std::string CLIDelimiter;
     struct {
       bool Using;
       std::string Path;
@@ -50,6 +51,7 @@ struct {
   .ShowUpdates = false,
   .AutoscanInterval = 1000,
   .ControlType = ControlTypeNone,
+  .CLIDelimiter = " ",
   .PatchFile = {
     .Using = false,
     .Path = ""
@@ -284,7 +286,7 @@ void listPorts(){
 
   std::for_each(ports->begin(), ports->end(), [](MidiPatcher::AbstractPort* port){
     MidiPatcher::PortDescriptor * desc = port->getPortDescriptor();
-    std::cout << desc->toString() << std::endl;
+    std::cout << port->getId() << " " << port->getType() << " " << port->getDeviceState() << " " << desc->toString() << std::endl;
     delete desc;
   });
 
@@ -546,6 +548,7 @@ int main(int argc, char * argv[], char * env[]){
           {"patch-file", required_argument, 0, 'f'},
 
           {"interactive", no_argument, 0, 'i'},
+          {"delimiter", required_argument, 0, 8},
 
           {"tcpc", required_argument, 0, 't'},
           {"tcp-control", required_argument, 0, 't'},
@@ -566,7 +569,7 @@ int main(int argc, char * argv[], char * env[]){
           {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "vh?dua:pf:rit:",
+        c = getopt_long(argc, argv, "vh?dua:plf:rit:",
                         long_options, &option_index);
         if (c == -1)
             break;
@@ -620,6 +623,7 @@ int main(int argc, char * argv[], char * env[]){
                 break;
 
             case 'p':
+            case 'l':
                 listPorts();
                 return EXIT_SUCCESS;
 
@@ -651,6 +655,10 @@ int main(int argc, char * argv[], char * env[]){
 
             case 7:
               Options.TCPControl.Password = optarg;
+              break;
+
+            case 8:
+              Options.CLIDelimiter = optarg;
               break;
 
             default:
@@ -689,11 +697,16 @@ int main(int argc, char * argv[], char * env[]){
       setupRemoteControlPort();
     }
 
+    if (cli != nullptr){
+      cli->setArgvDelimiter(Options.CLIDelimiter);
+    }
+
     if (Options.ControlType == ControlTypeTcp){
       MidiPatcher::TCPControl::init(portRegistry, Options.TCPControl.Port, Options.TCPControl.Password);
       std::thread([](){
         MidiPatcher::TCPControl::start();
       }).detach();
+      MidiPatcher::TCPControl::setDefaultArgvDelimiter(Options.CLIDelimiter);
     }
 
     int portCount = 0;

@@ -124,6 +124,9 @@ namespace MidiPatcher {
         MidiPort->closePort();
         delete MidiPort;
       }
+      if (KnownPorts->count(Name) > 0){
+        KnownPorts->erase(Name);
+      }
     }
 
     void MidiOut::registerPort(PortRegistry &portRegistry){

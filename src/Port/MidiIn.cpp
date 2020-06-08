@@ -12,7 +12,6 @@ namespace MidiPatcher {
 
   namespace Port {
 
-    // RtMidiIn * MidiIn::RtMidiInRef = NULL;
 
     std::map<std::string, MidiIn*> * MidiIn::KnownPorts = NULL;
 
@@ -72,6 +71,7 @@ namespace MidiPatcher {
           midiin = new RtMidiIn(apis[a]);
 
           // Check inputs.
+
           unsigned int nPorts = midiin->getPortCount();
 
           // std::cout << "n = " << nPorts << std::endl;
@@ -79,6 +79,7 @@ namespace MidiPatcher {
           for ( unsigned i=0; i<nPorts; i++ ) {
 
             MidiIn * mi;
+
             std::string name = midiin->getPortName(i);
 
             // std::cout << i << " " << name << std::endl;
@@ -142,6 +143,9 @@ namespace MidiPatcher {
       if (MidiPort != NULL){
         MidiPort->closePort();
         delete MidiPort;
+      }
+      if (KnownPorts->count(Name) > 0){
+        KnownPorts->erase(Name);
       }
     }
 

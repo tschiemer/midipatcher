@@ -3,6 +3,8 @@
 #include <Port/AbstractPort.hpp>
 #include <Port/AbstractInputOutputPort.hpp>
 
+// #include <Port/MidiIn.hpp>
+
 #include <version.h>
 #include <Log.hpp>
 #include <Error.hpp>
@@ -134,7 +136,7 @@ namespace MidiPatcher {
 
     if (argv[0] == "ports"){
       if (argv.size() > 3){
-        return error("Expected: ports [<port-id>|<port-key>]");
+        return error("Expected: ports [#|<port-id>|<port-key>]");
       }
       if (argv.size() == 2){
 
@@ -151,7 +153,7 @@ namespace MidiPatcher {
 
         PortDescriptor * desc = port->getPortDescriptor();
 
-        respond("siis", "ports", port->getId(), port->getType(), desc->toString().c_str());
+        respond("siiis", "ports", port->getId(), port->getType(), port->getDeviceState(), desc->toString().c_str());
 
         delete desc;
 
@@ -166,7 +168,7 @@ namespace MidiPatcher {
         for(int i = 0; i < ports->size(); i++){
           AbstractPort * port = ports->at(i);
           PortDescriptor * desc = port->getPortDescriptor();
-          respond("siis","ports", port->getId(), port->getType(), desc->toString().c_str());
+          respond("siiis","ports", port->getId(), port->getType(), port->getDeviceState(), desc->toString().c_str());
           delete desc;
         }
 
@@ -248,7 +250,7 @@ namespace MidiPatcher {
         try {
           port = PortRegistryRef->registerPortFromDescriptor( desc );
 
-          respond("sis", "ports", port->getId(), port->getKey().c_str());
+          // respond("sisii", "ports", port->getId(), port->getKey().c_str(), port->getType(), port->getDeviceState());
 
           ok();
 
@@ -282,6 +284,7 @@ namespace MidiPatcher {
       //   respond("ss", "unregister", port->getKey().c_str());
       // }
 
+      // delete dynamic_cast<Port::MidiIn*>(port);
       delete port;
 
       return ok();
@@ -302,7 +305,7 @@ namespace MidiPatcher {
           return error("No such port: " + argv[2]);
         }
 
-        int constate = inport->isConnectedTo(outport) ? 1 : 0;
+        int constate = inport->isConnectedToType(outport, AbstractPort::TypeOutput) ? 1 : 0;
 
         if (OptReturnIds){
           respond("siii", "constate", inport->getId(), outport->getId(), constate );
@@ -320,17 +323,15 @@ namespace MidiPatcher {
           return error("No such port: " + argv[1]);
         }
 
-        std::vector<AbstractPort*> * connections = port->getConnections();
+        std::vector<AbstractPort*> * connections = port->getConnections(AbstractPort::TypeOutput);
 
         for(int i = 0; i < connections->size(); i++){
           AbstractPort * other = connections->at(i);
 
-          int constate = port->isConnectedTo(other);
-
           if (OptReturnIds){
-            respond("siii", "constate", port->getId(), other->getId(), constate );
+            respond("siii", "constate", port->getId(), other->getId(), 1 );
           } else {
-            respond("sssi", "constate", argv[1].c_str(), other->getKey().c_str(), constate );
+            respond("sssi", "constate", argv[1].c_str(), other->getKey().c_str(), 1 );
           }
         }
 
@@ -340,7 +341,7 @@ namespace MidiPatcher {
       }
       else {
 
-          std::vector<AbstractPort*> * ports = PortRegistryRef->getAllPorts();
+          std::vector<AbstractPort*> * ports = PortRegistryRef->getAllPorts(AbstractPort::TypeInput);
 
           // respond("si", "constate", ports->size() );
 
@@ -350,17 +351,15 @@ namespace MidiPatcher {
 
             if (inport != nullptr){
 
-              std::vector<AbstractPort*> * connections = port->getConnections();
+              std::vector<AbstractPort*> * connections = port->getConnections(AbstractPort::TypeOutput);
 
               for(int j = 0; j < connections->size(); j++){
                 AbstractPort * other = connections->at(j);
 
-                int constate = port->isConnectedTo(other);
-
                 if (OptReturnIds){
-                  respond("siii", "constate", port->getId(), other->getId(), constate );
+                  respond("siii", "constate", port->getId(), other->getId(), 1 );
                 } else {
-                  respond("sssi", "constate", port->getKey().c_str(), other->getKey().c_str(), constate );
+                  respond("sssi", "constate", port->getKey().c_str(), other->getKey().c_str(), 1 );
                 }
               }
 
@@ -390,15 +389,15 @@ namespace MidiPatcher {
         return error("No such output-port: " + argv[2]);
       }
 
-      if (!inport->isConnectedTo(outport)){
+      if (!inport->isConnectedToType(outport, AbstractPort::TypeOutput)){
         PortRegistryRef->connectPorts(inport, outport);
       }
 
-      if (OptReturnIds){
-        respond("siii", "constate", inport->getId(), outport->getId(), 1);
-      } else {
-        respond("sssi", "constate", argv[1].c_str(), argv[2].c_str(), 1);
-      }
+      // if (OptReturnIds){
+      //   respond("siii", "constate", inport->getId(), outport->getId(), 1);
+      // } else {
+      //   respond("sssi", "constate", argv[1].c_str(), argv[2].c_str(), 1);
+      // }
 
       return ok();
     }
@@ -418,15 +417,15 @@ namespace MidiPatcher {
         return error("No such output-port: " + argv[2]);
       }
 
-      if (inport->isConnectedTo(outport)){
+      if (inport->isConnectedToType(outport, AbstractPort::TypeOutput)){
         PortRegistryRef->disconnectPorts(inport, outport);
       }
 
-      if (OptReturnIds){
-        respond("sssi", "constate", inport->getId(), outport->getId(), 0);
-      } else {
-        respond("sssi", "constate", argv[1].c_str(), argv[2].c_str(), 0);
-      }
+      // if (OptReturnIds){
+      //   respond("sssi", "constate", inport->getId(), outport->getId(), 0);
+      // } else {
+      //   respond("sssi", "constate", argv[1].c_str(), argv[2].c_str(), 0);
+      // }
 
       return ok();
     }
@@ -512,7 +511,7 @@ namespace MidiPatcher {
       return;
     }
     PortDescriptor * desc = port->getPortDescriptor();
-    respond("siis", "+ports", port->getId(), port->getType(),  desc->toString().c_str());
+    respond("siiis", "+ports", port->getId(), port->getType(), port->getDeviceState(), desc->toString().c_str());
     delete desc;
   }
 
@@ -521,7 +520,7 @@ namespace MidiPatcher {
       return;
     }
     PortDescriptor * desc = port->getPortDescriptor();
-    respond("ssiis", "+ports", "-", port->getId(), port->getType(),  desc->toString().c_str());
+    respond("siiis", "-ports", port->getId(), port->getType(), port->getDeviceState(), desc->toString().c_str());
     delete desc;
   }
 

@@ -53,7 +53,7 @@ namespace MidiPatcher {
       void rescan();
 
       int getPortCount();
-      std::vector<AbstractPort*> * getAllPorts();
+      std::vector<AbstractPort*> * getAllPorts(AbstractPort::Type_t type = AbstractPort::TypeAny);
 
       AbstractPort * getPortById( unsigned int id );
       AbstractPort * getPortByKey(std::string key);
@@ -63,6 +63,7 @@ namespace MidiPatcher {
 
       AbstractPort * registerPortFromDescriptor(PortDescriptor * portDescriptor);
 
+      std::vector<std::pair<AbstractInputPort*,AbstractOutputPort*>> * getAllConnections();
 
       void connectPorts(AbstractInputPort *input, AbstractOutputPort *output);
       void connectPortsByKey(std::string inputKey, std::string outputKey);

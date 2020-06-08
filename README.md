@@ -26,16 +26,18 @@ https://github.com/tschiemer/midipatcher
 ```bash
 Usage:
 	 midipatcher [-vh?]
-	 midipatcher (-l|--ports)
 	 midipatcher (--pc|--port-classes)
+	 midipatcher [-d[-d[-d]]] (-l|-p||--ports)
+	 		List all (found) ports.
+			Number of found ports on single line followed by a line for each port consisting of <port-id> <port-type> <devstate> <port-descriptor>
 
-	 midipatcher [-d[d[d]]][-a<autoscan-interval>] [-u] [<control-type>] [<patch-options>]
+	 midipatcher [-d[d[d]]] [-a<autoscan-interval>] [-u] [<control-type>] [<patch-options>]
 
 	 	<control-type>
-			(-i|--interactive)
-			(--tcpc|--tcp-control) [--tcp-pass <password>]
+			(-i|--interactive) [--delimiter <delimiter>]
+			(--tcpc|--tcp-control) [--tcp-pass <password>] [--delimiter <delimiter>]
 			(--cp|--control-port) [--cp-in <control-in-port-descriptor>] [--cp-out <control-out-port-descriptor>]
-			(-r|--remote) [--remote-in <remote-control-in-port-descriptor>] [--remote-out <remote-control-out-port-descriptor>] <remote-command...>
+			(-r|--remote) [--remote-in <remote-control-in-port-descriptor>] [--remote-out <remote-control-out-port-descriptor>] [--delimiter <delimiter>]
 
 		<patch-options>
 		  [-f|patch-file <patch-file>] [<in-port-descriptor1> <out-port-descriptor1> ... ]
@@ -91,6 +93,9 @@ Options:
 					 disconnect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)
 					 		Disconnect two ports
 
+	 --delimiter <delimiter>
+	 				Use <delimiter> as (default) argument delimiter.
+
 	 --tcpc|--tcp-control <port>
 	 				Create a TCP port on which to listen for commands.
 					NOTE: By default no password is required! (see --tcp-pass).
@@ -113,6 +118,15 @@ Options:
 					 Act as (interactive) remote control with default port options "--remote-in MidiOut:MidiPatcher-Control --remote-out MidiIn:MidiPatcher-Control".
 					 Same commands as -i|--interactive
 
+	 <port-id>
+	 		(Process-internal) Unique ID of port.
+	 <port-type>
+	    1		Input
+			2		Output
+			3		Input/Output (Passthrough)
+		<devstate>
+			0		Device not connected
+			1		Device connected
 
 	 <in-/out-/control-port-descriptor> := <port-key>[<options>]
 	 <port-key> := <PortClass>:<PortName>
@@ -143,7 +157,6 @@ midipatcher UdpIn:3000 "VirtMidiOut:From other computer" "VirtMidiIn:To other co
 Control examples:
 midipatcher -i
 midipatcher --tcpc 9900 --tcp-pass secure & socat - TCP-CONNECT:localhost:9900
-midipatcher --cp & midipatcher -r ping
 midipatcher --cp & midipatcher -r
 
 More, fancy examples:
@@ -157,7 +170,7 @@ RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi
 Asio (Networking) C++ Library, https://think-async.com/Asio
 midimessage: midimessage library, https://github.com/tschiemer/midimessage
 
-midipatcher-v0.1.0-61-gefee81b, MIT license, https://github.com/tschiemer/midipatcher
+midipatcher-v0.1.0-63-g5aa004e, MIT license, https://github.com/tschiemer/midipatcher
 ```
 
 ## Patchfiles

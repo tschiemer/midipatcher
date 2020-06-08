@@ -154,11 +154,13 @@ namespace MidiPatcher {
     return Ports.size();
   }
 
-  std::vector<AbstractPort*> * PortRegistry::getAllPorts(){
+  std::vector<AbstractPort*> * PortRegistry::getAllPorts(AbstractPort::Type_t type){
     std::vector<AbstractPort*> * ports = new std::vector<AbstractPort*>();
 
-    std::for_each(Ports.begin(), Ports.end(), [&ports](std::pair<std::string,AbstractPort*> p){
-      ports->push_back(p.second);
+    std::for_each(Ports.begin(), Ports.end(), [&ports, type](std::pair<std::string,AbstractPort*> p){
+      if (type == AbstractPort::TypeAny || (p.second->Type & type) == type ){
+        ports->push_back(p.second);
+      }
     });
 
     return ports;
@@ -223,9 +225,9 @@ namespace MidiPatcher {
 
     // remove all connections
     std::for_each(connections->begin(), connections->end(), [port](AbstractPort*other){
-      // removeConnection(port, other);
-      port->removeConnection(other);
-      other->removeConnection(port);
+      // removeConnectionAs(port, other);
+      port->removeConnectionAs(other, AbstractPort::TypeInput);
+      other->removeConnectionAs(port, AbstractPort::TypeOutput);
     });
 
     connections->clear();
@@ -260,6 +262,30 @@ namespace MidiPatcher {
     return port;
   }
 
+  std::vector<std::pair<AbstractInputPort*,AbstractOutputPort*>> * PortRegistry::getAllConnections(){
+    std::vector<std::pair<AbstractInputPort*,AbstractOutputPort*>> * connections = new std::vector<std::pair<AbstractInputPort*,AbstractOutputPort*>>();
+
+    std::for_each(Ports.begin(), Ports.end(), [connections](std::pair<std::string, AbstractPort*> i){
+      if ( (i.second->Type & AbstractPort::TypeInput) != AbstractPort::TypeInput ){
+        return;
+      }
+      AbstractInputPort * inport = dynamic_cast<AbstractInputPort*>(i.second);
+
+      // std::vector<AbstractPort::Connection> * outportList = inport->getConnections(AbstractPort::TypeOutput);
+
+      std::for_each(inport->Connections.begin(), inport->Connections.end(), [connections,inport](AbstractPort::Connection & con){
+        // as InputOutput types can be connected to inputs only we need to guard against this case
+        if ( (con.Type & AbstractPort::TypeOutput) != AbstractPort::TypeOutput){
+          return;
+        }
+        AbstractOutputPort * outport = dynamic_cast<AbstractOutputPort*>(con.Port);
+
+        connections->push_back(std::pair<AbstractInputPort*,AbstractOutputPort*>(inport,outport));
+      });
+    });
+
+    return connections;
+  }
 
   void PortRegistry::connectPorts(AbstractInputPort *input, AbstractOutputPort *output){
 
@@ -275,8 +301,8 @@ namespace MidiPatcher {
 
     // std::cout << "Connecting [" << input->Name << "] -> [" << output->Name << "]" << std::endl;
 
-    output->addConnection(input);
-    input->addConnection(output);
+    output->addConnectionAs(input, AbstractPort::TypeInput);
+    input->addConnectionAs(output, AbstractPort::TypeOutput);
 
     publishPortsConnected(input,output);
   }
@@ -299,8 +325,8 @@ namespace MidiPatcher {
 
     Log::notice("disconnectPorts " + input->getKey() + " " + output->getKey());
 
-    output->removeConnection(input);
-    input->removeConnection(output);
+    output->removeConnectionAs(input, AbstractPort::TypeInput);
+    input->removeConnectionAs(output, AbstractPort::TypeOutput);
 
     publishPortsDisconnected(input,output);
   }

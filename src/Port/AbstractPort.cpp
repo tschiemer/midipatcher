@@ -59,7 +59,7 @@ namespace MidiPatcher {
     // assert( Connections.size() == 0);
 
     // stop();
-    // std::cout << "~AbstractPort" << std::endl;
+    std::cerr << "~AbstractPort" << std::endl;
   };
 
 
@@ -81,37 +81,73 @@ namespace MidiPatcher {
   }
 
 
-  std::vector<AbstractPort *> * AbstractPort::getConnections(){
+  std::vector<AbstractPort *> * AbstractPort::getConnections(Type_t type){
+    // assert( type == TypeAny || type == TypeInput || type == TypeOutput );
+
     std::vector<AbstractPort *> * connections = new std::vector<AbstractPort*>();
 
-    for(std::map<std::string,AbstractPort*>::iterator it = Connections.begin(); it != Connections.end(); it++){
-      connections->push_back( it->second );
+    for(std::vector<Connection>::iterator it = Connections.begin(); it != Connections.end(); it++){
+      if (type == TypeAny || (it->Type & type) == type){
+        connections->push_back( it->Port );
+      }
     }
 
     return connections;
   }
 
-  void AbstractPort::addConnection(AbstractPort * port){
+  void AbstractPort::addConnectionAs(AbstractPort * port, Type_t type){
+    assert( type == TypeInput || type == TypeOutput );
+    assert( port != NULL );
+    assert( (port->Type & type) == type ); // can port actually act as what it is supposed to?
 
-    Connections[port->getKey()] = port;
+    Connection con(type, port);
 
-    addConnectionImpl(port);
+    // already in list? (do not allow duplicates)
+    std::vector<Connection>::iterator it = std::find(Connections.begin(), Connections.end(), con);
+
+    if (it != Connections.end()){
+      return;
+    }
+
+    // Connections[port->getKey()] = port;
+    Connections.push_back(con);
+
+    addConnectionImpl(con);
 
     if (getDeviceState() == DeviceStateConnected){
       start();
     }
   }
 
-  void AbstractPort::removeConnection(AbstractPort * port){
+  void AbstractPort::removeConnectionAs(AbstractPort * port, Type_t type){
+    assert( type == TypeInput || type == TypeOutput );
+    assert( port != NULL );
+    assert( (port->Type & type) == type ); // can port actually act as what it is supposed to?
 
-    Connections.erase(port->getKey());
+    Connection con(type, port);
 
-    removeConnectionImpl(port);
+    Connections.erase(std::remove(Connections.begin(), Connections.end(), con));
+
+    removeConnectionImpl(con);
 
     if (Connections.size() == 0){
       stop();
     }
 
+  }
+
+  bool AbstractPort::isConnectedToType(AbstractPort * port, Type_t type){
+
+    for(std::vector<Connection>::iterator it = Connections.begin(); it != Connections.end(); it++){
+      if (it->Port != port){
+        continue;
+      }
+      if (type == TypeAny || (it->Type & type) == type){
+        return true;
+      }
+    }
+
+    return false;
   }
 
   void AbstractPort::onDeviceConnected(){

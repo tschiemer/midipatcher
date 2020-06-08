@@ -54,9 +54,10 @@ namespace MidiPatcher {
 
 
       typedef enum {
+        TypeAny          = 0,
         TypeInput        = 1,
         TypeOutput       = 2,
-        TypeInputOutput  = 3
+        TypeInputOutput  = TypeInput | TypeOutput
       } Type_t;
 
 
@@ -158,35 +159,57 @@ namespace MidiPatcher {
         return DeviceState;
       }
 
+      struct Connection {
+        Type_t Type;
+        AbstractPort * Port;
+
+        Connection(Type_t type, AbstractPort * port){
+          Type = type;
+          Port = port;
+        }
+
+        Connection(const Connection &other){
+          Type = other.Type;
+          Port = other.Port;
+        }
+
+        bool operator==(const Connection &other){
+          return (Type == other.Type && Port == other.Port);
+        }
+      };
+
     protected:
 
-      std::map<std::string,AbstractPort *> Connections;
+      std::vector<Connection> Connections;
 
     public:
 
-      std::vector<AbstractPort *> * getConnections();
+      std::vector<AbstractPort *> * getConnections(Type_t type = TypeAny);
 
-      inline bool isConnectedTo(std::string portKey){
-        return Connections.count(portKey) > 0;
-      }
+      // inline bool isConnectedToType(std::string portKey, Type_t type){
+      //   assert( type == TypeInput || type == TypeOutput );
+      //   return Connections.count(portKey) > 0;
+      // }
 
-      inline bool isConnectedTo(AbstractPort * port){
-        return isConnectedTo(port->getKey());
-      }
+      bool isConnectedToType(AbstractPort * port, Type_t type);
+      // {
+      //   assert( type == TypeInput || type == TypeOutput );
+      //   return isConnectedToType(port->getKey(), type);
+      // }
 
     protected:
 
       virtual void onDeviceConnected();
       virtual void onDeviceDisconnected();
 
-      void addConnection(AbstractPort * port);
-      void removeConnection(AbstractPort * port);
+      void addConnectionAs(AbstractPort * port, Type_t type);
+      void removeConnectionAs(AbstractPort * port, Type_t type);
 
     protected:
 
-      virtual void addConnectionImpl(AbstractPort * port) {};
+      virtual void addConnectionImpl(Connection &connection) {};
 
-      virtual void removeConnectionImpl(AbstractPort * port) {};
+      virtual void removeConnectionImpl(Connection &connection) {};
 
       virtual void start(){};
       virtual void stop(){};
