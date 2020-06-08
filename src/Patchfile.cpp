@@ -8,7 +8,12 @@
 #include <Log.hpp>
 #include <Error.hpp>
 
+#include <version.h>
+
 #include <fstream>
+#include <chrono>
+#include <ctime>
+#include <time.h>
 
 namespace MidiPatcher {
   namespace Patchfile {
@@ -38,11 +43,11 @@ namespace MidiPatcher {
 
     int loadFromPatchfile(PortRegistry * portRegistry, std::string fname){
 
-        std::vector<MidiPatcher::AbstractPort*> inports = std::vector<MidiPatcher::AbstractPort*>();
-        std::vector<MidiPatcher::AbstractPort*> outports = std::vector<MidiPatcher::AbstractPort*>();
-
         std::ifstream patchfile;
         patchfile.open(fname);
+
+        std::vector<MidiPatcher::AbstractPort*> inports = std::vector<MidiPatcher::AbstractPort*>();
+        std::vector<MidiPatcher::AbstractPort*> outports = std::vector<MidiPatcher::AbstractPort*>();
 
         // expected format:
         // <in-port-desc> ;; <out-port-desc>
@@ -91,18 +96,33 @@ namespace MidiPatcher {
 
             desc = MidiPatcher::PortDescriptor::fromString(in);
             port = portRegistry->registerPortFromDescriptor(desc);
+
+            if (dynamic_cast<AbstractInputPort*>(port) == nullptr){
+              throw Error("Given input port is not an actual input port: " + in);
+            }
+
             inports.push_back(port);
+
 
             desc = MidiPatcher::PortDescriptor::fromString(out);
             port = portRegistry->registerPortFromDescriptor(desc);
+
+            if (dynamic_cast<AbstractOutputPort*>(port) == nullptr){
+              throw Error("Given output port is not an actual output port: " + out);
+            }
+
             outports.push_back(port);
 
-          } catch (std::exception &e){
+            std::cerr << "inport " << in << " outport " << out << std::endl;
+
+          } catch (const Error &e){
             // new Error(e);
+            patchfile.close();
             throw e;
           }
         }
 
+        patchfile.close();
 
         assert( inports.size() == outports.size() );
 
@@ -118,6 +138,68 @@ namespace MidiPatcher {
     }
 
     void saveToPatchfile(PortRegistry * portRegistry, std::string fname){
+      assert( portRegistry != NULL );
+
+      std::ofstream patchfile;
+      patchfile.open(fname);
+
+      // https://stackoverflow.com/questions/34857119/how-to-convert-stdchronotime-point-to-string/34858704
+      std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+      std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+      std::tm now_tm = *std::localtime(&now_c);
+
+      char timestampStr[128];
+
+      std::strftime(timestampStr, sizeof(timestampStr), "%c", &now_tm);
+
+      patchfile << "# " << APPLICATION << "\n";
+      patchfile << "# " << timestampStr << "\n";
+
+
+      std::vector<std::pair<AbstractInputPort*,AbstractOutputPort*>> * connections = portRegistry->getAllConnections();
+
+      std::map<std::string,bool> alreadyOutput;
+
+      for(int i = 0; i < connections->size(); i++){
+
+        AbstractPort * port;
+        PortDescriptor * desc;
+
+        port = dynamic_cast<AbstractPort*>(connections->at(i).first);
+        desc = port->getPortDescriptor();
+
+        if (alreadyOutput.count(desc->getKey()) == 0){
+          patchfile << desc->toString();
+          alreadyOutput[desc->getKey()] = true;
+        } else {
+          patchfile << desc->getKey();
+        }
+
+        delete desc;
+
+        patchfile << "\t";
+
+        port = dynamic_cast<AbstractPort*>(connections->at(i).second);
+        desc = port->getPortDescriptor();
+
+        if (alreadyOutput.count(desc->getKey()) == 0){
+          patchfile << desc->toString();
+          alreadyOutput[desc->getKey()] = true;
+        } else {
+          patchfile << desc->getKey();
+        }
+
+        delete desc;
+
+        patchfile << "\n";
+
+      }
+
+      patchfile.flush();
+
+      patchfile.close();
+
+      delete connections;
 
     }
 

@@ -31,8 +31,9 @@ struct {
     ControlType_t ControlType;
     std::string CLIDelimiter;
     struct {
-      bool Using;
       std::string Path;
+      bool LoadOnStart;
+      bool SaveOnExit;
     } PatchFile;
     struct {
       unsigned short Port;
@@ -53,8 +54,9 @@ struct {
   .ControlType = ControlTypeNone,
   .CLIDelimiter = " ",
   .PatchFile = {
-    .Using = false,
-    .Path = ""
+    .Path = "default.patchfile",
+    .LoadOnStart = false,
+    .SaveOnExit = false
   },
   .TCPControl = {
     // .Port =
@@ -350,11 +352,13 @@ int setupPortsFromArgs(int argc, char * argv[]){
 
 int setupPortsFromFile(std::string file){
 
+
   int loaded = 0;
   try {
     loaded = MidiPatcher::Patchfile::loadFromPatchfile(portRegistry, file);
   } catch( std::exception &e){
     std::cerr << "ERROR " << e.what() << std::endl;
+    exit(EXIT_FAILURE);
   }
 
   MidiPatcher::Log::notice("Loaded " + std::to_string(loaded) + " connections from " + file);
@@ -411,6 +415,14 @@ void setupRemoteControlPort( void ){
 
 void init(){
 
+  static bool once = true;
+
+  if (once){
+    once = false;
+  } else {
+    return;
+  }
+
   MidiPatcher::Log::registerLogger(logger);
 
   std::vector<MidiPatcher::AbstractPort::PortClassRegistryInfo*> pcriList;
@@ -438,7 +450,6 @@ void deinit(){
 
   portRegistry->unsubscribePortRegistryUpdateReveicer(notificationHandler);
 
-
   if (cli != nullptr){
     if (Options.ControlType == ControlTypeInteractive){
       delete dynamic_cast<MidiPatcher::InteractiveControl*>(cli);
@@ -446,6 +457,10 @@ void deinit(){
     if (Options.ControlType == ControlTypeRemote){
       // delete dynamic_cast<MidiPatcher::Port::RemoteControlPort*>(cli);
     }
+  }
+
+  if (Options.PatchFile.SaveOnExit){
+    MidiPatcher::Patchfile::saveToPatchfile(portRegistry, Options.PatchFile.Path);
   }
 
   delete portRegistry;
@@ -480,7 +495,11 @@ int main(int argc, char * argv[], char * env[]){
           // {"persist", no_argument, 0, 'p'},
 
           // {"pf", required_argument, 0, 'f'},
-          {"patch-file", required_argument, 0, 'f'},
+          {"patch-file", optional_argument, 0, 'f'},
+          {"los", no_argument, 0, 9},
+          {"load-on-start", no_argument, 0, 9},
+          {"sox", no_argument, 0, 10},
+          {"save-on-exit", no_argument, 0, 10},
 
           {"interactive", no_argument, 0, 'i'},
           {"delimiter", required_argument, 0, 8},
@@ -571,12 +590,19 @@ int main(int argc, char * argv[], char * env[]){
                 break;
 
             case 'f':
-                // if (optarg == NULL){
-                //   std::cerr << "ERROR patch file option without file" << std::endl;
-                //   return EXIT_FAILURE;
-                // }
-                Options.PatchFile.Using = true;
-                Options.PatchFile.Path = optarg;
+                Options.PatchFile.LoadOnStart = true;
+
+                if (optarg != nullptr){
+                  Options.PatchFile.Path = optarg;
+                }
+                break;
+
+            case 9:
+                Options.PatchFile.LoadOnStart = true;
+                break;
+
+            case 10:
+                Options.PatchFile.SaveOnExit = true;
                 break;
 
             case 'i':
@@ -595,6 +621,7 @@ int main(int argc, char * argv[], char * env[]){
             case 8:
               Options.CLIDelimiter = optarg;
               break;
+
 
             default:
                 printf("?? getopt returned character code %o ??\n", c);
@@ -646,7 +673,7 @@ int main(int argc, char * argv[], char * env[]){
 
     int portCount = 0;
 
-    if (Options.PatchFile.Using){
+    if (Options.PatchFile.LoadOnStart){
       portCount += setupPortsFromFile(Options.PatchFile.Path);
     }
 

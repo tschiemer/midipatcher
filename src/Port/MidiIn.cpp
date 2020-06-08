@@ -12,8 +12,9 @@ namespace MidiPatcher {
 
   namespace Port {
 
-
     std::map<std::string, MidiIn*> * MidiIn::KnownPorts = NULL;
+
+
 
     AbstractPort* MidiIn::factory(PortDescriptor * portDescriptor){
       assert( portDescriptor->PortClass == PortClass );
@@ -48,10 +49,12 @@ namespace MidiPatcher {
       std::map<std::string,bool> seen;
       std::map<std::string,DeviceState_t> previousState;
 
-      std::for_each(KnownPorts->begin(), KnownPorts->end(), [&seen, &previousState](std::pair<std::string,MidiIn*> pair){
-        seen[pair.first] = false;
-        previousState[pair.first] = pair.second->getDeviceState();
-      });
+      if (KnownPorts != nullptr){
+        std::for_each(KnownPorts->begin(), KnownPorts->end(), [&seen, &previousState](std::pair<std::string,MidiIn*> pair){
+          seen[pair.first] = false;
+          previousState[pair.first] = pair.second->getDeviceState();
+        });
+      }
 
       RtMidiIn *midiin = NULL;
 
@@ -89,7 +92,7 @@ namespace MidiPatcher {
               continue;
             }
 
-            if (KnownPorts->count(name)){
+            if (isKnown(name)){
               mi = KnownPorts->at(name);
               mi->PortNumber = i;
 

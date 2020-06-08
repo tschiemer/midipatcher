@@ -46,10 +46,12 @@ namespace MidiPatcher {
       std::map<std::string,bool> seen;
       std::map<std::string,DeviceState_t> previousState;
 
-      std::for_each(KnownPorts->begin(), KnownPorts->end(), [&seen, &previousState](std::pair<std::string,MidiOut*> pair){
-        seen[pair.first] = false;
-        previousState[pair.first] = pair.second->getDeviceState();
-      });
+      if (KnownPorts != nullptr){  
+        std::for_each(KnownPorts->begin(), KnownPorts->end(), [&seen, &previousState](std::pair<std::string,MidiOut*> pair){
+          seen[pair.first] = false;
+          previousState[pair.first] = pair.second->getDeviceState();
+        });
+      }
 
       RtMidiOut *midiout = NULL;
 

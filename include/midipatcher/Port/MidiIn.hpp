@@ -42,6 +42,13 @@ namespace MidiPatcher {
 
         static std::map<std::string, MidiIn*> * KnownPorts;
 
+        static inline bool isKnown(std::string &key){
+          if (KnownPorts == nullptr){
+            return false;
+          }
+          return KnownPorts->count(key) > 0;
+        }
+
         RtMidi::Api Api = RtMidi::UNSPECIFIED;
 
         unsigned int PortNumber = 0;
