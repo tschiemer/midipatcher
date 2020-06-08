@@ -31,7 +31,6 @@ namespace MidiPatcher {
         UdpIn(std::string portName, std::string listenAddress, short port, std::string multicastAddress = "", bool runningStatusEnabled = true, size_t bufferSize = 256);
         ~UdpIn();
 
-        void registerPort(PortRegistry &portRegistry);
 
       protected:
 

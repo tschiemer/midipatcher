@@ -83,10 +83,6 @@ namespace MidiPatcher {
 
     }
 
-    void UdpOut::registerPort(PortRegistry &portRegistry){
-      portRegistry.registerPort(this);
-    }
-
     void UdpOut::writeToStream(unsigned char * data, size_t len){
       Socket.send_to(asio::buffer(data, len), Endpoint);
     }

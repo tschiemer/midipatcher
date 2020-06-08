@@ -37,10 +37,6 @@ namespace MidiPatcher {
       // stop();
     }
 
-    void MsgExec::registerPort(PortRegistry &portRegistry){
-      portRegistry.registerPort(this);
-    }
-
     void MsgExec::writeStringMessage(unsigned char * stringMessage, size_t len){
       stringMessage[len++] = '\n';
       // stringMessage[len] = '\0';

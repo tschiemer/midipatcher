@@ -31,8 +31,6 @@ namespace MidiPatcher {
         UdpOut(std::string portName, std::string remoteAddress, short port, std::string multicastAddress = "", bool runningStatusEnabled = false);
         ~UdpOut();
 
-        void registerPort(PortRegistry &portRegistry);
-
 
       protected:
 

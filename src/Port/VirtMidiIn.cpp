@@ -36,10 +36,6 @@ namespace MidiPatcher {
       delete MidiPort;
     }
 
-    void VirtMidiIn::registerPort(PortRegistry &portRegistry){
-      portRegistry.registerPort(this);
-    }
-
     void VirtMidiIn::rtMidiCallback( double timeStamp, std::vector<unsigned char> *message, void * midiInRef ){
       assert(midiInRef != NULL);
 

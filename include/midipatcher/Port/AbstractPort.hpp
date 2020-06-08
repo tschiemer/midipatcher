@@ -30,7 +30,7 @@ namespace MidiPatcher {
 
     public:
 
-      typedef std::vector<AbstractPort*>  * (*PortScanner)(PortRegistry * portRegistry);
+      typedef std::vector<AbstractPort*>  * (*PortScanner)();
       typedef AbstractPort * (*PortFactory)(PortDescriptor * portDescriptor);
 
       struct PortClassRegistryInfo {
@@ -140,7 +140,7 @@ namespace MidiPatcher {
 
       virtual ~AbstractPort();
 
-      virtual void registerPort(PortRegistry &portRegistry){}
+       void registerPort(PortRegistry &portRegistry);
 
     private:
 

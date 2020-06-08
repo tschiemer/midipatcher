@@ -19,7 +19,7 @@ namespace MidiPatcher {
   namespace Port {
 
     AbstractPort* RawExec::factory(PortDescriptor * portDescriptor){
-      
+
       std::string execpath;
       std::string argvStr = "";
 
@@ -45,10 +45,6 @@ namespace MidiPatcher {
 
     RawExec::~RawExec(){
 
-    }
-
-    void RawExec::registerPort(PortRegistry &portRegistry){
-      portRegistry.registerPort(this);
     }
 
     void RawExec::writeToStream(unsigned char * message, size_t len){

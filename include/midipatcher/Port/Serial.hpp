@@ -33,12 +33,11 @@ namespace MidiPatcher {
           return new Serial(portDescriptor->Name);
         }
 
-        static std::vector<AbstractPort*>  * scanner(PortRegistry * portRegistry);
+        static std::vector<AbstractPort*>  * scanner();
 
         Serial(std::string portName, bool runningStatusEnabled = true);
         ~Serial();
 
-        void registerPort(PortRegistry &portRegistry);
 
       protected:
 

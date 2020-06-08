@@ -40,7 +40,7 @@ namespace MidiPatcher {
       return new MidiOut(name, api);
     }
 
-    std::vector<AbstractPort*> * MidiOut::scanner(PortRegistry * portRegistry){
+    std::vector<AbstractPort*> * MidiOut::scanner(){
 
       // set dirty (seen)
       std::map<std::string,bool> seen;
@@ -139,10 +139,6 @@ namespace MidiPatcher {
         delete KnownPorts;
         KnownPorts = nullptr;
       }
-    }
-
-    void MidiOut::registerPort(PortRegistry &portRegistry){
-      portRegistry.registerPort(this);
     }
 
     void MidiOut::start(){

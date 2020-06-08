@@ -111,7 +111,7 @@ namespace MidiPatcher {
     {
       // std::cout << "Scanning " << it->first << std::endl;
       if (it->second->Scanner != NULL){
-        std::vector<AbstractPort*>  * list = it->second->Scanner(this);
+        std::vector<AbstractPort*>  * list = it->second->Scanner();
 
         for(int i = 0; i < list->size(); i++){
           AbstractPort * port = list->at(i);

@@ -57,11 +57,6 @@ namespace MidiPatcher {
         }
       }
 
-
-      void FileIn::registerPort(PortRegistry &portRegistry){
-        portRegistry.registerPort(this);
-      }
-
       // void FileIn::setNonBlocking(){
       //
       //     // set non-blocking

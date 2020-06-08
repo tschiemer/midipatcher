@@ -61,6 +61,10 @@ namespace MidiPatcher {
     // stop();
   };
 
+   void AbstractPort::registerPort(PortRegistry &portRegistry){
+    portRegistry.registerPort(this);
+  }
+
 
   void AbstractPort::setDeviceState(DeviceState_t newState){
 

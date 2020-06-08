@@ -40,7 +40,6 @@ namespace MidiPatcher {
         FileOut(std::string portName);
         ~FileOut();
 
-        void registerPort(PortRegistry &portRegistry);
 
       protected:
 

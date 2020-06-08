@@ -45,8 +45,6 @@ namespace MidiPatcher {
         FileIn(std::string portName, bool runningStatusEnabled = true);
         ~FileIn();
 
-        void registerPort(PortRegistry &portRegistry);
-
 
       protected:
 

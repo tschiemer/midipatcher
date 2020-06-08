@@ -38,10 +38,6 @@ namespace MidiPatcher {
       delete MidiPort;
     }
 
-    void VirtMidiOut::registerPort(PortRegistry &portRegistry){
-      portRegistry.registerPort(this);
-    }
-
     void VirtMidiOut::sendMessageImpl(unsigned char * message, size_t len){
 
       if (MidiPort == NULL){

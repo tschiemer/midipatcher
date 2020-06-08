@@ -34,7 +34,6 @@ namespace MidiPatcher {
       VirtMidiOut(std::string portName);
       ~VirtMidiOut();
 
-      void registerPort(PortRegistry &portRegistry);
 
       protected:
 

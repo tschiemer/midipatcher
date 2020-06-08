@@ -104,10 +104,6 @@ namespace MidiPatcher {
       free(InUdpBuffer);
     }
 
-    void UdpIn::registerPort(PortRegistry &portRegistry){
-      portRegistry.registerPort(this);
-    }
-
     void UdpIn::start(){
 
       if (Running){

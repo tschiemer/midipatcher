@@ -42,7 +42,7 @@ namespace MidiPatcher {
     }
 
 
-    std::vector<AbstractPort*> * MidiIn::scanner(PortRegistry * portRegistry){
+    std::vector<AbstractPort*> * MidiIn::scanner(){
 
       // set dirty (seen)
       std::map<std::string,bool> seen;
@@ -161,10 +161,6 @@ namespace MidiPatcher {
       }
     }
 
-
-    void MidiIn::registerPort(PortRegistry &portRegistry){
-      portRegistry.registerPort(this);
-    }
 
     void MidiIn::rtMidiCallback( double timeStamp, std::vector<unsigned char> *message, void * midiInRef ){
       assert(midiInRef != NULL);

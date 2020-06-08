@@ -35,14 +35,12 @@ namespace MidiPatcher {
           return new PortClassRegistryInfo(PortClass, factory, scanner);
         }
 
-        static std::vector<AbstractPort*>  * scanner(PortRegistry * portRegistry);
+        static std::vector<AbstractPort*>  * scanner();
 
 
         MidiIn(std::string portName, RtMidi::Api api = RtMidi::UNSPECIFIED, unsigned int portNumber = 0);
         ~MidiIn();
 
-
-        void registerPort(PortRegistry &portRegistry);
 
       protected:
 

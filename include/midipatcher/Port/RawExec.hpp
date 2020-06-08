@@ -34,7 +34,6 @@ namespace MidiPatcher {
         RawExec(std::string portName, std::string execpath, std::string argvStr = "");
         ~RawExec();
 
-        void registerPort(PortRegistry &portRegistry);
 
       protected:
 

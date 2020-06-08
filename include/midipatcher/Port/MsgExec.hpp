@@ -34,7 +34,6 @@ namespace MidiPatcher {
           MsgExec(std::string portName, std::string execpath, std::string argvStr = "");
           ~MsgExec();
 
-          void registerPort(PortRegistry &portRegistry);
 
         protected:
 

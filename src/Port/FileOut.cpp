@@ -55,11 +55,6 @@ namespace MidiPatcher {
       }
     }
 
-
-    void FileOut::registerPort(PortRegistry &portRegistry){
-      portRegistry.registerPort(this);
-    }
-
     void FileOut::writeToStream(unsigned char *data, size_t len){
       write( FD, data, len );
     }

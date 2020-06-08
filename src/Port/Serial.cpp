@@ -3,7 +3,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-    std::vector<AbstractPort*>  * Serial::scanner(PortRegistry * portRegistry){
+    std::vector<AbstractPort*>  * Serial::scanner(){
       return new std::vector<AbstractPort*>();
     }
 
@@ -12,10 +12,6 @@ namespace MidiPatcher {
     }
 
     Serial::~Serial(){
-
-    }
-
-    void Serial::registerPort(PortRegistry &portRegistry){
 
     }
 
