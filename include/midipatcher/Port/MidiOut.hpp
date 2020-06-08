@@ -23,13 +23,19 @@ namespace MidiPatcher {
 
         PortDescriptor * getPortDescriptor();
 
-        static std::vector<AbstractPort*>  * scan(PortRegistry * portRegistry);
+        static PortClassRegistryInfo * getPortClassRegistryInfo() {
+          return new PortClassRegistryInfo(PortClass, factory, scanner);
+        }
+
+        static std::vector<AbstractPort*>  * scanner(PortRegistry * portRegistry);
 
         static AbstractPort* factory(PortDescriptor * portDescriptor);
 
-        static PortClassRegistryInfo * getPortClassRegistryInfo() {
-          return new PortClassRegistryInfo(PortClass, factory, scan);
-        }
+        MidiOut(std::string portName, RtMidi::Api api = RtMidi::UNSPECIFIED, unsigned int portNumber = 0);
+        ~MidiOut();
+
+        void registerPort(PortRegistry &portRegistry);
+
 
       protected:
 
@@ -47,20 +53,8 @@ namespace MidiPatcher {
         unsigned int PortNumber = 0;
         RtMidiOut * MidiPort = nullptr;
 
-      public:
-
-        MidiOut(std::string portName, RtMidi::Api api = RtMidi::UNSPECIFIED, unsigned int portNumber = 0);
-
-        ~MidiOut();
-
-        void registerPort(PortRegistry &portRegistry);
-
-      protected:
-
         void start();
         void stop();
-
-      // public:
 
         void sendMessageImpl(unsigned char * message, size_t len);
 

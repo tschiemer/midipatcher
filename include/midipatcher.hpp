@@ -24,3 +24,4 @@
 #include "midipatcher/Port/RawExec.hpp"
 #include "midipatcher/Port/MsgExec.hpp"
 #include "midipatcher/Port/InjectorPort.hpp"
+#include "midipatcher/Port/Serial.hpp"

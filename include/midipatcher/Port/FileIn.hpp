@@ -19,10 +19,22 @@ namespace MidiPatcher {
 
       public:
 
+        static const constexpr char * FILE_STDIN = "STDIN";
+
+      public:
+
         static const constexpr char * PortClass = "FileIn";
 
         std::string getPortClass(){
           return PortClass;
+        }
+
+        PortDescriptor * getPortDescriptor(){
+          return new PortDescriptor(PortClass, Name);
+        }
+
+        static PortClassRegistryInfo * getPortClassRegistryInfo() {
+          return new PortClassRegistryInfo(PortClass, factory, nullptr);
         }
 
         static AbstractPort* factory(PortDescriptor * portDescriptor){
@@ -30,22 +42,11 @@ namespace MidiPatcher {
           return new FileIn(portDescriptor->Name);
         }
 
-        static PortClassRegistryInfo * getPortClassRegistryInfo() {
-          return new PortClassRegistryInfo(PortClass, factory, nullptr);
-        }
-
-        PortDescriptor * getPortDescriptor(){
-          return new PortDescriptor(PortClass, Name);
-        }
-
         FileIn(std::string portName, bool runningStatusEnabled = true);
         ~FileIn();
 
         void registerPort(PortRegistry &portRegistry);
 
-      public:
-
-        static const constexpr char * FILE_STDIN = "STDIN";
 
       protected:
 

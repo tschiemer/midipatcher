@@ -14,7 +14,11 @@ namespace MidiPatcher {
 
     std::map<std::string, MidiIn*> * MidiIn::KnownPorts = NULL;
 
-
+    PortDescriptor * MidiIn::getPortDescriptor() {
+      std::map<std::string, std::string> opt;
+      opt["api"] = std::to_string(Api);
+      return new PortDescriptor(PortClass, Name, opt);
+    };
 
     AbstractPort* MidiIn::factory(PortDescriptor * portDescriptor){
       assert( portDescriptor->PortClass == PortClass );
@@ -37,13 +41,8 @@ namespace MidiPatcher {
       return new MidiIn(name, api);
     }
 
-    PortDescriptor * MidiIn::getPortDescriptor() {
-      std::map<std::string, std::string> opt;
-      opt["api"] = std::to_string(Api);
-      return new PortDescriptor(PortClass, Name, opt);
-    };
 
-    std::vector<AbstractPort*> * MidiIn::scan(PortRegistry * portRegistry){
+    std::vector<AbstractPort*> * MidiIn::scanner(PortRegistry * portRegistry){
 
       // set dirty (seen)
       std::map<std::string,bool> seen;

@@ -17,6 +17,20 @@ namespace MidiPatcher {
 
       public:
 
+        static const constexpr char * PortClass = "ControlPort";
+
+        std::string getPortClass(){
+          return PortClass;
+        }
+
+        PortDescriptor * getPortDescriptor(){
+          return new PortDescriptor(PortClass, Name);
+        }
+
+        ControlPort(PortRegistry * portRegistry, std::string portName = "Default");
+
+      public:
+
         class Message : public virtual AbstractPort::Message {
 
           protected:
@@ -69,22 +83,6 @@ namespace MidiPatcher {
 
           };
 
-
-      public:
-
-        static const constexpr char * PortClass = "ControlPort";
-
-        std::string getPortClass(){
-          return PortClass;
-        }
-
-        PortDescriptor * getPortDescriptor(){
-          return new PortDescriptor(PortClass, Name);
-        }
-
-        ControlPort(PortRegistry * portRegistry, std::string portName = "Default");
-
-        // void sendMessage(unsigned char * message, size_t len);
 
       protected:
 

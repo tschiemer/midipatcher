@@ -1,6 +1,9 @@
 #ifndef MIDIPATCHER_PORT_ABSTRACT_PORT_H
 #define MIDIPATCHER_PORT_ABSTRACT_PORT_H
 
+#include "../PortDescriptor.hpp"
+#include "../Error.hpp"
+
 // #include <utility>
 #include <string>
 #include <vector>
@@ -8,9 +11,8 @@
 #include <cassert>
 #include <algorithm>
 
-#include <iostream>
+// #include <iostream>
 
-#include <PortDescriptor.hpp>
 // #include <PortClassRegistryInfo.hpp>
 
 namespace MidiPatcher {
@@ -116,17 +118,12 @@ namespace MidiPatcher {
 
       virtual std::string getPortClass() = 0;
 
-      virtual std::string getKey() {
-        return getPortClass() + ":" + Name;
-      };
-
-      // virtual std::map<std::string,std::string> getOptions() {
-      //   std::map<std::string,std::string> opt;
-      //   return opt;
-      // }
-
       virtual PortDescriptor * getPortDescriptor() {
         return new PortDescriptor("AbstractPort","Corona Milkbar");
+      };
+
+      virtual std::string getKey() {
+        return getPortClass() + ":" + Name;
       };
 
       virtual bool operator==(const AbstractPort& rhs){
@@ -177,6 +174,19 @@ namespace MidiPatcher {
           return (Type == other.Type && Port == other.Port);
         }
       };
+
+
+      virtual bool hasOption(std::string key){
+        return false;
+      }
+
+      virtual std::string getOoption(std::string key){
+        throw Error("Method getOption not implemented for " + getPortClass());
+      }
+
+      virtual void setOption(std::string key){
+        throw Error("Method setOption not implemented for " + getPortClass());
+      }
 
     protected:
 

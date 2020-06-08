@@ -21,18 +21,17 @@ namespace MidiPatcher {
             return PortClass;
           }
 
+          PortDescriptor * getPortDescriptor(){
+            return new PortDescriptor(PortClass, Name);
+          }
+
           static AbstractPort* factory(PortDescriptor * portDescriptor);
 
           static PortClassRegistryInfo * getPortClassRegistryInfo() {
             return new PortClassRegistryInfo(PortClass, factory, nullptr);
           }
 
-          PortDescriptor * getPortDescriptor(){
-            return new PortDescriptor(PortClass, Name);
-          }
-
           MsgExec(std::string portName, std::string execpath, std::string argvStr = "");
-
           ~MsgExec();
 
           void registerPort(PortRegistry &portRegistry);

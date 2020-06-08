@@ -13,6 +13,12 @@ namespace MidiPatcher {
 
     std::map<std::string, MidiOut*> * MidiOut::KnownPorts = new std::map<std::string, MidiOut*>();
 
+    PortDescriptor * MidiOut::getPortDescriptor() {
+      std::map<std::string, std::string> opt;
+      opt["api"] = std::to_string(Api);
+      return new PortDescriptor(PortClass, Name, opt);
+    };
+
     AbstractPort* MidiOut::factory(PortDescriptor * portDescriptor){
       assert( portDescriptor->PortClass == PortClass );
 
@@ -34,19 +40,13 @@ namespace MidiPatcher {
       return new MidiOut(name, api);
     }
 
-    PortDescriptor * MidiOut::getPortDescriptor() {
-      std::map<std::string, std::string> opt;
-      opt["api"] = std::to_string(Api);
-      return new PortDescriptor(PortClass, Name, opt);
-    };
-
-    std::vector<AbstractPort*> * MidiOut::scan(PortRegistry * portRegistry){
+    std::vector<AbstractPort*> * MidiOut::scanner(PortRegistry * portRegistry){
 
       // set dirty (seen)
       std::map<std::string,bool> seen;
       std::map<std::string,DeviceState_t> previousState;
 
-      if (KnownPorts != nullptr){  
+      if (KnownPorts != nullptr){
         std::for_each(KnownPorts->begin(), KnownPorts->end(), [&seen, &previousState](std::pair<std::string,MidiOut*> pair){
           seen[pair.first] = false;
           previousState[pair.first] = pair.second->getDeviceState();

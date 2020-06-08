@@ -3,7 +3,7 @@
 
 #include "AbstractStreamInputPort.hpp"
 
-#include "asio.hpp"
+#include <asio.hpp>
 
 namespace MidiPatcher {
   namespace Port {
@@ -18,15 +18,15 @@ namespace MidiPatcher {
           return PortClass;
         }
 
-        static AbstractPort* factory(PortDescriptor * portDescriptor);
+        PortDescriptor * getPortDescriptor(){
+          return new PortDescriptor(PortClass, Name);
+        }
 
         static PortClassRegistryInfo * getPortClassRegistryInfo() {
           return new PortClassRegistryInfo(PortClass, factory, nullptr);
         }
 
-        PortDescriptor * getPortDescriptor(){
-          return new PortDescriptor(PortClass, Name);
-        }
+        static AbstractPort* factory(PortDescriptor * portDescriptor);
 
         UdpIn(std::string portName, std::string listenAddress, short port, std::string multicastAddress = "", bool runningStatusEnabled = true, size_t bufferSize = 256);
         ~UdpIn();

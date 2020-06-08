@@ -11,13 +11,15 @@ namespace MidiPatcher {
 
       public:
 
+        typedef void (*ReceivedMessageHandler)(unsigned char * data, int len, InjectorPort * injectorPort, void * userData);
+
+      public:
+
         static const constexpr char * PortClass = "InjectorPort";
 
         virtual std::string getPortClass(){
           return PortClass;
         }
-
-        typedef void (*ReceivedMessageHandler)(unsigned char * data, int len, InjectorPort * injectorPort, void * userData);
 
         PortDescriptor * getPortDescriptor(){
           return new PortDescriptor(PortClass, Name);

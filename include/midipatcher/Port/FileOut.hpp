@@ -12,10 +12,24 @@ namespace MidiPatcher {
     class FileOut : AbstractStreamOutputPort {
 
       public:
+
+        static const constexpr char * FILE_STDOUT = "STDOUT";
+        static const constexpr char * FILE_STDERR = "STDERR";
+
+      public:
+
         static const constexpr char * PortClass = "FileOut";
 
         std::string getPortClass(){
           return PortClass;
+        }
+
+        PortDescriptor * getPortDescriptor(){
+          return new PortDescriptor(PortClass, Name);
+        }
+
+        static PortClassRegistryInfo * getPortClassRegistryInfo() {
+          return new PortClassRegistryInfo(PortClass, factory, nullptr);
         }
 
         static AbstractPort* factory(PortDescriptor * portDescriptor){
@@ -23,23 +37,10 @@ namespace MidiPatcher {
           return new FileOut(portDescriptor->Name);
         }
 
-        static PortClassRegistryInfo * getPortClassRegistryInfo() {
-          return new PortClassRegistryInfo(PortClass, factory, nullptr);
-        }
-
-        PortDescriptor * getPortDescriptor(){
-          return new PortDescriptor(PortClass, Name);
-        }
-
         FileOut(std::string portName);
         ~FileOut();
 
         void registerPort(PortRegistry &portRegistry);
-
-      public:
-
-          static const constexpr char * FILE_STDOUT = "STDOUT";
-          static const constexpr char * FILE_STDERR = "STDERR";
 
       protected:
 
