@@ -1,6 +1,8 @@
 #include "midipatcher/Log.hpp"
 #include "midipatcher/Error.hpp"
 
+#include "midipatcher/Patchfile.hpp"
+
 #include "midipatcher/version.h"
 
 #include "midipatcher/PortRegistry.hpp"

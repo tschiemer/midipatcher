@@ -136,16 +136,26 @@ namespace MidiPatcher {
       Api = api;
       PortNumber = portNumber;
 
+      if (KnownPorts == nullptr){
+        KnownPorts =  new std::map<std::string,MidiIn*>();
+      }
+
       (*KnownPorts)[portName] = this;
     }
 
     MidiIn::~MidiIn(){
-      if (MidiPort != NULL){
+      if (MidiPort != nullptr){
         MidiPort->closePort();
         delete MidiPort;
       }
+      // remove from known ports
       if (KnownPorts->count(Name) > 0){
         KnownPorts->erase(Name);
+      }
+      // if no ports left, deinit know ports map
+      if (KnownPorts->size() == 0){
+        delete KnownPorts;
+        KnownPorts = nullptr;
       }
     }
 

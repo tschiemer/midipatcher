@@ -26,6 +26,7 @@ namespace MidiPatcher {
 
          Log::debug("registering PortClass " + pcriList[i]->Key);
       }
+
   }
 
   PortRegistry::~PortRegistry(){
@@ -83,29 +84,6 @@ namespace MidiPatcher {
     std::for_each(PortClassRegistryInfoMap.begin(),PortClassRegistryInfoMap.end(), [](std::pair<std::string,AbstractPort::PortClassRegistryInfo *> pair){
       delete pair.second;
     });
-
-  }
-
-
-  void PortRegistry::init(){
-
-    for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); it++)
-    {
-      if (it->second->Init != NULL){
-        it->second->Init();
-      }
-    }
-  }
-
-  void PortRegistry::deinit(){
-
-    for (std::map<std::string, AbstractPort::PortClassRegistryInfo*>::iterator it = PortClassRegistryInfoMap.begin(); it != PortClassRegistryInfoMap.end(); it++)
-    {
-      if (it->second->Deinit != NULL){
-        it->second->Deinit();
-      }
-    }
-
   }
 
   void PortRegistry::runloop(){

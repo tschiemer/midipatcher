@@ -31,8 +31,7 @@ namespace MidiPatcher {
 
       ~PortRegistry();
 
-      void init();
-      void deinit();
+    public:
 
       void runloop();
 

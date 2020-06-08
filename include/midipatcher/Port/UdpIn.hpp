@@ -21,7 +21,7 @@ namespace MidiPatcher {
         static AbstractPort* factory(PortDescriptor * portDescriptor);
 
         static PortClassRegistryInfo * getPortClassRegistryInfo() {
-          return new PortClassRegistryInfo(PortClass, factory, nullptr, nullptr, nullptr);
+          return new PortClassRegistryInfo(PortClass, factory, nullptr);
         }
 
         PortDescriptor * getPortDescriptor(){

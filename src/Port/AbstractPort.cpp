@@ -59,7 +59,6 @@ namespace MidiPatcher {
     // assert( Connections.size() == 0);
 
     // stop();
-    std::cerr << "~AbstractPort" << std::endl;
   };
 
 

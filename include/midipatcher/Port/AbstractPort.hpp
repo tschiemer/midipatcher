@@ -33,17 +33,17 @@ namespace MidiPatcher {
 
       struct PortClassRegistryInfo {
         std::string Key;
-        void (*Init)(void);
-        void (*Deinit)(void);
+        // void (*Init)(void);
+        // void (*Deinit)(void);
         PortScanner Scanner;
         PortFactory Factory;
-        PortClassRegistryInfo(std::string key, PortFactory factory, void (*init)(void) = NULL, void (*deinit)(void) = NULL, PortScanner scanner = NULL){
+        PortClassRegistryInfo(std::string key, PortFactory factory, PortScanner scanner = NULL){
           assert( key.size() > 0 );
           assert( factory != NULL );
 
           Key = key;
-          Init = init;
-          Deinit = deinit;
+          // Init = init;
+          // Deinit = deinit;
           Scanner = scanner;
           Factory = factory;
         }

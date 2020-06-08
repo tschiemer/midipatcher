@@ -24,7 +24,7 @@ namespace MidiPatcher {
       }
 
       static PortClassRegistryInfo * getPortClassRegistryInfo() {
-        return new PortClassRegistryInfo(PortClass, factory, nullptr, nullptr, nullptr);
+        return new PortClassRegistryInfo(PortClass, factory, nullptr);
       }
 
 

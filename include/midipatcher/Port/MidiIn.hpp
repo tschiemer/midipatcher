@@ -18,19 +18,6 @@ namespace MidiPatcher {
 
         static AbstractPort* factory(PortDescriptor * portDescriptor);
 
-        static void init(){
-          if (KnownPorts == NULL){
-            KnownPorts =  new std::map<std::string,MidiIn*>();
-          }
-        }
-
-        static void deinit(){
-          if (KnownPorts != NULL){
-            delete KnownPorts;
-            KnownPorts = NULL;
-          }
-        }
-
         std::string getPortClass(){
           return PortClass;
         }
@@ -48,7 +35,7 @@ namespace MidiPatcher {
 
 
         static PortClassRegistryInfo * getPortClassRegistryInfo(){
-          return new PortClassRegistryInfo(PortClass, factory, init, deinit, scan);
+          return new PortClassRegistryInfo(PortClass, factory, scan);
         }
 
       protected:
@@ -58,7 +45,7 @@ namespace MidiPatcher {
         RtMidi::Api Api = RtMidi::UNSPECIFIED;
 
         unsigned int PortNumber = 0;
-        RtMidiIn * MidiPort = NULL;
+        RtMidiIn * MidiPort = nullptr;
 
         // DeviceState_t DeviceState = DeviceStateNotConnected;
 

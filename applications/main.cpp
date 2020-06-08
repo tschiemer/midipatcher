@@ -350,79 +350,16 @@ int setupPortsFromArgs(int argc, char * argv[]){
 
 int setupPortsFromFile(std::string file){
 
-  std::vector<MidiPatcher::AbstractPort*> inports = std::vector<MidiPatcher::AbstractPort*>();
-  std::vector<MidiPatcher::AbstractPort*> outports = std::vector<MidiPatcher::AbstractPort*>();
-
-  std::ifstream patchfile;
-  patchfile.open(file);
-
-  // expected format:
-  // <in-port-desc> ;; <out-port-desc>
-
-  std::string line;
-  while(getline(patchfile, line)){
-    trim(line);
-
-    int pos;
-    std::string in, out;
-
-    pos = line.find("#");
-
-    if (pos != std::string::npos){
-      line.erase(pos);
-    }
-
-    if (line.size() == 0){
-      continue;
-    }
-
-    pos = line.find("\t");
-
-    if (pos == std::string::npos){
-      std::cerr << "ERROR no tab separating in-/out-port-descriptors on line: " << line << std::endl;
-      exit(EXIT_FAILURE);
-    }
-
-    in = line.substr(0,pos);
-    trim(in);
-
-    line.erase(0,pos+1);
-    out = line;
-    trim(out);
-
-    // std::cout << "[" << in << "] [" << out << "]" << std::endl;
-
-    try {
-
-      MidiPatcher::PortDescriptor * desc;
-      MidiPatcher::AbstractPort * port;
-
-      desc = MidiPatcher::PortDescriptor::fromString(in);
-      port = portRegistry->registerPortFromDescriptor(desc);
-      inports.push_back(port);
-
-      desc = MidiPatcher::PortDescriptor::fromString(out);
-      port = portRegistry->registerPortFromDescriptor(desc);
-      outports.push_back(port);
-
-    } catch (std::exception &e){
-      std::cerr << "ERROR " << e.what() << std::endl;
-      exit(EXIT_FAILURE);
-    }
+  int loaded = 0;
+  try {
+    loaded = MidiPatcher::Patchfile::loadFromPatchfile(portRegistry, file);
+  } catch( std::exception &e){
+    std::cerr << "ERROR " << e.what() << std::endl;
   }
 
+  MidiPatcher::Log::notice("Loaded " + std::to_string(loaded) + " connections from " + file);
 
-  assert( inports.size() == outports.size() );
-
-  for( int i = 0; i < inports.size(); i++){
-    try {
-      portRegistry->connectPorts( dynamic_cast<MidiPatcher::AbstractInputPort*>(inports.at(i)), dynamic_cast<MidiPatcher::AbstractOutputPort*>(outports.at(i)) );
-    } catch( MidiPatcher::Error &e){
-      std::cerr << "ERROR " << e.what() << ": " << inports.at(i)->getKey() << " <-> " << outports.at(i)->getKey() << std::endl;
-    }
-  }
-
-  return inports.size();
+  return loaded;
 }
 
 void setupControlPort(){
@@ -486,8 +423,6 @@ void init(){
 
   portRegistry = new MidiPatcher::PortRegistry(pcriList);
 
-  portRegistry->init();
-
   std::atexit(deinit);
 
   notificationHandler = new NotificationHandler();
@@ -503,9 +438,6 @@ void deinit(){
 
   portRegistry->unsubscribePortRegistryUpdateReveicer(notificationHandler);
 
-  portRegistry->deinit();
-
-  delete portRegistry;
 
   if (cli != nullptr){
     if (Options.ControlType == ControlTypeInteractive){
@@ -515,6 +447,9 @@ void deinit(){
       // delete dynamic_cast<MidiPatcher::Port::RemoteControlPort*>(cli);
     }
   }
+
+  delete portRegistry;
+
 }
 
 void runloop(){

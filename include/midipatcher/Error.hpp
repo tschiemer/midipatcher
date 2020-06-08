@@ -21,6 +21,10 @@ namespace MidiPatcher {
         Message = context + ": " + message;
       }
 
+      Error(const std::exception &e){
+        Message = e.what();
+      }
+
       const char* what() const noexcept {
         return Message.c_str();
       }

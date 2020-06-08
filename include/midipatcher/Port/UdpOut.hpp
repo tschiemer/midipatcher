@@ -21,13 +21,13 @@ namespace MidiPatcher {
         static AbstractPort* factory(PortDescriptor * portDescriptor);
 
         static PortClassRegistryInfo * getPortClassRegistryInfo() {
-          return new PortClassRegistryInfo(PortClass, factory, nullptr, nullptr, nullptr);
+          return new PortClassRegistryInfo(PortClass, factory, nullptr);
         }
 
         PortDescriptor * getPortDescriptor(){
           return new PortDescriptor(PortClass, Name);
         }
-        
+
         UdpOut(std::string portName, std::string remoteAddress, short port, std::string multicastAddress = "", bool runningStatusEnabled = false);
         ~UdpOut();
 
