@@ -95,7 +95,7 @@ namespace MidiPatcher {
             MidiPatcher::AbstractPort * port;
 
             desc = MidiPatcher::PortDescriptor::fromString(in);
-            port = portRegistry->registerPortFromDescriptor(desc);
+            port = portRegistry->registerPortFromDescriptor(*desc);
 
             if (dynamic_cast<AbstractInputPort*>(port) == nullptr){
               throw Error("Given input port is not an actual input port: " + in);
@@ -105,7 +105,7 @@ namespace MidiPatcher {
 
 
             desc = MidiPatcher::PortDescriptor::fromString(out);
-            port = portRegistry->registerPortFromDescriptor(desc);
+            port = portRegistry->registerPortFromDescriptor(*desc);
 
             if (dynamic_cast<AbstractOutputPort*>(port) == nullptr){
               throw Error("Given output port is not an actual output port: " + out);

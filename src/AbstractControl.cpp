@@ -248,7 +248,7 @@ namespace MidiPatcher {
       } else {
 
         try {
-          port = PortRegistryRef->registerPortFromDescriptor( desc );
+          port = PortRegistryRef->registerPortFromDescriptor( *desc );
 
           // respond("sisii", "ports", port->getId(), port->getKey().c_str(), port->getType(), port->getDeviceState());
 

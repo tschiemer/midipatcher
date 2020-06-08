@@ -18,25 +18,26 @@
 namespace MidiPatcher {
   namespace Port {
 
-    AbstractPort* RawExec::factory(PortDescriptor * portDescriptor){
+    AbstractPort* RawExec::factory(PortDescriptor &portDescriptor){
+      assert( portDescriptor.PortClass == PortClass );
 
       std::string execpath;
       std::string argvStr = "";
 
       // has exec been specifically specified?
-      if (portDescriptor->Options.count("exec") > 0){
-        execpath = portDescriptor->Options["exec"];
+      if (portDescriptor.Options.count("exec") > 0){
+        execpath = portDescriptor.Options["exec"];
       } else {
         // otherwise assume the name is the execpath
-        execpath = portDescriptor->Name;
+        execpath = portDescriptor.Name;
       }
 
-      if (portDescriptor->Options.count("argv") > 0){
-        argvStr = portDescriptor->Options["argv"];
+      if (portDescriptor.Options.count("argv") > 0){
+        argvStr = portDescriptor.Options["argv"];
       }
 
 
-      return new RawExec( portDescriptor->Name, execpath, argvStr );
+      return new RawExec( portDescriptor.Name, execpath, argvStr );
     }
 
     RawExec::RawExec(std::string portName, std::string execpath, std::string argvStr) : AbstractInputOutputPort(portName), AbstractExecPort(execpath, argvStr) {

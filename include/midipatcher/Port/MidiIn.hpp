@@ -16,18 +16,11 @@ namespace MidiPatcher {
 
         static const constexpr char * PortClass = "MidiIn";
 
-        static AbstractPort* factory(PortDescriptor * portDescriptor);
+        static AbstractPort* factory(PortDescriptor &portDescriptor);
 
         std::string getPortClass(){
           return PortClass;
         }
-
-        // std::string getKey(){
-        //   if (Api == RtMidi::UNSPECIFIED){
-        //     return getPortClass() + ":" + Name;
-        //   }
-        //   return getPortClass() + ":" + Name + ":" + std::to_string(static_cast<int>(Api));
-        // }
 
         PortDescriptor * getPortDescriptor();
 

@@ -20,12 +20,12 @@ namespace MidiPatcher {
       return new PortDescriptor(PortClass, Name, opt);
     };
 
-    AbstractPort* MidiIn::factory(PortDescriptor * portDescriptor){
-      assert( portDescriptor->PortClass == PortClass );
+    AbstractPort* MidiIn::factory(PortDescriptor &portDescriptor){
+      assert( portDescriptor.PortClass == PortClass );
 
-      RtMidi::Api api = portDescriptor->Options.count("api") ? static_cast<RtMidi::Api>(std::stoi(portDescriptor->Options["api"])) : RtMidi::UNSPECIFIED;
+      RtMidi::Api api = portDescriptor.Options.count("api") ? static_cast<RtMidi::Api>(std::stoi(portDescriptor.Options["api"])) : RtMidi::UNSPECIFIED;
 
-      std::string name = portDescriptor->Name;
+      std::string name = portDescriptor.Name;
 
       //
       //

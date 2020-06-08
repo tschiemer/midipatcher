@@ -31,7 +31,7 @@ namespace MidiPatcher {
     public:
 
       typedef std::vector<AbstractPort*>  * (*PortScanner)();
-      typedef AbstractPort * (*PortFactory)(PortDescriptor * portDescriptor);
+      typedef AbstractPort * (*PortFactory)(PortDescriptor &portDescriptor);
 
       struct PortClassRegistryInfo {
         std::string Key;

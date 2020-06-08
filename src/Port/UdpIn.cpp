@@ -6,10 +6,10 @@
 namespace MidiPatcher {
   namespace Port {
 
-    AbstractPort* UdpIn::factory(PortDescriptor * portDescriptor){
-      assert( portDescriptor->PortClass == PortClass );
+    AbstractPort* UdpIn::factory(PortDescriptor &portDescriptor){
+      assert( portDescriptor.PortClass == PortClass );
 
-      std::string str = portDescriptor->Name;
+      std::string str = portDescriptor.Name;
 
       short port;
       std::string listenAddress;
@@ -26,10 +26,10 @@ namespace MidiPatcher {
         port = std::atoi(str.c_str());
       }
 
-      std::string multicastAddress = portDescriptor->Options.count("multicast") ? portDescriptor->Options["multicast"] : "";
-      bool runningStatusEnabled = portDescriptor->Options.count("runningstatus") && portDescriptor->Options["runningstatus"][0] != '\0' ? (portDescriptor->Options["runningstatus"][0] == '1') : true;
+      std::string multicastAddress = portDescriptor.Options.count("multicast") ? portDescriptor.Options["multicast"] : "";
+      bool runningStatusEnabled = portDescriptor.Options.count("runningstatus") && portDescriptor.Options["runningstatus"][0] != '\0' ? (portDescriptor.Options["runningstatus"][0] == '1') : true;
 
-      return new UdpIn(portDescriptor->Name, listenAddress, port, multicastAddress, runningStatusEnabled);
+      return new UdpIn(portDescriptor.Name, listenAddress, port, multicastAddress, runningStatusEnabled);
     }
 
     UdpIn::UdpIn(std::string portName, std::string listenAddress, short port, std::string multicastAddress, bool runningStatusEnabled, size_t bufferSize)

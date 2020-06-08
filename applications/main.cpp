@@ -11,7 +11,7 @@
 /***************************/
 
 MidiPatcher::PortRegistry * portRegistry = nullptr;
-// MidiPatcher::InteractiveControl * interactiveControl = nullptr;
+
 MidiPatcher::CLI * cli = nullptr;
 
 volatile bool Running = false;
@@ -47,14 +47,15 @@ struct {
       std::string InDesc;
       std::string OutDesc;
     } RemoteControl;
+    std::vector<std::string> ForbiddenClasses;
 } Options = {
   .Verbosity = 0,
   .ShowUpdates = false,
-  .AutoscanInterval = 1000,
+  .AutoscanInterval = DEFAULT_AUTOSCAN_INTERVAL,
   .ControlType = ControlTypeNone,
-  .CLIDelimiter = " ",
+  .CLIDelimiter = DEFAULT_CLI_DELIMITER,
   .PatchFile = {
-    .Path = "default.patchfile",
+    .Path = DEFAULT_PATCHFILE,
     .LoadOnStart = false,
     .SaveOnExit = false
   },
@@ -63,12 +64,12 @@ struct {
     .Password = ""
   },
   .ControlPort = {
-    .InDesc = "VirtMidiIn:MidiPatcher-Control",
-    .OutDesc = "VirtMidiOut:MidiPatcher-Control"
+    .InDesc = DEFAULT_CONTROL_PORT_IN,
+    .OutDesc = DEFAULT_CONTROL_PORT_OUT
   },
   .RemoteControl = {
-    .InDesc = "MidiIn:MidiPatcher-Control",
-    .OutDesc = "MidiOut:MidiPatcher-Control"
+    .InDesc = DEFAULT_REMOTE_CONTROL_PORT_IN,
+    .OutDesc = DEFAULT_REMOTE_CONTROL_PORT_OUT
   }
 };
 
@@ -324,11 +325,11 @@ int setupPortsFromArgs(int argc, char * argv[]){
     try {
 
       desc = MidiPatcher::PortDescriptor::fromString(argv[i]);
-      port = portRegistry->registerPortFromDescriptor(desc);
+      port = portRegistry->registerPortFromDescriptor(*desc);
       inports.push_back(port);
 
       desc = MidiPatcher::PortDescriptor::fromString(argv[j]);
-      port = portRegistry->registerPortFromDescriptor(desc);
+      port = portRegistry->registerPortFromDescriptor(*desc);
       outports.push_back(port);
 
     } catch (std::exception &e){
@@ -373,11 +374,11 @@ void setupControlPort(){
   MidiPatcher::AbstractOutputPort * outport;
 
   desc = MidiPatcher::PortDescriptor::fromString(Options.ControlPort.InDesc);
-  inport = dynamic_cast<MidiPatcher::AbstractInputPort*>(portRegistry->registerPortFromDescriptor(desc));
+  inport = dynamic_cast<MidiPatcher::AbstractInputPort*>(portRegistry->registerPortFromDescriptor(*desc));
   delete desc;
 
   desc = MidiPatcher::PortDescriptor::fromString(Options.ControlPort.OutDesc);
-  outport = dynamic_cast<MidiPatcher::AbstractOutputPort*>(portRegistry->registerPortFromDescriptor(desc));
+  outport = dynamic_cast<MidiPatcher::AbstractOutputPort*>(portRegistry->registerPortFromDescriptor(*desc));
   delete desc;
 
   MidiPatcher::Port::ControlPort * cp = new MidiPatcher::Port::ControlPort(portRegistry);
@@ -396,11 +397,11 @@ void setupRemoteControlPort( void ){
   MidiPatcher::AbstractOutputPort * outport;
 
   desc = MidiPatcher::PortDescriptor::fromString(Options.RemoteControl.InDesc);
-  inport = dynamic_cast<MidiPatcher::AbstractInputPort*>(portRegistry->registerPortFromDescriptor(desc));
+  inport = dynamic_cast<MidiPatcher::AbstractInputPort*>(portRegistry->registerPortFromDescriptor(*desc));
   delete desc;
 
   desc = MidiPatcher::PortDescriptor::fromString(Options.RemoteControl.OutDesc);
-  outport = dynamic_cast<MidiPatcher::AbstractOutputPort*>(portRegistry->registerPortFromDescriptor(desc));
+  outport = dynamic_cast<MidiPatcher::AbstractOutputPort*>(portRegistry->registerPortFromDescriptor(*desc));
   delete desc;
 
   MidiPatcher::Port::RemoteControlPort * remote = new MidiPatcher::Port::RemoteControlPort();
@@ -519,6 +520,8 @@ int main(int argc, char * argv[], char * env[]){
           {"remote-in", required_argument, 0, 5},
           {"remote-out", required_argument, 0, 6},
 
+          {"no", required_argument, 0, 11},
+
 
           {0,0,0,0}
         };
@@ -620,6 +623,10 @@ int main(int argc, char * argv[], char * env[]){
 
             case 8:
               Options.CLIDelimiter = optarg;
+              break;
+
+            case 11:
+              Options.ForbiddenClasses.push_back(optarg);
               break;
 
 

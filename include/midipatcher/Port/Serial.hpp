@@ -28,18 +28,21 @@ namespace MidiPatcher {
           return new PortClassRegistryInfo(PortClass, factory, scanner);
         }
 
-        static AbstractPort* factory(PortDescriptor * portDescriptor){
-          assert( portDescriptor->PortClass == PortClass );
-          return new Serial(portDescriptor->Name);
-        }
+        static AbstractPort* factory(PortDescriptor &portDescriptor);
 
         static std::vector<AbstractPort*>  * scanner();
 
-        Serial(std::string portName, bool runningStatusEnabled = true);
+        Serial(std::string portName, std::string device, bool runningStatusEnabled = true);
         ~Serial();
 
 
       protected:
+
+        asio::io_service IOService;
+        asio::serial_port SerialPort;
+
+        std::string Device;
+        bool RunningStatusEnabled;
 
         void writeToStream(unsigned char * data, size_t len);
 

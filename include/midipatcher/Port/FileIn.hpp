@@ -37,9 +37,9 @@ namespace MidiPatcher {
           return new PortClassRegistryInfo(PortClass, factory, nullptr);
         }
 
-        static AbstractPort* factory(PortDescriptor * portDescriptor){
-          assert( portDescriptor->PortClass == PortClass );
-          return new FileIn(portDescriptor->Name);
+        static AbstractPort* factory(PortDescriptor &portDescriptor){
+          assert( portDescriptor.PortClass == PortClass );
+          return new FileIn(portDescriptor.Name);
         }
 
         FileIn(std::string portName, bool runningStatusEnabled = true);

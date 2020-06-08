@@ -29,7 +29,7 @@ namespace MidiPatcher {
           return new PortClassRegistryInfo(PortClass, factory, nullptr);
         }
 
-        static AbstractPort* factory(PortDescriptor * portDescriptor);
+        static AbstractPort* factory(PortDescriptor &portDescriptor);
 
         RawExec(std::string portName, std::string execpath, std::string argvStr = "");
         ~RawExec();

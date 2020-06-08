@@ -3,6 +3,18 @@
 
 #include <midipatcher.hpp>
 
+#define DEFAULT_AUTOSCAN_INTERVAL       1000
+
+#define DEFAULT_PATCHFILE               "default.patchfile"
+
+#define DEFAULT_CLI_DELIMITER           " "
+
+#define DEFAULT_CONTROL_PORT_IN         "VirtMidiIn:MidiPatcher-Control"
+#define DEFAULT_CONTROL_PORT_OUT        "VirtMidiOut:MidiPatcher-Control"
+#define DEFAULT_REMOTE_CONTROL_PORT_IN  "MidiIn:MidiPatcher-Control"
+#define DEFAULT_REMOTE_CONTROL_PORT_OUT "MidiOut:MidiPatcher-Control"
+
+
 MidiPatcher::AbstractPort::PortClassRegistryInfo* PortClassRegistryInfoConfig[] = {
   MidiPatcher::Port::MidiIn::getPortClassRegistryInfo(),
   MidiPatcher::Port::MidiOut::getPortClassRegistryInfo(),
@@ -13,7 +25,8 @@ MidiPatcher::AbstractPort::PortClassRegistryInfo* PortClassRegistryInfoConfig[] 
   MidiPatcher::Port::UdpIn::getPortClassRegistryInfo(),
   MidiPatcher::Port::UdpOut::getPortClassRegistryInfo(),
   MidiPatcher::Port::RawExec::getPortClassRegistryInfo(),
-  MidiPatcher::Port::MsgExec::getPortClassRegistryInfo()
+  MidiPatcher::Port::MsgExec::getPortClassRegistryInfo(),
+  MidiPatcher::Port::Serial::getPortClassRegistryInfo(),
 };
 
 #endif /* MAIN_H */

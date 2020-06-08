@@ -29,11 +29,11 @@ namespace MidiPatcher {
 
         static std::vector<AbstractPort*>  * scanner();
 
-        static AbstractPort* factory(PortDescriptor * portDescriptor);
+        static AbstractPort* factory(PortDescriptor &portDescriptor);
 
         MidiOut(std::string portName, RtMidi::Api api = RtMidi::UNSPECIFIED, unsigned int portNumber = 0);
         ~MidiOut();
-      
+
 
       protected:
 

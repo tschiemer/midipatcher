@@ -222,18 +222,17 @@ namespace MidiPatcher {
     publishPortUnregistered( port );
   }
 
-  AbstractPort* PortRegistry::registerPortFromDescriptor(PortDescriptor * portDescriptor){
-    assert( portDescriptor != NULL );
+  AbstractPort* PortRegistry::registerPortFromDescriptor(PortDescriptor &portDescriptor){
 
-    if ( portClassExists(portDescriptor->PortClass) == false ){
-      throw "PortClass " + portDescriptor->PortClass + " does not exist";
+    if ( portClassExists(portDescriptor.PortClass) == false ){
+      throw "PortClass " + portDescriptor.PortClass + " does not exist";
     }
 
-    if (Ports.count(portDescriptor->getKey()) > 0){
-      return Ports[portDescriptor->getKey()];
+    if (Ports.count(portDescriptor.getKey()) > 0){
+      return Ports[portDescriptor.getKey()];
     }
 
-    AbstractPort * port = PortClassRegistryInfoMap[portDescriptor->PortClass]->Factory(portDescriptor);
+    AbstractPort * port = PortClassRegistryInfoMap[portDescriptor.PortClass]->Factory(portDescriptor);
 
     registerPort(port);
 

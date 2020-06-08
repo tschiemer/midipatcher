@@ -60,7 +60,7 @@ namespace MidiPatcher {
       void registerPort(AbstractPort * port);
       void unregisterPort(AbstractPort * port);
 
-      AbstractPort * registerPortFromDescriptor(PortDescriptor * portDescriptor);
+      AbstractPort * registerPortFromDescriptor(PortDescriptor &portDescriptor);
 
       std::vector<std::pair<AbstractInputPort*,AbstractOutputPort*>> * getAllConnections();
 
