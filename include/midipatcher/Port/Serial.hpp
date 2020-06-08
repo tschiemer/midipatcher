@@ -14,6 +14,27 @@ namespace MidiPatcher {
 
       public:
 
+        enum FlowControl_t {
+          FlowControlNone,
+          FlowControlSoftware,
+          FlowControlHardware
+        };
+
+        enum Parity_t {
+          ParityNone,
+          ParityOdd,
+          ParityEven
+        };
+
+        enum StopBits_t {
+          StopBitsOne,
+          StopBitsOnePointFive,
+          StopBitsTwo
+        };
+
+
+      public:
+
         static const constexpr char * PortClass = "Serial";
 
         std::string getPortClass(){
@@ -32,9 +53,15 @@ namespace MidiPatcher {
 
         static std::vector<AbstractPort*>  * scanner();
 
-        Serial(std::string portName, std::string device, bool runningStatusEnabled = true);
+        Serial(std::string portName, std::string device);
         ~Serial();
 
+
+        bool hasOption(std::string key);
+
+        std::string getOption(std::string key);
+
+        void setOption(std::string key, std::string value);
 
       protected:
 
@@ -42,9 +69,11 @@ namespace MidiPatcher {
         asio::serial_port SerialPort;
 
         std::string Device;
-        bool RunningStatusEnabled;
 
         void writeToStream(unsigned char * data, size_t len);
+
+        void start();
+        void stop();
 
     };
 

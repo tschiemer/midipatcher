@@ -7,23 +7,23 @@ namespace MidiPatcher {
 
   AbstractStreamOutputPort::AbstractStreamOutputPort(bool runningStatusEnabled){
 
-    RunningStatusEnabled = runningStatusEnabled;
-    RunningStatusState = MidiMessage::MidiMessage_RunningStatusNotSet;
+    OutRunningStatusEnabled = runningStatusEnabled;
+    OutRunningStatusState = MidiMessage::MidiMessage_RunningStatusNotSet;
 
   }
 
-  void AbstractStreamOutputPort::setRunningStatusEnabled(bool enabled){
-    RunningStatusEnabled = enabled;
+  void AbstractStreamOutputPort::setOutRunningStatusEnabled(bool enabled){
+    OutRunningStatusEnabled = enabled;
 
     if (enabled){
-      RunningStatusState = MidiMessage::MidiMessage_RunningStatusNotSet;
+      OutRunningStatusState = MidiMessage::MidiMessage_RunningStatusNotSet;
     }
   }
 
   void AbstractStreamOutputPort::sendMessageImpl(unsigned char * message, size_t len){
 
 
-    if (RunningStatusEnabled && MidiMessage::updateRunningStatus( &RunningStatusState, message[0] )){
+    if (OutRunningStatusEnabled && MidiMessage::updateRunningStatus( &OutRunningStatusState, message[0] )){
 
         Log::debug(getKey(), "writing to stream", &message[1], len-1);
 

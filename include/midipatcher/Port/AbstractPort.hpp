@@ -180,12 +180,20 @@ namespace MidiPatcher {
         return false;
       }
 
-      virtual std::string getOoption(std::string key){
+      virtual std::string getOption(std::string key){
         throw Error("Method getOption not implemented for " + getPortClass());
       }
 
-      virtual void setOption(std::string key){
+      virtual void setOption(std::string key, std::string value){
         throw Error("Method setOption not implemented for " + getPortClass());
+      }
+
+      void setOptions(std::map<std::string,std::string> & options){
+        std::for_each(options.begin(), options.end(), [this](std::pair<std::string, std::string> opt){
+          if (hasOption(opt.first)){
+            setOption(opt.first, opt.second);
+          }
+        });
       }
 
     protected:

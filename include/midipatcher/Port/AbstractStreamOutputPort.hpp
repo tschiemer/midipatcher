@@ -11,18 +11,18 @@ namespace MidiPatcher {
 
       AbstractStreamOutputPort(bool runningStatusEnabled = false);
 
-      bool RunningStatusEnabled;
-      uint8_t RunningStatusState;
+      bool OutRunningStatusEnabled;
+      uint8_t OutRunningStatusState;
 
       virtual void writeToStream(unsigned char * data, size_t len) = 0;
 
     public :
 
-      inline bool getRunningStatusEnabled(){
-        return RunningStatusEnabled;
+      inline bool getOutRunningStatusEnabled(){
+        return OutRunningStatusEnabled;
       }
 
-      void setRunningStatusEnabled(bool enabled);
+      void setOutRunningStatusEnabled(bool enabled);
 
     protected:
 
