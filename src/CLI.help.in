@@ -1,32 +1,45 @@
-R"=====(help, h, ?
-  Print this text
-ping
-	Connection test
-version
-	Get midipatcher version
-option <option-key> [<option-value>]
-	Get/set open
-	<option-key> := return-ids 	return port-id instead of port-key
-portclasses
-	Get list of available port classes
-ports [<port-id>|<port-key>]
-	Get basic port listing of given or all port(s); response contains port-id and port-key
-devstate [<port-id>|<port-key>]
-	Get DeviceState of given or all port(s) (is device connected/enabled or not?)
-register <port-descriptor>
-	Register new port using given descriptor
-unregister (<port-id>|<port-key>)
-	Unregister port
-constate [(<port1-id>|<port1-key>) [(<port2-id>|<port2-key>)]]
-  Get connection state between input- and output-port; either query specific connection, or list connections of specific/all input ports
-connect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)
-	Connect two (registered) ports
-disconnect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)
-	Disconnect two ports
-
+R"=====(
+help, h, ?
+ Print this text
 delim <delimiter>
   Define another argument delimiter instead of the default.
 delim-reset
   Reset to default argument delimiter.
 bye, x, exit, quit
+
+ping
+   Connection test
+version
+   Get midipatcher version
+option <key> [<value>]
+   Get/set system/control option
+   <option-key>
+     return-ids
+         return port-id instead of port-key
+     notifications
+         enable/disable notifications
+     autoscan-enabled
+         enabled/disable autoscan
+     autoscan-interval
+         set autoscan interval
+scan
+   Manual request for a device scan (if autoscan turned off).
+portclasses
+   Get list of available port classes
+ports [<port-id>|<port-key>]
+   Get basic port listing of given or all port(s); response contains in order: <port-id> <port-key> <type> <devstate> <port-desc>
+devstate [<port-id>|<port-key>]
+   Get DeviceState of given or all port(s) (is device connected/enabled or not?)
+portoption (<port-id>|<port-desc>) <key> [<value>]
+   Get set port option
+register <port-descriptor>
+   Register new port using given descriptor
+unregister (<port-id>|<port-key>)
+   Unregister port
+constate [(<in-port-id>|<in-port-key>) [(<out-port-id>|<out-port-key>)]]
+     Get connection state between input- and output-port; either query specific connection, or list connections of specific/all input ports
+connect (<in-port-id>|<in-port-key>) (<out-port-id>|<out-port-key>)
+   Connect two (registered) ports
+disconnect (<in-port-id>|<in-port-key>) (<out-port-id>|<out-port-key>)
+   Disconnect two ports
 )====="

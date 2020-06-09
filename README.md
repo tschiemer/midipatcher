@@ -1,5 +1,5 @@
 # midipatcher
-Platform independent virtual matrix patchbay for MIDI ports with additional connectivity for virtual ports and file, serial (work in progress, no test system at the moment), network streams, rtpmidi (work in progress).
+Platform independent virtual matrix patchbay for MIDI ports with additional connectivity for virtual ports and file, serial (to test), network streams, rtpmidi (work in progress).
 
 *midipatcher* is ment to be platform-independent and is aimed at desktop systems (Linux, macOS, Windows) - being developed on macOS and occasionally tested on a RaspberryPi.
 
@@ -11,14 +11,15 @@ https://github.com/tschiemer/midipatcher
 
 ## Roadmap / Todos
 
-- Control command to save/load current setup
 - Test, bugfix and complete current source base
 	- Introduce consistent error/exception system
 - Add examples
 	- Using Max/MSP and PureData matrices in combination with TCP control port
 - Integrate RTPMIDI
-- Add serial port (using asio) - at the moment no test system.
+- *Test* serial port - at the moment no test system.
+- Add TLS for TCPControl..
 - Add case insensitivity of portclasses (for creation descriptors) (?)
+- Control command to save/load current setup (?)
 
 
 ## Guide to (Mostly) Harmless Command Line Interfacing
@@ -60,38 +61,40 @@ Options:
 					 Commands:
 
 					 ping
-					 		Connection test
+					    Connection test
 					 version
-					 		Get midipatcher version
-					 option <option-key> [<option-value>]
-					 		Get/set open
-							<option-key>
-								return-ids
-										return port-id instead of port-key
-								notifications
-										enable/disable notifications
-								autoscan-enabled
-										enabled/disable autoscan
-								autoscan-interval
-										set autoscan interval
+					    Get midipatcher version
+					 option <key> [<value>]
+					    Get/set system/control option
+					    <option-key>
+					      return-ids
+					          return port-id instead of port-key
+					      notifications
+					          enable/disable notifications
+					      autoscan-enabled
+					          enabled/disable autoscan
+					      autoscan-interval
+					          set autoscan interval
 					 scan
-					 		Manual request for a device scan (if autoscan turned off).
+					    Manual request for a device scan (if autoscan turned off).
 					 portclasses
-					 		Get list of available port classes
+					    Get list of available port classes
 					 ports [<port-id>|<port-key>]
-					 		Get basic port listing of given or all port(s); response contains port-id and port-key
+					    Get basic port listing of given or all port(s); response contains in order: <port-id> <port-key> <type> <devstate> <port-desc>
 					 devstate [<port-id>|<port-key>]
-					 		Get DeviceState of given or all port(s) (is device connected/enabled or not?)
+					    Get DeviceState of given or all port(s) (is device connected/enabled or not?)
+					 portoption (<port-id>|<port-desc>) <key> [<value>]
+					    Get set port option
 					 register <port-descriptor>
-					 		Register new port using given descriptor
+					    Register new port using given descriptor
 					 unregister (<port-id>|<port-key>)
-					 		Unregister port
-					 constate [(<port1-id>|<port1-key>) [(<port2-id>|<port2-key>)]]
-					    	Get connection state between input- and output-port; either query specific connection, or list connections of specific/all input ports
-					 connect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)
-					 		Connect two (registered) ports
-					 disconnect (<in-port-id>|<in-port-key>) (<in-port-id>|<out-port-key>)
-					 		Disconnect two ports
+					    Unregister port
+					 constate [(<in-port-id>|<in-port-key>) [(<out-port-id>|<out-port-key>)]]
+					      Get connection state between input- and output-port; either query specific connection, or list connections of specific/all input ports
+					 connect (<in-port-id>|<in-port-key>) (<out-port-id>|<out-port-key>)
+					    Connect two (registered) ports
+					 disconnect (<in-port-id>|<in-port-key>) (<out-port-id>|<out-port-key>)
+					    Disconnect two ports
 
 	 --delimiter <delimiter>
 	 				Use <delimiter> as (default) argument delimiter.
@@ -128,21 +131,29 @@ Options:
 			0		Device not connected
 			1		Device connected
 
-	 <in-/out-/control-port-descriptor> := <port-key>[<options>]
+	 <port-descriptor> := <port-key>[<options>]
 	 <port-key> := <PortClass>:<PortName>
 	 <options> := (,<opt> ...)
+
+Port classes, their basic descriptors and options:
 
 	 MidiIn:<PortName>, 	 Connects (or waits for) MIDI port with given name
 	 MidiOut:<PortName>
 	 VirtMidiIn:<PortName> 	 Create virtual MIDI port with given name
 	 VirtMidiOut:<PortName>
-	 FileIn:(STDIN|<Filename>)[,runningstatus=(0|1*)]
-	 FileOut:(STDOUT|STDERR|<Filename>)[,runningstatus=(0*|1)]
-		 Opens said file for read/writing. Wether MIDI running status is enabled can be set (* = default)
-	 UdpIn:[<listen-addr>:]<port>[,multicast=<multicast-addr>][,runningstatus=(0|1*)]
-	 UdpOut:<port>[,runningstatus=(0*|1)]
-	 RawExec:(<exec>|<name>,exec=<exec>)[,argv=<argv>]
-	 MsgExec:(<exec>|<name>,exec=<exec>)[,argv=<argv>]
+	 FileIn:(STDIN|<Filename>)		Opens said file/device/pipe for reading
+	 		runningstatus=(0|1*)		  Use MIDI running status? (* = default)
+	 FileOut:(STDOUT|STDERR|<Filename>)	Opens said file/device/pipe for writing
+	 		runningstatus=(0*|1)			Use MIDI running status? (* = default)
+	 UdpIn:[<listen-addr>:]<port>	Listen for UDP packets on given port (and interface)
+	 		multicast=<multicast-addr>
+			runningstatus=(0|1*)			Use MIDI running status? (* = default)
+	 UdpOut:<remove-addr>:<port>	Send message as UDP packets to given addr:port
+	 		runningstatus=(0*|1)			Use MIDI running status? (* = default)
+	 StreamExec:(<exec>|<name>,exec=<exec>) Starts given exec and pass raw midi messages to STDIN and read again from STDOUT
+	 		argv=<argv>
+	 MsgExec:(<exec>|<name>,exec=<exec>) Starts given exec and pass parsed text-based MIDI message to STDIN and read again from STDOUT
+	 		argv=<argv>
 
 The <port-key> part of the descriptors acts as unique port identifier.
 
@@ -170,7 +181,7 @@ RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi
 Asio (Networking) C++ Library, https://think-async.com/Asio
 midimessage: midimessage library, https://github.com/tschiemer/midimessage
 
-midipatcher-v0.1.0-63-g5aa004e, MIT license, https://github.com/tschiemer/midipatcher
+midipatcher-v0.1.0-72-g464cfff, MIT license, https://github.com/tschiemer/midipatcher
 ```
 
 ## Patchfiles

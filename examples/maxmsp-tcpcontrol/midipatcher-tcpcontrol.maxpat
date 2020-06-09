@@ -40,6 +40,18 @@
 		"showontab" : 1,
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-279",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 610.0, 159.0, 100.0, 22.0 ],
+					"text" : "connect \"foo bar\""
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-277",
 					"linecount" : 6,
 					"maxclass" : "comment",
