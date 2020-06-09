@@ -152,8 +152,20 @@ Port classes, their basic descriptors and options:
 	 		runningstatus=(0*|1)			Use MIDI running status? (* = default)
 	 StreamExec:(<exec>|<name>,exec=<exec>) Starts given exec and pass raw midi messages to STDIN and read again from STDOUT
 	 		argv=<argv>
+			runningstatus=(0|1*)
+			irunningstatus..
+			orunningstatus..
 	 MsgExec:(<exec>|<name>,exec=<exec>) Starts given exec and pass parsed text-based MIDI message to STDIN and read again from STDOUT
 	 		argv=<argv>
+	 Serial:(<device>|<name>,device=<device>) Connect to serial.
+	 		baudrate=<baudrate>
+			flowcontrol=(none*|software|hardware)
+			databits=(5|6|7|8)
+			stopbits=(1|1.5|2)
+			parity=(none|odd|even)
+			runningstatus=(0|1*)
+			irunningstatus..
+			orunningstatus..
 
 The <port-key> part of the descriptors acts as unique port identifier.
 
@@ -181,7 +193,7 @@ RtMidi: realtime MIDI i/o C++ classes, http://www.music.mcgill.ca/~gary/rtmidi
 Asio (Networking) C++ Library, https://think-async.com/Asio
 midimessage: midimessage library, https://github.com/tschiemer/midimessage
 
-midipatcher-v0.1.0-72-g464cfff, MIT license, https://github.com/tschiemer/midipatcher
+midipatcher-v0.1.0-73-g8b393cc, MIT license, https://github.com/tschiemer/midipatcher
 ```
 
 ## Patchfiles
