@@ -16,6 +16,7 @@ MidiPatcher::CLI * cli = nullptr;
 
 volatile bool Running = false;
 
+
 enum ControlType_t {
   ControlTypeNone,
   ControlTypeInteractive,
@@ -30,6 +31,7 @@ struct {
     int AutoscanInterval;
     ControlType_t ControlType;
     std::string CLIDelimiter;
+    std::vector<std::string> ControlBlockedClasses;
     struct {
       std::string Path;
       bool LoadOnStart;
@@ -47,7 +49,6 @@ struct {
       std::string InDesc;
       std::string OutDesc;
     } RemoteControl;
-    std::vector<std::string> ForbiddenClasses;
 } Options = {
   .Verbosity = 0,
   .ShowUpdates = false,
@@ -123,6 +124,9 @@ NotificationHandler * notificationHandler;
 
 /***************************/
 
+bool isClassKnown(std::string pc);
+bool isClassBlocked(std::string pc);
+
 void setOptionControlType(ControlType_t controlType);
 
 void SignalHandler(int signal);
@@ -171,6 +175,20 @@ static inline std::string & rtrim(std::string &s) {
 static inline std::string & trim(std::string &s) {
     return ltrim(rtrim(s));
     // rtrim(s);
+}
+
+bool isClassKnown(std::string pc){
+  for(int i = 0; i < sizeof(PortClassRegistryInfoConfig) / sizeof(MidiPatcher::AbstractPort::PortClassRegistryInfo*) ; i++){
+    if (PortClassRegistryInfoConfig[i]->Key == pc){
+      return true;
+    }
+  }
+  return false;
+}
+
+bool isClassBlocked(std::string pc){
+  std::vector<std::string>::iterator found = std::find(Options.ControlBlockedClasses.begin(), Options.ControlBlockedClasses.end(), pc);
+  return found != Options.ControlBlockedClasses.end();
 }
 
 void setOptionControlType(ControlType_t controlType){
@@ -431,7 +449,10 @@ void init(){
   assert( sizeof(PortClassRegistryInfoConfig) > 0 );
 
   for(int i = 0; i < sizeof(PortClassRegistryInfoConfig) / sizeof(MidiPatcher::AbstractPort::PortClassRegistryInfo*) ; i++){
-      pcriList.push_back( PortClassRegistryInfoConfig[i] );
+    if (isClassBlocked(PortClassRegistryInfoConfig[i]->Key)){
+      continue;
+    }
+    pcriList.push_back( PortClassRegistryInfoConfig[i] );
   }
 
   portRegistry = new MidiPatcher::PortRegistry(pcriList);
@@ -626,7 +647,11 @@ int main(int argc, char * argv[], char * env[]){
               break;
 
             case 11:
-              Options.ForbiddenClasses.push_back(optarg);
+              if (isClassKnown(optarg) == false){
+                std::cerr << "ERROR forbidden class " << optarg << " is not known" << std::endl;
+                exit(EXIT_FAILURE);
+              }
+              Options.ControlBlockedClasses.push_back(optarg);
               break;
 
 

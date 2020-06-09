@@ -28,9 +28,13 @@ namespace MidiPatcher {
 
         static AbstractPort* factory(PortDescriptor &portDescriptor);
 
-        UdpIn(std::string portName, std::string listenAddress, short port, std::string multicastAddress = "", bool runningStatusEnabled = true, size_t bufferSize = 256);
+        UdpIn(std::string portName, std::string listenAddress, short port, std::string multicastAddress = "", size_t bufferSize = 256);
         ~UdpIn();
 
+
+        bool hasOption(std::string key);
+        std::string getOption(std::string key);
+        void setOption(std::string key, std::string value);
 
       protected:
 

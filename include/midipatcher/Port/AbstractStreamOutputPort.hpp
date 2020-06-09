@@ -18,6 +18,16 @@ namespace MidiPatcher {
 
     public :
 
+
+      virtual bool hasOption(std::string key){
+        if (key == "runningstatus") return true;
+        return false;
+      }
+
+      virtual std::string getOption(std::string key);
+
+      virtual void setOption(std::string key, std::string value);
+
       inline bool getOutRunningStatusEnabled(){
         return OutRunningStatusEnabled;
       }

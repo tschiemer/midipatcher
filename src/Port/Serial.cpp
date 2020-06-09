@@ -1,6 +1,12 @@
 #include <Port/Serial.hpp>
 
 #include <Error.hpp>
+#include <Log.hpp>
+
+#include <unistd.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/stat.h>
 
 namespace MidiPatcher {
   namespace Port {
@@ -26,30 +32,47 @@ namespace MidiPatcher {
       return new std::vector<AbstractPort*>();
     }
 
-    Serial::Serial(std::string portName, std::string device) : AbstractPort(TypeInputOutput, portName), SerialPort(IOService, device){
+    Serial::Serial(std::string portName, std::string device) : AbstractPort(TypeInputOutput, portName), SerialPort(IOService){
       Device = device;
+
+
+      // validate device
+      struct stat st;
+
+      if (stat(Device.c_str(), &st)){
+        std::string error;
+        switch(errno){
+          case EACCES:
+            error = "permission denied (EACCES)";
+            break;
+          case ELOOP:
+            error = "too many symbolic links (ELOOP)";
+            break;
+          case ENAMETOOLONG:
+            error = "path too long (ENAMETOOLONG)";
+            break;
+          case ENOENT:
+            error = "file does not exist (ENOENT)";
+            break;
+          default:
+            error = "Unknown stat errno " +  std::to_string(errno);
+        }
+        throw Error(getKey(), error);
+      }
+      if ( S_ISCHR(st.st_mode) == false ){
+        throw Error(getKey(), "not a character device: " + Device);
+      }
     }
 
     Serial::~Serial(){
 
     }
 
-
-    bool Serial::hasOption(std::string key){
-      if (key == "runningstatus") return true;
-      if (key == "baudrate") return true;
-      if (key == "flowcontrol") return true;
-      if (key == "databits") return true;
-      if (key == "stopbits") return true;
-      if (key == "parity") return true;
-
-      return false;
-    }
-
     std::string Serial::getOption(std::string key){
-      if (key == "runningstatus") {
-        return (getInRunningStatusEnabled() ? "1" : "0");
+      if (AbstractStreamInputOutputPort::hasOption(key)){
+        return AbstractStreamInputOutputPort::getOption(key);
       }
+
       if (key == "baudrate") {
         asio::serial_port_base::baud_rate br;
 
@@ -102,11 +125,11 @@ namespace MidiPatcher {
     }
 
     void Serial::setOption(std::string key, std::string value){
-        if (key == "runningstatus") {
-          bool enabled = (bool)std::stoi(value);
-          setInRunningStatusEnabled(enabled);
-          setOutRunningStatusEnabled(enabled);
+
+        if (AbstractStreamInputOutputPort::hasOption(key)){
+          return AbstractStreamInputOutputPort::setOption(key, value);
         }
+        
         if (key == "baudrate"){
           int br = std::stoi(value);
           SerialPort.set_option(asio::serial_port_base::baud_rate(br));
@@ -161,14 +184,22 @@ namespace MidiPatcher {
       if (SerialPort.is_open()){
         return;
       }
-      SerialPort.open(Device);
+      try {
+        // SerialPort.open(Device);
+      } catch (std::exception &e){
+        throw Error(e.what());
+      }
     }
 
     void Serial::stop(){
       if (SerialPort.is_open() == false){
         return;
       }
-      SerialPort.close();
+      try {
+        SerialPort.close();
+      } catch (std::exception &e){
+        throw Error(e.what());
+      }
     }
 
     void Serial::writeToStream(unsigned char * data, size_t len){
@@ -176,7 +207,11 @@ namespace MidiPatcher {
         return;
       }
 
-      SerialPort.write_some(asio::buffer(data,len));
+      try {
+        SerialPort.write_some(asio::buffer(data,len));
+      } catch(std::exception &e){
+        Log::error(getKey(), std::string("Could not write: ") + e.what());
+      }
     }
   }
 }

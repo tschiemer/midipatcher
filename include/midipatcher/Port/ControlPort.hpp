@@ -29,6 +29,20 @@ namespace MidiPatcher {
 
         ControlPort(PortRegistry * portRegistry, std::string portName = "Default");
 
+      // protected:
+      //
+      //   std::vector<std::string> BlockedClasses;
+      //
+      //   bool isClassBlocked(std::string &pc){
+      //
+      //   }
+      //
+      // public:
+      //
+      //   void setBlockedClasses(std::vector<std::string> &bc){
+      //
+      //   }
+
       public:
 
         class Message : public virtual AbstractPort::Message {

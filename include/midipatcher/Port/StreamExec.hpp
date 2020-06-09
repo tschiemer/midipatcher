@@ -2,8 +2,7 @@
 #define MIDIPATCHER_PORT_RAW_EXEC_H
 
 #include "AbstractExecPort.hpp"
-#include "AbstractStreamInputPort.hpp"
-#include "AbstractStreamOutputPort.hpp"
+#include "AbstractStreamInputOutputPort.hpp"
 
 namespace MidiPatcher {
 
@@ -11,11 +10,11 @@ namespace MidiPatcher {
 
   namespace Port {
 
-    class RawExec : public virtual AbstractExecPort, public virtual AbstractStreamInputPort, public virtual AbstractStreamOutputPort {
+    class StreamExec : public virtual AbstractExecPort, public virtual AbstractStreamInputOutputPort {
 
       public:
 
-        static const constexpr char * PortClass = "RawExec";
+        static const constexpr char * PortClass = "StreamExec";
 
         std::string getPortClass(){
           return PortClass;
@@ -31,9 +30,8 @@ namespace MidiPatcher {
 
         static AbstractPort* factory(PortDescriptor &portDescriptor);
 
-        RawExec(std::string portName, std::string execpath, std::string argvStr = "");
-        ~RawExec();
-
+        StreamExec(std::string portName, std::string execpath, std::string argvStr = "");
+        ~StreamExec();
 
       protected:
 

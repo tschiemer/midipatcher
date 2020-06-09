@@ -12,6 +12,25 @@ namespace MidiPatcher {
 
   }
 
+
+  std::string AbstractStreamOutputPort::getOption(std::string key){
+    if (key == "runningstatus") {
+      return std::to_string(getOutRunningStatusEnabled());
+    }
+
+    throw Error(getKey(), "Unrecognized option " + key);
+  }
+
+  void AbstractStreamOutputPort::setOption(std::string key, std::string value){
+    if (key == "runningstatus") {
+      bool enabled = value.size() == 0 || std::stoi(value);
+      setOutRunningStatusEnabled(enabled);
+      return;
+    }
+
+    throw Error(getKey(), "Unrecognized option " + key);
+  }
+
   void AbstractStreamOutputPort::setOutRunningStatusEnabled(bool enabled){
     OutRunningStatusEnabled = enabled;
 

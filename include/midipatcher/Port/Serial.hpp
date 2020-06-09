@@ -1,8 +1,7 @@
 #ifndef MIDIPATCHER_PORT_SERIAL_H
 #define MIDIPATCHER_PORT_SERIAL_H
 
-#include "AbstractStreamInputPort.hpp"
-#include "AbstractStreamOutputPort.hpp"
+#include "AbstractStreamInputOutputPort.hpp"
 
 #include <asio.hpp>
 
@@ -10,28 +9,7 @@ namespace MidiPatcher {
 
   namespace Port {
 
-    class Serial : public virtual AbstractStreamInputPort, public virtual AbstractStreamOutputPort {
-
-      public:
-
-        enum FlowControl_t {
-          FlowControlNone,
-          FlowControlSoftware,
-          FlowControlHardware
-        };
-
-        enum Parity_t {
-          ParityNone,
-          ParityOdd,
-          ParityEven
-        };
-
-        enum StopBits_t {
-          StopBitsOne,
-          StopBitsOnePointFive,
-          StopBitsTwo
-        };
-
+    class Serial : public virtual AbstractStreamInputOutputPort {
 
       public:
 
@@ -57,7 +35,17 @@ namespace MidiPatcher {
         ~Serial();
 
 
-        bool hasOption(std::string key);
+        bool hasOption(std::string key){
+          if (AbstractStreamInputOutputPort::hasOption(key)) return true;
+
+          if (key == "baudrate") return true;
+          if (key == "flowcontrol") return true;
+          if (key == "databits") return true;
+          if (key == "stopbits") return true;
+          if (key == "parity") return true;
+
+          return false;
+        }
 
         std::string getOption(std::string key);
 

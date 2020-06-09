@@ -58,16 +58,18 @@ namespace MidiPatcher {
       if (argv[1] == "return-ids"){
         if (argv.size() == 3){
           OptReturnIds = std::stoi(argv[2]);
+        } else {
+          respond("ssi", "option", "return-ids", OptReturnIds ? 1 : 0);
         }
-        respond("ssi", "option", "return-ids", OptReturnIds ? 1 : 0);
         return ok();
       }
 
       if (argv[1] == "notifications"){
         if (argv.size() == 3){
           OptNotificationsEnabled = std::stoi(argv[2]);
+        } else {
+          respond("ssi", "option", "notifications", OptNotificationsEnabled ? 1 : 0);
         }
-        respond("ssi", "option", "notifications", OptNotificationsEnabled ? 1 : 0);
 
         return ok();
       }
@@ -84,9 +86,9 @@ namespace MidiPatcher {
             } catch (Error &e){
               return error(e.what());
             }
+          } else {
+            respond("ssi", "option", "autoscan-enabled", PortRegistryRef->isAutoscanEnabled() ? 1 : 0);
           }
-
-          respond("ssi", "option", "autoscan-enabled", PortRegistryRef->isAutoscanEnabled() ? 1 : 0);
 
           return ok();
       }
@@ -98,9 +100,9 @@ namespace MidiPatcher {
           } catch (Error &e){
             return error(e.what());
           }
+        } else {
+          respond("ssi", "option", "autoscan-interval", PortRegistryRef->getAutoscanInterval());
         }
-
-        respond("ssi", "option", "autoscan-interval", PortRegistryRef->getAutoscanInterval());
 
         return ok();
       }
@@ -225,7 +227,38 @@ namespace MidiPatcher {
         return ok();
       }
 
+    }
 
+    if (argv[0] == "portoption"){
+      if (argv.size() < 3 || 4 < argv.size()){
+        return error("Expected: portoption (<port-id>|<port-key>) <option> [<value>]");
+      }
+
+      AbstractPort * port = getPortByIdOrKey(argv[1]);
+
+      if (port == nullptr){
+        return error("No such port: " + argv[1]);
+      }
+
+      if (port->hasOption(argv[2]) == false){
+        return error("Port " + argv[1] + " does not have option " + argv[2]);
+      }
+
+      if (argv.size() == 3){
+        if (OptReturnIds){
+          respond("siss", "portoption", port->getId(), argv[2].c_str(), port->getOption(argv[2]).c_str());
+        } else {
+          respond("ssss", "portoption", argv[1].c_str(), argv[2].c_str(), port->getOption(argv[2]).c_str());
+        }
+      } else {
+        try {
+          port->setOption(argv[2], argv[3]);
+        } catch( Error &e){
+          return error(e.what());
+        }
+      }
+
+      return ok();
     }
 
     if (argv[0] == "register"){

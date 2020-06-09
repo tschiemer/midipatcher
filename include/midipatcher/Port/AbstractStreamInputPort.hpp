@@ -33,6 +33,16 @@ namespace MidiPatcher {
           Parser.RunningStatusEnabled = enabled;
         }
 
+
+        virtual bool hasOption(std::string key){
+          if (key == "runningstatus") return true;
+          return false;
+        }
+
+        virtual std::string getOption(std::string key);
+
+        virtual void setOption(std::string key, std::string value);
+
   };
 
 }

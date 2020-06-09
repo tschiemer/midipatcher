@@ -1,4 +1,4 @@
-#include <Port/RawExec.hpp>
+#include <Port/StreamExec.hpp>
 
 #include <PortRegistry.hpp>
 
@@ -18,7 +18,7 @@
 namespace MidiPatcher {
   namespace Port {
 
-    AbstractPort* RawExec::factory(PortDescriptor &portDescriptor){
+    AbstractPort* StreamExec::factory(PortDescriptor &portDescriptor){
       assert( portDescriptor.PortClass == PortClass );
 
       std::string execpath;
@@ -37,22 +37,22 @@ namespace MidiPatcher {
       }
 
 
-      return new RawExec( portDescriptor.Name, execpath, argvStr );
+      return new StreamExec( portDescriptor.Name, execpath, argvStr );
     }
 
-    RawExec::RawExec(std::string portName, std::string execpath, std::string argvStr) : AbstractInputOutputPort(portName), AbstractExecPort(execpath, argvStr) {
+    StreamExec::StreamExec(std::string portName, std::string execpath, std::string argvStr) : AbstractInputOutputPort(portName), AbstractExecPort(execpath, argvStr) {
       setDeviceState( DeviceStateConnected );
     }
 
-    RawExec::~RawExec(){
+    StreamExec::~StreamExec(){
 
     }
 
-    void RawExec::writeToStream(unsigned char * message, size_t len){
+    void StreamExec::writeToStream(unsigned char * message, size_t len){
       write(ToExecFDs[1], message, len);
     }
 
-    void RawExec::readFromExec(unsigned char * buffer, size_t len ){
+    void StreamExec::readFromExec(unsigned char * buffer, size_t len ){
       readFromStream(buffer, len);
     }
   }
