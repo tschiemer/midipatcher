@@ -44,7 +44,24 @@ namespace MidiPatcher {
       // std::cout << "ep = " << execpath() << std::endl;
 
       if (stat(ExecPath.c_str(), &st)){
-        throw Error(getKey(), "failed stat: " + std::to_string(errno));
+        std::string error;
+        switch(errno){
+          case EACCES:
+            error = "permission denied (EACCES)";
+            break;
+          case ELOOP:
+            error = "too many symbolic links (ELOOP)";
+            break;
+          case ENAMETOOLONG:
+            error = "path too long (ENAMETOOLONG)";
+            break;
+          case ENOENT:
+            error = "file does not exist (ENOENT)";
+            break;
+          default:
+            error = "Unknown stat errno " +  std::to_string(errno);
+        }
+        throw Error(getKey(), error);
       }
       if ((st.st_mode & S_IEXEC) == 0){
         throw Error(getKey(), "not executable");

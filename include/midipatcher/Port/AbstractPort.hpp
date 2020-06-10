@@ -140,7 +140,8 @@ namespace MidiPatcher {
 
       virtual ~AbstractPort();
 
-       void registerPort(PortRegistry &portRegistry);
+       virtual void registerPort(PortRegistry &portRegistry);
+       virtual void unregisterPort(PortRegistry &portRegistry);
 
     private:
 
